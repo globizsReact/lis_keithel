@@ -1,116 +1,86 @@
-// providers/product_provider.dart
+// lib/providers/product_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/product.dart';
+import '../models/models.dart';
+import '../services/product_service.dart';
 
-class ProductsNotifier extends StateNotifier<List<Product>> {
-  ProductsNotifier() : super([]);
+// Provider for the Product Service
+final productServiceProvider = Provider<ProductService>((ref) {
+  return ProductService(
+      baseUrl:
+          'https://liandsons.com/staging/api/web/v1'); // Replace with your actual API URL
+});
 
-  Future<void> fetchProducts() async {
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
+// State class for products
+class ProductsState {
+  final List<Product> products;
+  final bool isLoading;
+  final String? error;
 
-    // Sample products
-    state = [
-      Product(
-        id: '1',
-        name: 'XTech 16mm',
-        price: 64.60,
-        imageUrl: 'assets/images/xtech.png',
-        category: 'Steel',
-      ),
-      Product(
-        id: '2',
-        name: 'Dalmia Cement',
-        price: 650.0,
-        imageUrl: 'assets/images/dalmia.png',
-        category: 'Cement',
-      ),
-      Product(
-        id: '3',
-        name: 'Ultra Tech Cement',
-        price: 670.0,
-        imageUrl: 'assets/images/ultratech.png',
-        category: 'Cement',
-      ),
-      Product(
-        id: '4',
-        name: 'Binding Wire',
-        price: 85.0,
-        imageUrl: 'assets/images/wire.png',
-        category: 'Wire',
-      ),
-      Product(
-        id: '5',
-        name: 'Tank',
-        price: 85.0,
-        imageUrl: 'assets/images/tank.png',
-        category: 'Tank',
-      ),
-      Product(
-        id: '6',
-        name: 'Plywood',
-        price: 85.0,
-        imageUrl: 'assets/images/ply.png',
-        category: 'Plywood',
-      ),
-      Product(
-        id: '7',
-        name: 'Shyam 16mm',
-        price: 64.60,
-        imageUrl: 'assets/images/shyam.png',
-        category: 'Steel',
-      ),
-      Product(
-        id: '8',
-        name: 'Tata Steel',
-        price: 64.60,
-        imageUrl: 'assets/images/tata.png',
-        category: 'Steel',
-      ),
-      Product(
-        id: '9',
-        name: 'Khamdenu Steel',
-        price: 64.60,
-        imageUrl: 'assets/images/khamdenu.png',
-        category: 'Steel',
-      ),
-      Product(
-        id: '10',
-        name: 'ACC Cement',
-        price: 85.0,
-        imageUrl: 'assets/images/acc.png',
-        category: 'Cement',
-      ),
-      // Add more products as needed
-    ];
-  }
+  ProductsState({
+    required this.products,
+    required this.isLoading,
+    this.error,
+  });
 
-  Product? getProductById(String id) {
-    try {
-      return state.firstWhere((product) => product.id == id);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  List<Product> filterProductsByCategory(String category) {
-    if (category == 'All') {
-      return state;
-    }
-    return state.where((product) => product.category == category).toList();
+  ProductsState copyWith({
+    List<Product>? products,
+    bool? isLoading,
+    String? error,
+  }) {
+    return ProductsState(
+      products: products ?? this.products,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
+    );
   }
 }
 
+// Notifier class for products
+class ProductsNotifier extends StateNotifier<ProductsState> {
+  final ProductService _productService;
+
+  ProductsNotifier(this._productService)
+      : super(ProductsState(products: [], isLoading: false));
+
+  // Fetch products from API
+  Future<void> fetchProducts() async {
+    if (state.products.isNotEmpty) return;
+
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final products = await _productService.fetchProducts();
+      state = state.copyWith(products: products, isLoading: false);
+
+      print(state);
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
+
+  // Filter products by category
+  List<Product> filterProductsByCategory(String category) {
+    if (category == 'All') {
+      return state.products;
+    }
+
+    return state.products
+        .where((product) => product.productTypeId == category)
+        .toList();
+  }
+}
+
+// Provider for products state
 final productsProvider =
-    StateNotifierProvider<ProductsNotifier, List<Product>>((ref) {
-  return ProductsNotifier();
+    StateNotifierProvider<ProductsNotifier, ProductsState>((ref) {
+  final productService = ref.watch(productServiceProvider);
+  return ProductsNotifier(productService);
 });
 
-final productDetailsProvider = Provider.family<Product?, String>((ref, id) {
-  final products = ref.watch(productsProvider);
-  try {
-    return products.firstWhere((product) => product.id == id);
-  } catch (e) {
-    return null;
-  }
+// Simple provider for just the list of products
+final productsListProvider = Provider<List<Product>>((ref) {
+  return ref.watch(productsProvider).products;
 });

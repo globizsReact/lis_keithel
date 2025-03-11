@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lis_keithel_v1/utils/theme.dart';
-import '../models/product.dart';
+import '../models/models.dart';
 import '../providers/cart_provider.dart';
 
 class QuantitySelector extends ConsumerStatefulWidget {
@@ -42,7 +42,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+      padding: const EdgeInsets.only(right: 30, left: 30, top: 25, bottom: 30),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -85,8 +85,8 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(
-                    widget.product.imageUrl,
+                  child: Image.network(
+                    widget.product.photo,
                     width: 70,
                     height: 75,
                     fit: BoxFit.cover,
@@ -107,7 +107,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                       ),
                     ),
                     Text(
-                      'Rs. ${widget.product.price.toStringAsFixed(2)}/kg',
+                      'Rs. ${widget.product.price}/kg',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -216,7 +216,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                 );
               },
               child: Text(
-                'Add to Cart  Rs.${(widget.product.price * quantity).toStringAsFixed(2)}/-',
+                'Add to Cart  Rs.${(widget.product.price * quantity)}/-',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

@@ -1,18 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lis_keithel_v1/providers/cart_provider.dart';
+import 'package:go_router/go_router.dart';
+import '../providers/auth_provider.dart';
+import '../providers/cart_provider.dart';
+import '../providers/selected_index_provider.dart';
+import '../utils/theme.dart';
 
-import 'package:lis_keithel_v1/providers/selected_index_provider.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
-
-// all Screen
+// All Screens
 import 'screens.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final int selectedIndex = ref.watch(selectedIndexProvider);
 
     // Access the CartNotifier instance
@@ -22,85 +34,77 @@ class HomeScreen extends ConsumerWidget {
       ProductScreen(),
       CartScreen(),
       OrderSCreen(),
-      ProfileScreen()
+      AccountScreen(),
     ];
 
     return Scaffold(
       body: screen[selectedIndex],
       bottomNavigationBar: BottomAppBar(
-        height: 90,
+        height: 75,
         color: AppTheme.lightOrange,
         child: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  GestureDetector(
-                    child: selectedIndex == 0
-                        ? Image.asset(
-                            'assets/icons/homeA.png',
-                            width: 23,
-                          )
-                        : Image.asset(
-                            'assets/icons/home.png',
-                            width: 23,
-                          ),
-                    onTap: () {
-                      ref.read(selectedIndexProvider.notifier).state = 0;
-                    },
-                  ),
-                  Text(
-                    'Home',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  ref.read(selectedIndexProvider.notifier).state = 0;
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      selectedIndex == 0
+                          ? 'assets/icons/homeA.png'
+                          : 'assets/icons/home.png',
+                      width: 23,
+                    ),
+                    Text(
+                      'Home',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
                         color: selectedIndex == 0
                             ? AppTheme.orange
-                            : Colors.grey[500]),
-                  ),
-                ],
+                            : Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      ref.read(selectedIndexProvider.notifier).state = 1;
-                    },
-                    child: Stack(
+              GestureDetector(
+                onTap: () {
+                  ref.read(selectedIndexProvider.notifier).state = 1;
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Stack(
                       clipBehavior: Clip.none,
                       alignment: Alignment.topRight,
                       children: [
-                        ref.watch(selectedIndexProvider) == 1
-                            ? Image.asset(
-                                'assets/icons/cartA.png',
-                                width: 23,
-                              )
-                            : Image.asset(
-                                'assets/icons/cart.png',
-                                width: 23,
-                              ),
+                        Image.asset(
+                          selectedIndex == 1
+                              ? 'assets/icons/cartA.png'
+                              : 'assets/icons/cart.png',
+                          width: 23,
+                        ),
                         if (cartItems.isNotEmpty)
                           Positioned(
-                            right:
-                                -10, // Adjust position to align with the cart icon
-                            top:
-                                -4, // Adjust position to align with the cart icon
+                            right: -10,
+                            top: -4,
                             child: Container(
                               padding: EdgeInsets.all(1),
                               decoration: BoxDecoration(
-                                color: Colors.red, // Badge background color
-                                borderRadius:
-                                    BorderRadius.circular(8), // Rounded corners
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               constraints: BoxConstraints(
                                 minWidth: 16,
                                 minHeight: 16,
                               ),
                               child: Text(
-                                '${cartItems.length}', // Total cart items
+                                '${cartItems.length}',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
@@ -111,76 +115,76 @@ class HomeScreen extends ConsumerWidget {
                           ),
                       ],
                     ),
-                  ),
-                  Text(
-                    'Cart',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: ref.watch(selectedIndexProvider) == 1
-                          ? AppTheme.orange
-                          : Colors.grey[500],
+                    Text(
+                      'Cart',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: selectedIndex == 1
+                            ? AppTheme.orange
+                            : Colors.grey[500],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  GestureDetector(
-                    child: selectedIndex == 2
-                        ? Image.asset(
-                            'assets/icons/orderA.png',
-                            width: 23,
-                          )
-                        : Image.asset(
-                            'assets/icons/order.png',
-                            width: 23,
-                          ),
-                    onTap: () {
-                      ref.read(selectedIndexProvider.notifier).state = 2;
-                    },
-                  ),
-                  Text(
-                    'Orders',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  ref.read(selectedIndexProvider.notifier).state = 2;
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      selectedIndex == 2
+                          ? 'assets/icons/orderA.png'
+                          : 'assets/icons/order.png',
+                      width: 23,
+                    ),
+                    Text(
+                      'Orders',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
                         color: selectedIndex == 2
                             ? AppTheme.orange
-                            : Colors.grey[500]),
-                  ),
-                ],
+                            : Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  GestureDetector(
-                    child: selectedIndex == 3
-                        ? Image.asset(
-                            'assets/icons/profileA.png',
-                            height: 23,
-                            width: 23,
-                          )
-                        : Image.asset(
-                            'assets/icons/profile.png',
-                            height: 23,
-                            width: 23,
-                          ),
-                    onTap: () {
-                      ref.read(selectedIndexProvider.notifier).state = 3;
-                    },
-                  ),
-                  Text(
-                    'Profile',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  final authState = ref.read(authProvider);
+                  if (!authState.isLoggedIn) {
+                    context.push('/login');
+                  } else {
+                    ref.read(selectedIndexProvider.notifier).state = 3;
+                  }
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      selectedIndex == 3
+                          ? 'assets/icons/profileA.png'
+                          : 'assets/icons/profile.png',
+                      height: 23,
+                      width: 23,
+                    ),
+                    Text(
+                      'Account',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
                         color: selectedIndex == 3
                             ? AppTheme.orange
-                            : Colors.grey[500]),
-                  ),
-                ],
+                            : Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

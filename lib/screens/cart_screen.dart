@@ -351,8 +351,8 @@ class CartItemCard extends StatelessWidget {
           // Product image
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              cartItem.product.imageUrl,
+            child: Image.network(
+              cartItem.product.photo,
               width: 100,
               height: 100,
               fit: BoxFit.cover,
@@ -396,7 +396,7 @@ class CartItemCard extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      'Rs. ${cartItem.product.price.toStringAsFixed(2)}/kg',
+                      'Rs. ${cartItem.product.price}/kg',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 12,
@@ -412,7 +412,7 @@ class CartItemCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Rs. ${(cartItem.product.price * cartItem.quantity).toStringAsFixed(2)}',
+                      'Rs. ${(cartItem.product.price * cartItem.quantity)}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
