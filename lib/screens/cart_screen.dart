@@ -55,12 +55,9 @@ class CartScreen extends ConsumerWidget {
             actions: [
               if (cartItems.isNotEmpty)
                 IconButton(
-                  icon: Text(
-                    'Clear',
-                    style: TextStyle(
-                      color: AppTheme.red,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  icon: Icon(
+                    Icons.close,
+                    color: AppTheme.red,
                   ),
                   onPressed: () {
                     showDialog(
@@ -73,6 +70,7 @@ class CartScreen extends ConsumerWidget {
                         title: const Text(
                           'Clear Cart',
                           style: TextStyle(
+                            color: AppTheme.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

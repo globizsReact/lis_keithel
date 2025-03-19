@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lis_keithel_v1/providers/auth_provider.dart';
 import 'package:lis_keithel_v1/utils/theme.dart';
 
-class AccountScreen extends StatelessWidget {
+class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authNotifier = ref.read(authProvider.notifier);
+
+    // Access SharedPreferences instance
+    final sharedPreferences = ref.watch(sharedPreferencesProvider);
+
+    // Retrieve the fullname from SharedPreferences
+    final fullname = sharedPreferences.getString('fullname') ?? 'Guest';
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(70),
@@ -45,7 +55,7 @@ class AccountScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Sushil Khundrakpam',
+                        fullname,
                         style: TextStyle(
                           fontSize: 19,
                           fontWeight: FontWeight.w800,
@@ -140,10 +150,44 @@ class AccountScreen extends StatelessWidget {
             // SizedBox(
             //   height: 20,
             // ),
-            AccountButton(
-              image: 'assets/icons/logout.png',
-              name: 'Logout',
-              route: '/update-geolocation',
+            InkWell(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onTap: () async {
+                await authNotifier.logout();
+                context.go('/login');
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 13.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Image.asset(
+                          'assets/icons/logout.png',
+                          width: 18,
+                        ),
+                        SizedBox(
+                          width: 16,
+                        ),
+                        Text(
+                          'Logout',
+                          style: TextStyle(
+                            color: AppTheme.grey,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Image.asset(
+                      'assets/icons/arrowR.png',
+                      width: 15,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),

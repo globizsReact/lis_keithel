@@ -30,20 +30,23 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
   @override
   void initState() {
     super.initState();
-
     // Fetch categories and products again
-    Future.wait([
-      ref.read(categoriesStateProvider.notifier).fetchCategories(),
-      ref.read(productsProvider.notifier).fetchProducts(),
-    ]);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(categoriesStateProvider.notifier).fetchCategories();
+
+      ref.read(productsProvider.notifier).fetchProducts();
+    });
   }
 
   // Pull-to-refresh logic
   Future<void> _refreshData() async {
     // Fetch categories and products again
     await Future.wait([
-      ref.read(categoriesStateProvider.notifier).fetchCategories(),
-      ref.read(productsProvider.notifier).fetchProducts(),
+      ref
+          .read(categoriesStateProvider.notifier)
+          .fetchCategories(forceFetch: true),
+      ref.read(productsProvider.notifier).fetchProducts(forceFetch: true),
     ]);
   }
 
@@ -56,11 +59,11 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
 
     final cartItems = ref.watch(cartProvider);
 
-    return Scaffold(
-      appBar: CustomAppBar(),
-      body: RefreshIndicator(
-        onRefresh: _refreshData,
-        child: Column(
+    return RefreshIndicator(
+      onRefresh: _refreshData,
+      child: Scaffold(
+        appBar: CustomAppBar(),
+        body: Column(
           children: [
             // Filter buttons
             SizedBox(
@@ -83,7 +86,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                             return FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
+                                padding: const EdgeInsets.only(right: 20.0),
                                 child: _buildCategoryButton(category),
                               ),
                             );

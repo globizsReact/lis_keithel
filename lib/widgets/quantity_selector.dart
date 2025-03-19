@@ -2,7 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
+import '../utils/theme.dart';
+import '../widgets/widgets.dart';
 import '../models/models.dart';
 import '../providers/cart_provider.dart';
 
@@ -194,25 +195,15 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                 // Close bottom sheet and show confirmation
                 Navigator.pop(context);
 
-                // Show snackbar
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //   SnackBar(
-                //     content: Text(
-                //         '${widget.product.name} (x$quantity) added to cart'),
-                //     backgroundColor: Colors.green,
-                //     duration: const Duration(seconds: 2),
-                //   ),
-                // );
-
-                Fluttertoast.showToast(
-                  msg:
-                      '${widget.product.name} (x$quantity) added to cart', // Message to display
-                  toastLength: Toast.LENGTH_SHORT, // Duration of the toast
-                  gravity: ToastGravity.TOP, // Position the toast at the top
-                  backgroundColor:
-                      Colors.green, // Background color of the toast
-                  textColor: Colors.white, // Text color
-                  fontSize: 16.0, // Font size
+                CustomToast.show(
+                  context: context,
+                  message: 'Added to cart',
+                  icon: Icons.check,
+                  backgroundColor: AppTheme.orange,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                  gravity: ToastGravity.CENTER,
+                  duration: Duration(seconds: 3),
                 );
               },
               child: Text(

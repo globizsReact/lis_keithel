@@ -40,8 +40,8 @@ class CategoriesNotifier extends StateNotifier<CategoriesState> {
       : super(CategoriesState(categories: [], isLoading: false));
 
   // Fetch categories from API
-  Future<void> fetchCategories() async {
-    if (state.categories.isNotEmpty) return;
+  Future<void> fetchCategories({bool forceFetch = false}) async {
+    if (state.categories.isNotEmpty && !forceFetch) return;
 
     state = state.copyWith(isLoading: true, error: null);
 

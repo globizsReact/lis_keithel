@@ -1,5 +1,6 @@
 // lib/services/product_service.dart
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/models.dart';
 
@@ -12,6 +13,15 @@ class ProductService {
     final url = '$baseUrl/products/client_app_productlist';
 
     try {
+      // Access SharedPreferences instance
+      // final prefs = await SharedPreferences.getInstance();
+
+      // // Retrieve the token from SharedPreferences
+      // final token = prefs.getString('token');
+      // if (token == null || token.isEmpty) {
+      //   throw Exception('Token not found in SharedPreferences');
+      // }
+
       final response = await http.post(
         Uri.parse(url),
         headers: {

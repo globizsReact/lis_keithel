@@ -43,8 +43,8 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
       : super(ProductsState(products: [], isLoading: false));
 
   // Fetch products from API
-  Future<void> fetchProducts() async {
-    if (state.products.isNotEmpty) return;
+  Future<void> fetchProducts({bool forceFetch = false}) async {
+    if (state.products.isNotEmpty && !forceFetch) return;
 
     state = state.copyWith(isLoading: true, error: null);
 
