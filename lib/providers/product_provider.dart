@@ -1,13 +1,12 @@
 // lib/providers/product_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lis_keithel_v1/utils/config.dart';
 import '../models/models.dart';
 import '../services/product_service.dart';
 
 // Provider for the Product Service
 final productServiceProvider = Provider<ProductService>((ref) {
-  return ProductService(
-      baseUrl:
-          'https://liandsons.com/staging/api/web/v1'); // Replace with your actual API URL
+  return ProductService(baseUrl: Config.baseUrl);
 });
 
 // State class for products

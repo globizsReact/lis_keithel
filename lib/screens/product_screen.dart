@@ -86,7 +86,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                             return FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Padding(
-                                padding: const EdgeInsets.only(right: 20.0),
+                                padding: const EdgeInsets.only(right: 15.0),
                                 child: _buildCategoryButton(category),
                               ),
                             );

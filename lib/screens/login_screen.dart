@@ -232,19 +232,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       if (_formKey.currentState!.validate()) {
                         // Handle login logic here
                         final authNotifier = ref.read(authProvider.notifier);
-                        try {
-                          await authNotifier.login(
-                            _mobileController.text,
-                            _passwordController.text,
-                          );
 
-                          // Navigate to home page after successful login
-                          context.go('/');
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Login failed: $e')),
-                          );
-                        }
+                        await authNotifier.login(
+                          context,
+                          _mobileController.text,
+                          _passwordController.text,
+                        );
                       }
                     },
                     style: ElevatedButton.styleFrom(

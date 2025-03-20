@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lis_keithel_v1/providers/auth_provider.dart';
+import 'package:lis_keithel_v1/providers/providers.dart';
 import 'package:lis_keithel_v1/utils/theme.dart';
+import 'package:lis_keithel_v1/widgets/custom_toast.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -153,9 +156,51 @@ class AccountScreen extends ConsumerWidget {
             InkWell(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
-              onTap: () async {
-                await authNotifier.logout();
-                context.go('/login');
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(16.0), // Set border radius here
+                    ),
+                    title: const Text(
+                      'Logout',
+                      style: TextStyle(
+                        color: AppTheme.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    content: const Text('Are you sure you want to logout?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => context.pop(),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          await authNotifier.logout();
+                          context.pop();
+                          ref.read(selectedIndexProvider.notifier).state = 0;
+                          context.go('/');
+
+                          CustomToast.show(
+                            context: context,
+                            message: 'Logout successfully',
+                            icon: Icons.check,
+                            backgroundColor: AppTheme.orange,
+                            textColor: Colors.white,
+                            fontSize: 16.0,
+                            gravity: ToastGravity.CENTER,
+                            duration: Duration(seconds: 3),
+                          );
+                        },
+                        child: const Text('Yes',
+                            style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 13.0),
