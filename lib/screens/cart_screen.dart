@@ -86,8 +86,10 @@ class CartScreen extends ConsumerWidget {
                               ref.read(cartProvider.notifier).clearCart();
                               Navigator.pop(context);
                             },
-                            child: const Text('Clear',
-                                style: TextStyle(color: Colors.red)),
+                            child: const Text(
+                              'Clear',
+                              style: TextStyle(color: Colors.red),
+                            ),
                           ),
                         ],
                       ),

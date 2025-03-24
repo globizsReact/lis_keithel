@@ -159,15 +159,6 @@ class AccountScreen extends ConsumerWidget {
                       TextButton(
                         onPressed: () async {
                           context.pop();
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) => const Center(
-                              child: CircularProgressIndicator(
-                                color: AppTheme.orange,
-                              ),
-                            ),
-                          );
 
                           try {
                             // Fetch the location
@@ -177,9 +168,6 @@ class AccountScreen extends ConsumerWidget {
 
                             // Get the updated location
                             final currentLocation = ref.read(locationProvider);
-
-                            // Close loading dialog
-                            Navigator.pop(context);
 
                             if (currentLocation != null) {
                               // Send location to API

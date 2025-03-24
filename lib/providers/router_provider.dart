@@ -44,7 +44,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/order',
-        builder: (context, state) => const OrderSCreen(),
+        builder: (context, state) => const OrderScreen(),
       ),
       GoRoute(
         path: '/account',
@@ -80,6 +80,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       //     );
       //   },
       // ),
+      GoRoute(
+        path: '/orders',
+        builder: (context, state) => const OrderListScreen(),
+      ),
+      // Order details as a separate route (not nested)
+      GoRoute(
+        path: '/order-details/:id',
+        builder: (context, state) {
+          final orderId = state.pathParameters['id']!;
+          return OrderDetailsScreen(orderId: orderId);
+        },
+      ),
       GoRoute(
         path: '/otp-verification',
         builder: (context, state) {

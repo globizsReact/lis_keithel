@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../providers/providers.dart';
 import 'package:lis_keithel_v1/utils/theme.dart';
 
-class OrderSCreen extends ConsumerWidget {
-  const OrderSCreen({Key? key}) : super(key: key);
+class OrderScreen extends ConsumerWidget {
+  const OrderScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

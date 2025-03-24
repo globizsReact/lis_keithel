@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lis_keithel_v1/providers/auth_provider.dart';
+import 'package:lis_keithel_v1/providers/providers.dart';
 import 'package:lis_keithel_v1/utils/theme.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -241,6 +242,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           _mobileController.text,
                           _passwordController.text,
                         );
+
+                        ref.read(selectedIndexProvider.notifier).state = 0;
                       }
                     },
                     style: ElevatedButton.styleFrom(

@@ -30,7 +30,7 @@ class AppTheme {
   static const Color red = Color(0xFFFF0004);
 
   // Create MaterialColor for primary swatch
-  static final MaterialColor primarySwatch = createMaterialColor(navy);
+  static final MaterialColor primarySwatch = createMaterialColor(orange);
 
   // Theme data
   static ThemeData themeData = ThemeData(
@@ -42,14 +42,14 @@ class AppTheme {
       backgroundColor: white,
       foregroundColor: black,
       elevation: 0,
-      iconTheme: IconThemeData(color: navy),
-      actionsIconTheme: IconThemeData(color: navy),
+      iconTheme: IconThemeData(color: orange),
+      actionsIconTheme: IconThemeData(color: orange),
     ),
 
     // Primary and accent colors
-    primaryColor: navy,
+    primaryColor: orange,
     colorScheme: ColorScheme.light(
-      primary: navy,
+      primary: orange,
       secondary: orange,
       error: red,
       onPrimary: white,
@@ -62,7 +62,7 @@ class AppTheme {
     // Button themes
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: navy,
+        backgroundColor: orange,
         foregroundColor: white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
@@ -71,8 +71,8 @@ class AppTheme {
 
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: navy,
-        side: const BorderSide(color: navy),
+        foregroundColor: orange,
+        side: const BorderSide(color: orange),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       ),
@@ -80,7 +80,7 @@ class AppTheme {
 
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: navy,
+        foregroundColor: orange,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       ),
     ),
@@ -94,20 +94,20 @@ class AppTheme {
 
     // Text theme
     textTheme: const TextTheme(
-      displayLarge: TextStyle(color: navy, fontWeight: FontWeight.bold),
-      displayMedium: TextStyle(color: navy, fontWeight: FontWeight.bold),
-      displaySmall: TextStyle(color: navy, fontWeight: FontWeight.bold),
-      headlineLarge: TextStyle(color: navy, fontWeight: FontWeight.bold),
-      headlineMedium: TextStyle(color: navy),
-      headlineSmall: TextStyle(color: navy),
-      titleLarge: TextStyle(color: navy, fontWeight: FontWeight.bold),
-      titleMedium: TextStyle(color: navy),
-      titleSmall: TextStyle(color: navy),
+      displayLarge: TextStyle(color: orange, fontWeight: FontWeight.bold),
+      displayMedium: TextStyle(color: orange, fontWeight: FontWeight.bold),
+      displaySmall: TextStyle(color: orange, fontWeight: FontWeight.bold),
+      headlineLarge: TextStyle(color: orange, fontWeight: FontWeight.bold),
+      headlineMedium: TextStyle(color: orange),
+      headlineSmall: TextStyle(color: orange),
+      titleLarge: TextStyle(color: orange, fontWeight: FontWeight.bold),
+      titleMedium: TextStyle(color: orange),
+      titleSmall: TextStyle(color: orange),
       bodyLarge: TextStyle(color: grey),
       bodyMedium: TextStyle(color: grey),
       bodySmall: TextStyle(color: grey),
-      labelLarge: TextStyle(color: navy, fontWeight: FontWeight.bold),
-      labelMedium: TextStyle(color: navy),
+      labelLarge: TextStyle(color: orange, fontWeight: FontWeight.bold),
+      labelMedium: TextStyle(color: orange),
       labelSmall: TextStyle(color: grey),
     ),
 
@@ -121,7 +121,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: navy, width: 2),
+        borderSide: const BorderSide(color: orange, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -142,16 +142,16 @@ class AppTheme {
       space: 1,
     ),
     iconTheme: const IconThemeData(
-      color: navy,
+      color: orange,
       size: 24,
     ),
 
     // Tab bar theme
     tabBarTheme: const TabBarTheme(
-      labelColor: navy,
+      labelColor: orange,
       unselectedLabelColor: grey,
       indicator: UnderlineTabIndicator(
-        borderSide: BorderSide(width: 2, color: navy),
+        borderSide: BorderSide(width: 2, color: orange),
       ),
     ),
 
