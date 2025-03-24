@@ -1,15 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../providers/auth_provider.dart';
+import 'package:location/location.dart';
 import '../utils/theme.dart';
 
-class MultiRegisterScreen extends StatefulWidget {
+class MultiRegisterScreen extends ConsumerStatefulWidget {
   const MultiRegisterScreen({Key? key}) : super(key: key);
 
   @override
-  State<MultiRegisterScreen> createState() => _MultiRegisterScreenState();
+  ConsumerState<MultiRegisterScreen> createState() =>
+      _MultiRegisterScreenState();
 }
 
-class _MultiRegisterScreenState extends State<MultiRegisterScreen> {
+class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
+// Lat Long
+  LocationData? _currentLocation;
+  final Location _locationService = Location();
+
+  @override
+  void initState() {
+    super.initState();
+    _getLocationOnStartup();
+  }
+
+  Future<void> _getLocationOnStartup() async {
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+
+    // Check if location services are enabled
+    serviceEnabled = await _locationService.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await _locationService.requestService();
+      if (!serviceEnabled) {
+        return;
+      }
+    }
+
+    // Check for location permissions
+    permissionGranted = await _locationService.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await _locationService.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    // Fetch the current location
+    final locationData = await _locationService.getLocation();
+    setState(() {
+      _currentLocation = locationData;
+    });
+  }
+
+  // Form
   final _formKey = GlobalKey<FormState>();
 
   // Step 1 Controllers
@@ -44,8 +88,17 @@ class _MultiRegisterScreenState extends State<MultiRegisterScreen> {
       }
     } else {
       if (_formKey.currentState!.validate()) {
-        // All validations passed, proceed with registration
-        context.go('/'); // Navigate to home page
+        final authNotifier = ref.read(authProvider.notifier);
+
+        authNotifier.register(
+          context: context,
+          name: _nameController.text.trim(),
+          phone: _mobileController.text.trim(),
+          password: _passwordController.text,
+          address: _addressController.text.trim(),
+          lat: _currentLocation!.latitude.toString(),
+          lan: _currentLocation!.longitude.toString(),
+        );
       }
     }
   }
@@ -60,6 +113,9 @@ class _MultiRegisterScreenState extends State<MultiRegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final isLoading = authState.isLoading;
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -145,20 +201,30 @@ class _MultiRegisterScreenState extends State<MultiRegisterScreen> {
                         height: 60,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.orange,
+                            backgroundColor:
+                                isLoading ? AppTheme.grey : AppTheme.orange,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           onPressed: _nextStep,
-                          child: Text(
-                            _currentStep == 0 ? 'Next' : 'Register',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          child: isLoading
+                              ? SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 3,
+                                  ),
+                                )
+                              : Text(
+                                  _currentStep == 0 ? 'Next' : 'Register',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                         ),
                       ),
                     ),
@@ -171,16 +237,8 @@ class _MultiRegisterScreenState extends State<MultiRegisterScreen> {
                     if (_currentStep > 0)
                       Expanded(
                         child: SizedBox(
-                          width: double.infinity,
-                          height: 60,
-                          child: OutlinedButton(
+                          child: TextButton(
                             onPressed: _previousStep,
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: AppTheme.navy),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
                             child: const Text(
                               'Back',
                               style: TextStyle(
@@ -297,21 +355,18 @@ class _MultiRegisterScreenState extends State<MultiRegisterScreen> {
               horizontal: 20,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: AppTheme.grey,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.orange),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: AppTheme.grey,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.orange),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
                 color: AppTheme.orange,
+                width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
@@ -339,21 +394,18 @@ class _MultiRegisterScreenState extends State<MultiRegisterScreen> {
             ),
             hintText: 'Mobile number',
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: AppTheme.grey,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.orange),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: AppTheme.grey,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.orange),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
                 color: AppTheme.orange,
+                width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
@@ -383,21 +435,18 @@ class _MultiRegisterScreenState extends State<MultiRegisterScreen> {
             ),
             hintText: 'Address',
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: AppTheme.grey,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.orange),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: AppTheme.grey,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.orange),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
                 color: AppTheme.orange,
+                width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
@@ -446,21 +495,18 @@ class _MultiRegisterScreenState extends State<MultiRegisterScreen> {
             ),
             hintText: 'Password',
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: AppTheme.grey,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.orange),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: AppTheme.grey,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.orange),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
                 color: AppTheme.orange,
+                width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
@@ -502,21 +548,18 @@ class _MultiRegisterScreenState extends State<MultiRegisterScreen> {
             ),
             hintText: 'Confirm password',
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: AppTheme.grey,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.orange),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: AppTheme.grey,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.orange),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
                 color: AppTheme.orange,
+                width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(

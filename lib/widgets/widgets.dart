@@ -5,3 +5,4 @@ export 'cart_button.dart';
 export 'quantity_selector.dart';
 export 'product_loading.dart';
 export 'custom_toast.dart';
+export 'simple_app_bar.dart';

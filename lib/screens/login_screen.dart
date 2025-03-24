@@ -76,9 +76,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: Text(
                     'to start shopping',
                     style: TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.grey,
-                        fontWeight: FontWeight.w600),
+                      fontSize: 14,
+                      color: AppTheme.grey,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -96,19 +97,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: const BorderSide(
-                        color: AppTheme.grey,
+                        color: AppTheme.orange,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: const BorderSide(
-                        color: AppTheme.grey,
+                        color: AppTheme.orange,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
                         color: AppTheme.orange,
+                        width: 2,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
@@ -152,19 +154,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: const BorderSide(
-                        color: AppTheme.grey,
+                        color: AppTheme.orange,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: const BorderSide(
-                        color: AppTheme.grey,
+                        color: AppTheme.orange,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
                         color: AppTheme.orange,
+                        width: 2,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(

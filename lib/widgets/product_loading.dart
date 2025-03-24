@@ -20,7 +20,7 @@ class ProductLoading extends StatelessWidget {
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
           ),

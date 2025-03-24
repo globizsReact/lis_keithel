@@ -18,7 +18,7 @@ class CategoryLoading extends StatelessWidget {
     ];
 
     return SizedBox(
-      height: 30,
+      height: 32,
       child: ListView.builder(
         clipBehavior: Clip.none,
         scrollDirection: Axis.horizontal,

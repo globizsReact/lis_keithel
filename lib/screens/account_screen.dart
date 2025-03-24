@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lis_keithel_v1/providers/auth_provider.dart';
 import 'package:lis_keithel_v1/providers/providers.dart';
 import 'package:lis_keithel_v1/utils/theme.dart';
 import 'package:lis_keithel_v1/widgets/custom_toast.dart';
@@ -19,6 +18,8 @@ class AccountScreen extends ConsumerWidget {
 
     // Retrieve the fullname from SharedPreferences
     final fullname = sharedPreferences.getString('fullname') ?? 'Guest';
+    // Location
+    final location = ref.watch(locationProvider);
 
     return Scaffold(
       appBar: PreferredSize(
@@ -129,18 +130,128 @@ class AccountScreen extends ConsumerWidget {
             // SizedBox(
             //   height: 20,
             // ),
-            AccountButton(
-              image: 'assets/icons/location.png',
-              name: 'Update My Geolocation',
-              route: '/update-geolocation',
+
+            InkWell(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(16.0), // Set border radius here
+                    ),
+                    title: const Text(
+                      'Update',
+                      style: TextStyle(
+                        color: AppTheme.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    content: const Text(
+                        'Are you sure want to update your location?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => context.pop(),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          context.pop();
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const Center(
+                              child: CircularProgressIndicator(
+                                color: AppTheme.orange,
+                              ),
+                            ),
+                          );
+
+                          try {
+                            // Fetch the location
+                            await ref
+                                .read(locationProvider.notifier)
+                                .fetchLocation();
+
+                            // Get the updated location
+                            final currentLocation = ref.read(locationProvider);
+
+                            // Close loading dialog
+                            Navigator.pop(context);
+
+                            if (currentLocation != null) {
+                              // Send location to API
+                              await sendLocationToApi(currentLocation);
+                            } else {
+                              // Show error toast if location is null
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Failed to get location. Please check your permissions.'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            // Close loading dialog and show error
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error: ${e.toString()}'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                        child: const Text('Yes',
+                            style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 13.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Image.asset(
+                          'assets/icons/location.png',
+                          width: 18,
+                        ),
+                        SizedBox(
+                          width: 16,
+                        ),
+                        Text(
+                          'Update My Geolocation',
+                          style: TextStyle(
+                            color: AppTheme.grey,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Image.asset(
+                      'assets/icons/arrowR.png',
+                      width: 15,
+                    ),
+                  ],
+                ),
+              ),
             ),
+
             // SizedBox(
             //   height: 20,
             // ),
             AccountButton(
               image: 'assets/icons/medal.png',
               name: 'My Reward points',
-              route: '/update-geolocation',
+              route: '/reward-points',
             ),
             // SizedBox(
             //   height: 20,
@@ -148,7 +259,7 @@ class AccountScreen extends ConsumerWidget {
             AccountButton(
               image: 'assets/icons/password.png',
               name: 'Change Password',
-              route: '/update-geolocation',
+              route: '/change-password',
             ),
             // SizedBox(
             //   height: 20,
@@ -171,7 +282,7 @@ class AccountScreen extends ConsumerWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    content: const Text('Are you sure you want to logout?'),
+                    content: const Text('Are you sure want to logout?'),
                     actions: [
                       TextButton(
                         onPressed: () => context.pop(),
@@ -259,7 +370,7 @@ class AccountButton extends StatelessWidget {
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        context.go(route);
+        context.push(route);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 13.0),
