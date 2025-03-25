@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lis_keithel_v1/providers/providers.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
-import 'package:lis_keithel_v1/widgets/custom_toast.dart';
+import '../providers/providers.dart';
+import '../utils/responsive_sizing.dart';
+import '../utils/theme.dart';
+import '../widgets/custom_toast.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -18,14 +19,18 @@ class AccountScreen extends ConsumerWidget {
 
     // Retrieve the fullname from SharedPreferences
     final fullname = sharedPreferences.getString('fullname') ?? 'Guest';
-    // Location
-    final location = ref.watch(locationProvider);
+
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
 
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(70),
+        preferredSize: Size.fromHeight(responsive.appBarHeight(65)),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(
+            responsive.padding(8),
+          ),
           child: AppBar(
             backgroundColor: AppTheme.white,
             scrolledUnderElevation: 0,
@@ -33,23 +38,29 @@ class AccountScreen extends ConsumerWidget {
             automaticallyImplyLeading: false,
             title: Text(
               'My Profile',
-              style: TextStyle(fontSize: 24),
+              style: TextStyle(
+                fontSize: responsive.textSize(23),
+              ),
             ),
           ),
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 8.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: responsive.padding(23),
+          vertical: responsive.padding(2),
+        ),
         child: Column(
           children: [
             Container(
+              clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 color: AppTheme.lightOrange,
                 borderRadius: BorderRadius.circular(12.0),
               ),
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 20,
+                horizontal: responsive.padding(20),
+                vertical: responsive.padding(20),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -58,54 +69,68 @@ class AccountScreen extends ConsumerWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        fullname,
-                        style: TextStyle(
-                          fontSize: 19,
-                          fontWeight: FontWeight.w800,
-                          color: AppTheme.black,
+                      SizedBox(
+                        width: responsive.width(0.56),
+                        child: Text(
+                          fullname,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style: TextStyle(
+                            fontSize: responsive.textSize(19),
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.black,
+                          ),
                         ),
                       ),
                       SizedBox(
-                        height: 8,
+                        height: responsive.height(0.01),
                       ),
                       Row(
                         children: [
                           Image.asset(
                             'assets/icons/phone.png',
-                            width: 15,
+                            width: responsive.width(0.035),
+                            gaplessPlayback: true,
                           ),
                           SizedBox(
-                            width: 8,
+                            width: responsive.width(0.02),
                           ),
                           Text(
                             '+91 7629 865 803',
                             style: TextStyle(
                               color: AppTheme.grey,
                               fontWeight: FontWeight.w600,
-                              fontSize: 13,
+                              fontSize: responsive.textSize(13),
                             ),
                           )
                         ],
                       ),
                       SizedBox(
-                        height: 2,
+                        height: responsive.height(0.005),
                       ),
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Image.asset(
                             'assets/icons/address.png',
-                            width: 15,
+                            width: responsive.width(0.037),
+                            gaplessPlayback: true,
                           ),
                           SizedBox(
-                            width: 8,
+                            width: responsive.width(0.02),
                           ),
-                          Text(
-                            'Kwakeithel Thokchom Leikai',
-                            style: TextStyle(
-                              color: AppTheme.grey,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
+                          SizedBox(
+                            width: responsive.width(0.5),
+                            child: Text(
+                              'Kwakeithel Thokchom Leikai',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              style: TextStyle(
+                                color: AppTheme.grey,
+                                fontWeight: FontWeight.w600,
+                                fontSize: responsive.textSize(13),
+                              ),
                             ),
                           )
                         ],
@@ -114,23 +139,20 @@ class AccountScreen extends ConsumerWidget {
                   ),
                   Image.asset(
                     'assets/images/profileS.png',
-                    width: 60,
+                    width: responsive.width(0.18),
+                    gaplessPlayback: true,
                   )
                 ],
               ),
             ),
             SizedBox(
-              height: 30,
+              height: responsive.height(0.04),
             ),
             AccountButton(
               image: 'assets/icons/house.png',
               name: 'Update Address',
               route: '/update-address',
             ),
-            // SizedBox(
-            //   height: 20,
-            // ),
-
             InkWell(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
@@ -209,49 +231,39 @@ class AccountScreen extends ConsumerWidget {
                       children: [
                         Image.asset(
                           'assets/icons/location.png',
-                          width: 18,
+                          width: responsive.width(0.05),
                         ),
                         SizedBox(
-                          width: 16,
+                          width: responsive.width(0.045),
                         ),
                         Text(
                           'Update My Geolocation',
                           style: TextStyle(
                             color: AppTheme.grey,
                             fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                            fontSize: responsive.textSize(16),
                           ),
                         ),
                       ],
                     ),
                     Image.asset(
                       'assets/icons/arrowR.png',
-                      width: 15,
+                      width: responsive.width(0.04),
                     ),
                   ],
                 ),
               ),
             ),
-
-            // SizedBox(
-            //   height: 20,
-            // ),
             AccountButton(
               image: 'assets/icons/medal.png',
               name: 'My Reward points',
               route: '/reward-points',
             ),
-            // SizedBox(
-            //   height: 20,
-            // ),
             AccountButton(
               image: 'assets/icons/password.png',
               name: 'Change Password',
               route: '/change-password',
             ),
-            // SizedBox(
-            //   height: 20,
-            // ),
             InkWell(
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
@@ -289,7 +301,6 @@ class AccountScreen extends ConsumerWidget {
                             icon: Icons.check,
                             backgroundColor: AppTheme.orange,
                             textColor: Colors.white,
-                            fontSize: 16.0,
                             gravity: ToastGravity.CENTER,
                             duration: Duration(seconds: 3),
                           );
@@ -310,28 +321,52 @@ class AccountScreen extends ConsumerWidget {
                       children: [
                         Image.asset(
                           'assets/icons/logout.png',
-                          width: 18,
+                          width: responsive.width(0.05),
+                          gaplessPlayback: true,
                         ),
                         SizedBox(
-                          width: 16,
+                          width: responsive.width(0.045),
                         ),
                         Text(
                           'Logout',
                           style: TextStyle(
                             color: AppTheme.grey,
                             fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                            fontSize: responsive.textSize(16),
                           ),
                         ),
                       ],
                     ),
                     Image.asset(
                       'assets/icons/arrowR.png',
-                      width: 15,
+                      width: responsive.width(0.04),
                     ),
                   ],
                 ),
               ),
+            ),
+            Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 1.0),
+                  child: Text(
+                    'Powered by',
+                    style: TextStyle(
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                Image.asset(
+                  'assets/icons/globizs.png',
+                  width: responsive.width(0.15),
+                )
+              ],
+            ),
+            SizedBox(
+              height: responsive.height(0.03),
             ),
           ],
         ),
@@ -354,6 +389,10 @@ class AccountButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -361,7 +400,9 @@ class AccountButton extends StatelessWidget {
         context.push(route);
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 13.0),
+        padding: EdgeInsets.symmetric(
+          vertical: responsive.padding(13),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -369,24 +410,25 @@ class AccountButton extends StatelessWidget {
               children: [
                 Image.asset(
                   image,
-                  width: 18,
+                  width: responsive.width(0.05),
+                  gaplessPlayback: true,
                 ),
                 SizedBox(
-                  width: 16,
+                  width: responsive.width(0.045),
                 ),
                 Text(
                   name,
                   style: TextStyle(
                     color: AppTheme.grey,
                     fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                    fontSize: responsive.textSize(16),
                   ),
                 ),
               ],
             ),
             Image.asset(
               'assets/icons/arrowR.png',
-              width: 15,
+              width: responsive.width(0.04),
             ),
           ],
         ),

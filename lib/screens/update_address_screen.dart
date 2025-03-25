@@ -1,5 +1,5 @@
-// Example of using the OTP screen from a forgot password screen
 import 'package:flutter/material.dart';
+import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
 import '../widgets/widgets.dart';
 
@@ -15,7 +15,7 @@ class UpdateAddressScreenState extends State<UpdateAddressScreen> {
 
   final _addressController = TextEditingController();
 
-  // phone number from login detaisl
+  // phone number from login details
   String phoneNumber = '961562469';
 
   @override
@@ -27,11 +27,19 @@ class UpdateAddressScreenState extends State<UpdateAddressScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return Scaffold(
       appBar: SimpleAppBar(title: 'Update Address'),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.only(left: 24, right: 24, bottom: 25),
+          padding: EdgeInsets.only(
+            left: responsive.padding(23),
+            right: responsive.padding(23),
+            bottom: responsive.padding(24),
+          ),
           child: Form(
             key: _formKey,
             child: Column(
@@ -44,23 +52,23 @@ class UpdateAddressScreenState extends State<UpdateAddressScreen> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Enter your new address',
-                          style: const TextStyle(
-                            fontSize: 14,
+                          style: TextStyle(
+                            fontSize: responsive.textSize(14),
                             color: AppTheme.grey,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                       SizedBox(
-                        height: 10,
+                        height: responsive.height(0.012),
                       ),
-                      // Password TextField
+                      // Address TextField
                       TextFormField(
                         controller: _addressController,
                         decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 20,
-                            horizontal: 20,
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: responsive.padding(20),
+                            horizontal: responsive.padding(20),
                           ),
                           hintText: 'Enter address',
                           border: OutlineInputBorder(
@@ -100,7 +108,7 @@ class UpdateAddressScreenState extends State<UpdateAddressScreen> {
                 ),
                 SizedBox(
                   width: double.infinity,
-                  height: 60,
+                  height: responsive.height(0.08),
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {}
@@ -112,9 +120,9 @@ class UpdateAddressScreenState extends State<UpdateAddressScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text('Update',
+                    child: Text('Update',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: responsive.textSize(17),
                           fontWeight: FontWeight.w600,
                         )),
                   ),

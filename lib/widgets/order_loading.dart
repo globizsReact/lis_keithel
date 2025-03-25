@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
+import '../utils/theme.dart';
 import 'package:shimmer/shimmer.dart';
 
 class OrderLoadingShimmer extends StatelessWidget {

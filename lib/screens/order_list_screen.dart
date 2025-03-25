@@ -1,11 +1,10 @@
-// screens/order_list_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
+import '../utils/responsive_sizing.dart';
+import '../utils/theme.dart';
 import '../widgets/widgets.dart';
-
 import '../models/models.dart';
 import '../providers/providers.dart';
 
@@ -25,19 +24,27 @@ class OrderListScreen extends ConsumerWidget {
     final endDate = ref.read(ordersProvider.notifier).endDate;
     final hasDateFilter = startDate != null && endDate != null;
 
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(70),
+        preferredSize: Size.fromHeight(responsive.appBarHeight(65)),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(
+            responsive.padding(8),
+          ),
           child: AppBar(
             backgroundColor: AppTheme.white,
             scrolledUnderElevation: 0,
             elevation: 0,
             automaticallyImplyLeading: false,
-            title: const Text(
+            title: Text(
               'Orders',
-              style: TextStyle(fontSize: 24),
+              style: TextStyle(
+                fontSize: responsive.textSize(23),
+              ),
             ),
             actions: [
               // Date filter button
@@ -46,10 +53,14 @@ class OrderListScreen extends ConsumerWidget {
                   : IconButton(
                       icon: Image.asset(
                         'assets/icons/calendar.png',
-                        width: 25,
+                        width: responsive.width(0.06),
+                        gaplessPlayback: true,
                       ),
                       onPressed: () => _showDateFilterDialog(context, ref),
                     ),
+              SizedBox(
+                width: responsive.width(0.01),
+              )
             ],
           ),
         ),
@@ -62,21 +73,24 @@ class OrderListScreen extends ConsumerWidget {
                   Image.asset(
                     'assets/icons/orderE.png',
                     width: 90,
+                    gaplessPlayback: true,
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: responsive.height(0.02)),
                   Text(
                     'Sign in to see your orders',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: responsive.textSize(12),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: responsive.height(0.025)),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.orange,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: responsive.padding(23),
+                        vertical: responsive.padding(11),
+                      ),
                     ),
                     onPressed: () {
                       context.push('/login');
@@ -97,23 +111,26 @@ class OrderListScreen extends ConsumerWidget {
                       children: [
                         Image.asset(
                           'assets/icons/orderE.png',
-                          width: 90,
+                          width: responsive.width(0.2),
+                          gaplessPlayback: true,
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: responsive.height(0.02)),
                         Text(
                           'No orders found',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: responsive.textSize(12),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: responsive.height(0.025)),
                         if (hasDateFilter)
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.orange,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 12),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: responsive.padding(23),
+                                vertical: responsive.padding(11),
+                              ),
                             ),
                             onPressed: () => ref
                                 .read(ordersProvider.notifier)
@@ -126,10 +143,11 @@ class OrderListScreen extends ConsumerWidget {
                 }
 
                 return ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: responsive.padding(23)),
                   itemCount: orders.length,
                   separatorBuilder: (context, index) =>
-                      const SizedBox(height: 5),
+                      SizedBox(height: responsive.height(0.008)),
                   itemBuilder: (context, index) {
                     final order = orders[index];
                     return _OrderCard(
@@ -200,6 +218,10 @@ class _OrderCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return GestureDetector(
       onTap: () => context.push("/order-details/${order.id}"),
       child: Container(
@@ -207,23 +229,24 @@ class _OrderCard extends ConsumerWidget {
           color: AppTheme.white,
         ),
         child: Padding(
-          padding: const EdgeInsets.only(bottom: 12.0),
+          padding: EdgeInsets.only(bottom: responsive.padding(11)),
           child: Row(
             children: [
               // Order image
               Container(
-                width: 85,
-                height: 85,
+                width: responsive.width(0.2),
+                height: responsive.height(0.09),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   image: DecorationImage(
                     image: AssetImage(
-                        order.imageUrl ?? 'assets/images/default.jpg'),
+                      order.imageUrl ?? 'assets/images/default.jpg',
+                    ),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: responsive.width(0.04)),
 
               // Order details
               Expanded(
@@ -232,10 +255,10 @@ class _OrderCard extends ConsumerWidget {
                   children: [
                     Text(
                       order.id,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppTheme.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        fontSize: responsive.textSize(17),
                       ),
                     ),
                     Text(
@@ -243,14 +266,14 @@ class _OrderCard extends ConsumerWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: Colors.grey[600],
-                        fontSize: 12,
+                        fontSize: responsive.textSize(11),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: responsive.height(0.018)),
                     Text(
                       order.status.displayName,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: responsive.textSize(12),
                         color: order.status.color,
                         fontWeight: FontWeight.w600,
                       ),
@@ -262,7 +285,8 @@ class _OrderCard extends ConsumerWidget {
               // Arrow icon
               Image.asset(
                 'assets/icons/arrowR.png',
-                width: 15,
+                width: responsive.width(0.04),
+                gaplessPlayback: true,
               ),
             ],
           ),

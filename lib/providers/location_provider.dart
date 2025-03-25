@@ -3,9 +3,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lis_keithel_v1/utils/config.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
-import 'package:lis_keithel_v1/widgets/custom_toast.dart';
+import '../utils/config.dart';
+import '../utils/theme.dart';
+
 import '../services/location_service.dart';
 
 final locationServiceProvider = Provider<LocationService>((ref) {

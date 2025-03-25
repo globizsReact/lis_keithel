@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/responsive_sizing.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProductLoading extends StatelessWidget {
@@ -6,9 +7,16 @@ class ProductLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return ListView.builder(
-      itemCount: 5,
-      padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
+      itemCount: 6,
+      padding: EdgeInsets.symmetric(
+        horizontal: responsive.padding(23),
+        vertical: responsive.padding(18),
+      ),
       itemBuilder: (context, index) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 16.0),
@@ -16,7 +24,7 @@ class ProductLoading extends StatelessWidget {
             baseColor: Colors.grey[300]!,
             highlightColor: Colors.grey[100]!,
             child: Container(
-              height: 215,
+              height: responsive.height(0.235),
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.white,

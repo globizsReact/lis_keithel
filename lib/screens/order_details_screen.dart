@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
+import '../utils/responsive_sizing.dart';
+import '../utils/theme.dart';
 import '../widgets/widgets.dart';
-
 import '../models/order_model.dart';
 import '../providers/providers.dart';
 
@@ -23,11 +23,19 @@ class OrderDetailsScreen extends ConsumerWidget {
     final currencyFormat = NumberFormat.currency(symbol: '₹', decimalDigits: 2);
     final dateFormat = DateFormat('dd MMM yyyy');
 
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return Scaffold(
       appBar: SimpleAppBar(title: 'Order Details'),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+          padding: EdgeInsets.only(
+            left: responsive.padding(23),
+            right: responsive.padding(23),
+            bottom: responsive.padding(23),
+          ),
           child: orderAsyncValue.when(
             loading: () => OrderDetailsShimmer(),
             error: (error, stack) => Center(child: Text('Error: $error')),
@@ -50,15 +58,16 @@ class OrderDetailsScreen extends ConsumerWidget {
                                 'Order Id: ',
                                 style: TextStyle(
                                   color: Colors.grey[600],
-                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: responsive.textSize(19),
                                 ),
                               ),
                               Text(
                                 '#${order.id}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: AppTheme.black,
-                                  fontSize: 20,
+                                  fontSize: responsive.textSize(19),
                                 ),
                               ),
                             ],
@@ -70,30 +79,36 @@ class OrderDetailsScreen extends ConsumerWidget {
                                 'Status: ',
                                 style: TextStyle(
                                   color: Colors.grey[600],
-                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: responsive.textSize(15),
                                 ),
+                              ),
+                              SizedBox(
+                                height: responsive.height(0.023),
                               ),
                               Text(
                                 order.status.displayName,
                                 style: TextStyle(
                                   color: order.status.color,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  fontSize: responsive.textSize(15),
                                 ),
                               ),
                             ],
                           ),
 
-                          const SizedBox(height: 20),
-                          const Text(
+                          SizedBox(
+                            height: responsive.height(0.025),
+                          ),
+                          Text(
                             'Items',
                             style: TextStyle(
                               color: AppTheme.black,
                               fontWeight: FontWeight.bold,
-                              fontSize: 20,
+                              fontSize: responsive.textSize(20),
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          SizedBox(height: responsive.height(0.01)),
 
                           // Item list
                           ListView.builder(
@@ -103,14 +118,14 @@ class OrderDetailsScreen extends ConsumerWidget {
                             itemBuilder: (context, index) {
                               final item = order.items[index];
                               return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 5.0),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: responsive.padding(5.0)),
                                 child: Row(
                                   children: [
                                     // Item image
                                     Container(
-                                      width: 70,
-                                      height: 70,
+                                      width: responsive.width(0.2),
+                                      height: responsive.height(0.08),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
                                         image: DecorationImage(
@@ -119,7 +134,9 @@ class OrderDetailsScreen extends ConsumerWidget {
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 16),
+                                    SizedBox(
+                                      width: responsive.width(0.03),
+                                    ),
 
                                     // Item details
                                     Expanded(
@@ -135,9 +152,10 @@ class OrderDetailsScreen extends ConsumerWidget {
                                             children: [
                                               Text(
                                                 item.name,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
+                                                  fontSize:
+                                                      responsive.textSize(15),
                                                   color: AppTheme.black,
                                                 ),
                                               ),
@@ -151,7 +169,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                                             ],
                                           ),
                                           SizedBox(
-                                            height: 10,
+                                            height: responsive.height(0.012),
                                           ),
                                           Row(
                                             mainAxisAlignment:
@@ -183,30 +201,34 @@ class OrderDetailsScreen extends ConsumerWidget {
                             },
                           ),
 
-                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: responsive.height(0.016),
+                          ),
                           const Divider(
                             color: Colors.grey,
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: responsive.height(0.016),
+                          ),
 
                           // Subtotal
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
+                              Text(
                                 'Sub Total',
                                 style: TextStyle(
                                   color: AppTheme.black,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 20,
+                                  fontSize: responsive.textSize(20),
                                 ),
                               ),
                               Text(
                                 '${currencyFormat.format(order.subTotal)}/-',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppTheme.black,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 20,
+                                  fontSize: responsive.textSize(20),
                                 ),
                               ),
                             ],
@@ -220,7 +242,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                   if (order.status != OrderStatus.cancel &&
                       order.status != OrderStatus.paid)
                     SizedBox(
-                      height: 60,
+                      height: responsive.height(0.08),
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () =>
@@ -228,15 +250,14 @@ class OrderDetailsScreen extends ConsumerWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.orange,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Cancel order',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: responsive.textSize(16),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -256,17 +277,21 @@ class OrderDetailsScreen extends ConsumerWidget {
     final _formKey = GlobalKey<FormState>();
     String? _cancelReason;
 
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16.0), // Set border radius here
         ),
-        title: const Text(
-          'Please enter a reason to initiate cancellation of this order',
+        title: Text(
+          'Please provide a reason to cancel this order.',
           style: TextStyle(
             color: AppTheme.black,
-            fontSize: 18,
+            fontSize: responsive.textSize(18),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -275,7 +300,7 @@ class OrderDetailsScreen extends ConsumerWidget {
           child: TextFormField(
             decoration: InputDecoration(
               hintStyle: TextStyle(
-                fontSize: 15,
+                fontSize: responsive.textSize(15),
               ),
               hintText: 'Type something...',
               alignLabelWithHint: true,

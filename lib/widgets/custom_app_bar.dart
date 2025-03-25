@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
+import 'package:go_router/go_router.dart';
+import '../utils/theme.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final int notificationCount;
@@ -39,7 +40,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     'assets/icons/bell.png',
                     width: 18,
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    context.push('/notifications');
+                  },
                 ),
                 if (notificationCount > 0)
                   Positioned(

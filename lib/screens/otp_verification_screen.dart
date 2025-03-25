@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:go_router/go_router.dart';
-import 'package:lis_keithel_v1/providers/auth_provider.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
-import 'package:lis_keithel_v1/widgets/custom_toast.dart';
+import '../providers/auth_provider.dart';
+import '../utils/responsive_sizing.dart';
+import '../utils/theme.dart';
+import '../widgets/custom_toast.dart';
 
 enum OtpScreenType { registration, passwordChange }
 
@@ -151,28 +151,36 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.all(responsive.padding(25)),
           child: Column(
             children: [
-              const SizedBox(height: 50),
+              SizedBox(
+                height: responsive.height(0.08),
+              ),
 
               // Logo
               Image.asset(
-                'assets/images/logo.png', // Replace with your app logo
-                height: 120,
+                'assets/images/logo.png',
+                width: responsive.width(0.4),
               ),
-              const SizedBox(height: 50),
+              SizedBox(
+                height: responsive.height(0.06),
+              ),
 
               // Confirm text
               Align(
                 alignment: Alignment.centerLeft,
-                child: const Text(
+                child: Text(
                   'Confirm OTP',
                   style: TextStyle(
-                    fontSize: 35,
+                    fontSize: responsive.textSize(30),
                     fontWeight: FontWeight.bold,
                     color: AppTheme.black,
                   ),
@@ -184,39 +192,41 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   '6 digits OTP have sent to your registered mobile number +91 ${widget.phoneNumber}',
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontSize: responsive.textSize(14),
                     color: AppTheme.grey,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(
+                height: responsive.height(0.03),
+              ),
 
               // OTP input fields
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(6, (index) {
                   return SizedBox(
-                    width: 50,
+                    width: responsive.width(0.13),
                     child: TextField(
                       controller: _otpControllers[index],
                       focusNode: _focusNodes[index],
                       decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 20,
-                          horizontal: 20,
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: responsive.padding(19),
+                          horizontal: responsive.padding(19),
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(11),
                           borderSide: const BorderSide(color: AppTheme.orange),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(11),
                           borderSide: const BorderSide(color: AppTheme.orange),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(11),
                           borderSide: const BorderSide(
                               color: AppTheme.orange, width: 2),
                         ),
@@ -241,12 +251,14 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                   );
                 }),
               ),
-              const SizedBox(height: 20),
+              SizedBox(
+                height: responsive.height(0.015),
+              ),
 
               // Verify button
               SizedBox(
                 width: double.infinity,
-                height: 60,
+                height: responsive.height(0.075),
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : verifyOtp,
                   style: ElevatedButton.styleFrom(
@@ -254,7 +266,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                         _isLoading ? AppTheme.grey : AppTheme.orange,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(11),
                     ),
                   ),
                   child: _isLoading
@@ -275,7 +287,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                         ),
                 ),
               ),
-              const SizedBox(height: 15),
+              SizedBox(
+                height: responsive.height(0.01),
+              ),
 
               // Resend timer
               TextButton(
@@ -291,13 +305,19 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                     children: [
                       const TextSpan(
                         text: 'Resend ',
-                        style: TextStyle(color: AppTheme.orange),
+                        style: TextStyle(
+                          color: AppTheme.orange,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       TextSpan(
                         text: _canResend
                             ? ''
                             : 'in ${_secondsRemaining.toString().padLeft(2, '0')}:${0.toString().padLeft(2, '0')}',
-                        style: const TextStyle(color: Colors.grey),
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),

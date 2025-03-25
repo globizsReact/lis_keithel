@@ -1,9 +1,9 @@
-// Example of using the OTP screen from a forgot password screen
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lis_keithel_v1/screens/screens.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
-import 'package:lis_keithel_v1/widgets/widgets.dart';
+import '../screens/screens.dart';
+import '../utils/responsive_sizing.dart';
+import '../utils/theme.dart';
+import '../widgets/widgets.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({Key? key}) : super(key: key);
@@ -19,7 +19,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _passwordVisible = false;
 
-  // phone number from login detaisl
+  // phone number from login details
   String phoneNumber = '961562469';
 
   @override
@@ -31,11 +31,19 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return Scaffold(
       appBar: SimpleAppBar(title: 'Change Password'),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.only(left: 24, right: 24, bottom: 25),
+          padding: EdgeInsets.only(
+            left: responsive.padding(23),
+            right: responsive.padding(23),
+            bottom: responsive.padding(24),
+          ),
           child: Form(
             key: _formKey,
             child: Column(
@@ -48,24 +56,24 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Enter your register mobile number to change your password',
-                          style: const TextStyle(
-                            fontSize: 14,
+                          style: TextStyle(
+                            fontSize: responsive.textSize(14),
                             color: AppTheme.grey,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                       SizedBox(
-                        height: 10,
+                        height: responsive.height(0.012),
                       ),
                       // Password TextField
                       TextFormField(
                         controller: _passwordController,
                         obscureText: !_passwordVisible,
                         decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 20,
-                            horizontal: 20,
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: responsive.padding(20),
+                            horizontal: responsive.padding(20),
                           ),
                           hintText: 'Password',
                           border: OutlineInputBorder(
@@ -94,9 +102,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           suffixIcon: IconButton(
                             icon: Image.asset(
                               _passwordVisible
-                                  ? 'assets/icons/eye_close.png'
-                                  : 'assets/icons/eye_open.png',
-                              width: 20,
+                                  ? 'assets/icons/eye_open.png'
+                                  : 'assets/icons/eye_close.png',
+                              width: responsive.width(0.05),
                             ),
                             onPressed: () {
                               setState(() {
@@ -116,16 +124,17 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         },
                       ),
 
-                      const SizedBox(height: 5),
-
+                      SizedBox(
+                        height: responsive.height(0.01),
+                      ),
                       // Confirm Password TextField
                       TextFormField(
                         controller: _confirmPasswordController,
                         obscureText: true,
                         decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 20,
-                            horizontal: 20,
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: responsive.padding(20),
+                            horizontal: responsive.padding(20),
                           ),
                           hintText: 'Confirm password',
                           border: OutlineInputBorder(
@@ -167,7 +176,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
                 SizedBox(
                   width: double.infinity,
-                  height: 60,
+                  height: responsive.height(0.07),
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
@@ -184,9 +193,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text('Send OTP',
+                    child: Text('Send OTP',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: responsive.textSize(17),
                           fontWeight: FontWeight.w600,
                         )),
                   ),

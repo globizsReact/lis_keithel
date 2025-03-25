@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lis_keithel_v1/providers/auth_provider.dart';
+import '../providers/auth_provider.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
   final Ref _ref;

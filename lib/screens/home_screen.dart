@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../utils/responsive_sizing.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
 import '../providers/selected_index_provider.dart';
@@ -30,6 +31,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // Access the CartNotifier instance
     final cartItems = ref.watch(cartProvider);
 
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     final List<Widget> screen = [
       ProductScreen(),
       CartScreen(),
@@ -50,8 +55,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ref.read(selectedIndexProvider.notifier).state = 0;
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 6),
-                  width: 80,
+                  padding:
+                      EdgeInsets.symmetric(vertical: responsive.padding(6)),
+                  width: responsive.width(0.2),
                   color: Colors.transparent,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -61,11 +67,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ? 'assets/icons/homeA.png'
                             : 'assets/icons/home.png',
                         width: 23,
+                        gaplessPlayback: true,
                       ),
                       Text(
                         'Home',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: responsive.textSize(12),
                           fontWeight: FontWeight.w600,
                           color: selectedIndex == 0
                               ? AppTheme.orange
@@ -81,8 +88,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ref.read(selectedIndexProvider.notifier).state = 1;
                 },
                 child: Container(
-                  width: 80,
-                  padding: EdgeInsets.symmetric(vertical: 6),
+                  padding:
+                      EdgeInsets.symmetric(vertical: responsive.padding(6)),
+                  width: responsive.width(0.2),
                   color: Colors.transparent,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -96,6 +104,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 ? 'assets/icons/cartA.png'
                                 : 'assets/icons/cart.png',
                             width: 23,
+                            gaplessPlayback: true,
                           ),
                           if (cartItems.isNotEmpty)
                             Positioned(
@@ -126,7 +135,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       Text(
                         'Cart',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: responsive.textSize(12),
                           fontWeight: FontWeight.w600,
                           color: selectedIndex == 1
                               ? AppTheme.orange
@@ -142,8 +151,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ref.read(selectedIndexProvider.notifier).state = 2;
                 },
                 child: Container(
-                  width: 80,
-                  padding: EdgeInsets.symmetric(vertical: 6),
+                  padding:
+                      EdgeInsets.symmetric(vertical: responsive.padding(6)),
+                  width: responsive.width(0.2),
                   color: Colors.transparent,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -153,11 +163,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ? 'assets/icons/orderA.png'
                             : 'assets/icons/order.png',
                         width: 23,
+                        gaplessPlayback: true,
                       ),
                       Text(
                         'Orders',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: responsive.textSize(12),
                           fontWeight: FontWeight.w600,
                           color: selectedIndex == 2
                               ? AppTheme.orange
@@ -178,8 +189,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   }
                 },
                 child: Container(
-                  width: 80,
-                  padding: EdgeInsets.symmetric(vertical: 6),
+                  padding:
+                      EdgeInsets.symmetric(vertical: responsive.padding(6)),
+                  width: responsive.width(0.2),
                   color: Colors.transparent,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -190,11 +202,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             : 'assets/icons/profile.png',
                         height: 23,
                         width: 23,
+                        gaplessPlayback: true,
                       ),
                       Text(
                         'Account',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: responsive.textSize(12),
                           fontWeight: FontWeight.w600,
                           color: selectedIndex == 3
                               ? AppTheme.orange

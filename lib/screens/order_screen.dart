@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/providers.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
+import '../utils/theme.dart';
 
 class OrderScreen extends ConsumerWidget {
   const OrderScreen({Key? key}) : super(key: key);

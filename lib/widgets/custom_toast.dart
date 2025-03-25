@@ -8,7 +8,7 @@ class CustomToast {
     IconData? icon,
     Color backgroundColor = Colors.black87,
     Color textColor = Colors.white,
-    double fontSize = 16.0,
+    double fontSize = 14.0,
     ToastGravity gravity = ToastGravity.CENTER,
     Duration duration = const Duration(seconds: 2),
   }) {

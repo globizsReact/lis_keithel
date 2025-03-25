@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../utils/responsive_sizing.dart';
 
 // models
 import '../models/models.dart';
@@ -9,7 +10,7 @@ import '../providers/providers.dart';
 // widgets
 import '../widgets/widgets.dart';
 // utils
-import 'package:lis_keithel_v1/utils/theme.dart';
+import '../utils/theme.dart';
 
 String capitalizeWords(String text) {
   if (text.isEmpty) return text;
@@ -59,6 +60,10 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
 
     final cartItems = ref.watch(cartProvider);
 
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return RefreshIndicator(
       onRefresh: _refreshData,
       child: Scaffold(
@@ -67,16 +72,16 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
           children: [
             // Filter buttons
             SizedBox(
-              height: 10,
+              height: responsive.height(0.01),
             ),
             Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 25.0,
+                padding: EdgeInsets.symmetric(
+                  horizontal: responsive.padding(23),
                 ),
                 child: categoriesState.isLoading
                     ? CategoryLoading()
                     : SizedBox(
-                        height: 30,
+                        height: responsive.height(0.032),
                         child: ListView.builder(
                           clipBehavior: Clip.none,
                           scrollDirection: Axis.horizontal,
@@ -86,7 +91,8 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                             return FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Padding(
-                                padding: const EdgeInsets.only(right: 15.0),
+                                padding: EdgeInsets.only(
+                                    right: responsive.padding(14.0)),
                                 child: _buildCategoryButton(category),
                               ),
                             );
@@ -104,10 +110,12 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                         ? Center(child: Text('Error: ${productsState.error}'))
                         : ListView.builder(
                             padding: EdgeInsets.only(
-                                left: 25.0,
-                                right: 25.0,
-                                top: 20,
-                                bottom: cartItems.isNotEmpty ? 80 : 20),
+                                left: responsive.padding(23),
+                                right: responsive.padding(23),
+                                top: responsive.padding(18),
+                                bottom: cartItems.isNotEmpty
+                                    ? responsive.padding(75)
+                                    : responsive.padding(18)),
                             itemCount: filteredProducts.length,
                             itemBuilder: (context, index) {
                               final product = filteredProducts[index];
@@ -125,16 +133,17 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                 // Bottom checkout bar
                 if (cartItems.isNotEmpty)
                   Positioned(
-                    bottom: 16.0, // Distance from the bottom
-                    left: 16.0, // Distance from the left
-                    right: 16.0,
+                    bottom: responsive.position(0.05),
+                    left: responsive.position(0.04),
+                    right: responsive.position(0.04),
                     child: GestureDetector(
                       onTap: () {
                         ref.read(selectedIndexProvider.notifier).state = 1;
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 20.0),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: responsive.padding(15),
+                            vertical: responsive.padding(19)),
                         decoration: BoxDecoration(
                           color: const Color(0xFFB25800),
                           borderRadius:
@@ -166,7 +175,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: responsive.width(0.02)),
                                 const Icon(
                                   Icons.arrow_forward,
                                   color: Colors.white,
@@ -191,12 +200,18 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
   ) {
     final isSelected = ref.watch(selectedCategoryProvider) == category.id;
 
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return GestureDetector(
       onTap: () {
         ref.read(selectedCategoryProvider.notifier).setCategory(category.id);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 6.0),
+        padding: EdgeInsets.symmetric(
+            horizontal: responsive.padding(17),
+            vertical: responsive.padding(6)),
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.lightOrange : Colors.white,
           border: Border.all(
@@ -208,9 +223,9 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
         child: Text(
           capitalizeWords(category.name),
           style: TextStyle(
-            fontSize: 18,
+            fontSize: responsive.textSize(17),
             color: isSelected ? AppTheme.orange : AppTheme.grey,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -229,16 +244,20 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 16.0),
+      margin: EdgeInsets.only(bottom: responsive.padding(15)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(50),
+            color: Colors.black.withAlpha(20),
             blurRadius: 5.0,
-            offset: const Offset(0, 2),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -255,13 +274,15 @@ class ProductCard extends StatelessWidget {
               placeholder: (context, url) =>
                   Image.asset('assets/images/placeholder.png'),
               errorWidget: (context, url, error) => Icon(Icons.error),
-              height: 160,
+              height: responsive.height(0.178),
               width: double.infinity,
               fit: BoxFit.cover,
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6.0),
+            padding: EdgeInsets.symmetric(
+                horizontal: responsive.padding(19),
+                vertical: responsive.padding(5.0)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -270,16 +291,16 @@ class ProductCard extends StatelessWidget {
                   children: [
                     Text(
                       product.name,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: responsive.textSize(15),
                         fontWeight: FontWeight.w900,
                         color: AppTheme.black,
                       ),
                     ),
                     Text(
                       'Rs. ${product.price}/-',
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style: TextStyle(
+                        fontSize: responsive.textSize(11),
                         fontWeight: FontWeight.bold,
                         color: AppTheme.orange,
                       ),
@@ -288,7 +309,7 @@ class ProductCard extends StatelessWidget {
                 ),
                 Image.asset(
                   'assets/icons/cartAdd.png',
-                  width: 27,
+                  width: responsive.width(0.07),
                 ),
               ],
             ),

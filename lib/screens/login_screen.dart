@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lis_keithel_v1/providers/auth_provider.dart';
-import 'package:lis_keithel_v1/providers/providers.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
+import '../providers/auth_provider.dart';
+import '../providers/providers.dart';
+import '../utils/responsive_sizing.dart';
+import '../utils/theme.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -30,98 +31,102 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.symmetric(
+            horizontal: responsive.padding(30),
+          ),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 40),
+                SizedBox(
+                  height: responsive.height(0.08),
+                ),
                 // Logo
                 Center(
                   child: Image.asset(
                     'assets/images/logo.png',
-                    height: 120,
-                    // If you don't have the asset, you can use a placeholder
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 120,
-                        width: 200,
-                        color: Colors.grey[200],
-                        child: const Center(
-                          child: Text('LIS Keithel App Logo'),
-                        ),
-                      );
-                    },
+                    width: responsive.width(0.4),
                   ),
                 ),
-                const SizedBox(height: 40),
+                SizedBox(
+                  height: responsive.height(0.06),
+                ),
                 // Login Title
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Login',
                     style: TextStyle(
-                      fontSize: 35,
+                      fontSize: responsive.textSize(30),
                       fontWeight: FontWeight.bold,
                       color: AppTheme.black,
                     ),
                   ),
                 ),
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'to start shopping',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: responsive.textSize(14),
                       color: AppTheme.grey,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(
+                  height: responsive.height(0.025),
+                ),
                 // Mobile Number Field
                 TextFormField(
                   controller: _mobileController,
-                  maxLength: 10,
+                  maxLength: 11,
                   keyboardType: TextInputType.phone,
+                  style: TextStyle(
+                    color: AppTheme.black,
+                  ),
                   decoration: InputDecoration(
                     counterText: '',
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 20,
-                      horizontal: 20,
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: responsive.padding(20),
+                      horizontal: responsive.padding(20),
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(11),
                       borderSide: const BorderSide(
                         color: AppTheme.orange,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(11),
                       borderSide: const BorderSide(
                         color: AppTheme.orange,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(11),
                       borderSide: BorderSide(
                         color: AppTheme.orange,
                         width: 2,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(11),
                       borderSide: const BorderSide(
                         color: Colors.red,
                       ),
                     ),
                     prefixIcon: SizedBox(
-                      width: 50,
+                      width: responsive.width(0.05),
                       child: Center(
                         child: Image.asset(
                           'assets/icons/phone_login.png',
@@ -142,41 +147,45 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: responsive.height(0.006)),
+
                 // Password Field
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
+                  style: TextStyle(
+                    color: AppTheme.black,
+                  ),
                   decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 20,
-                      horizontal: 20,
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: responsive.padding(20),
+                      horizontal: responsive.padding(20),
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(11),
                       borderSide: const BorderSide(
                         color: AppTheme.orange,
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(11),
                       borderSide: const BorderSide(
                         color: AppTheme.orange,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(11),
                       borderSide: BorderSide(
                         color: AppTheme.orange,
                         width: 2,
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(11),
                       borderSide: const BorderSide(color: Colors.red),
                     ),
                     prefixIcon: SizedBox(
-                      width: 50,
+                      width: responsive.width(0.05),
                       child: Center(
                         child: Image.asset(
                           'assets/icons/lock_login.png',
@@ -189,7 +198,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         _obscurePassword
                             ? 'assets/icons/eye_close.png'
                             : 'assets/icons/eye_open.png',
-                        width: 20,
+                        width: responsive.width(0.05),
                       ),
                       onPressed: () {
                         setState(() {
@@ -215,7 +224,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
                     onTap: () {
-                      context.go('/forgot-password');
+                      context.push('/forgot-password');
                     },
                     child: Text(
                       'Forgot password?',
@@ -230,7 +239,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 // Login Button
                 SizedBox(
                   width: double.infinity,
-                  height: 60,
+                  height: responsive.height(0.075),
                   child: ElevatedButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
@@ -251,7 +260,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           authState.isLoading ? AppTheme.grey : AppTheme.orange,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(11),
                       ),
                     ),
                     child: authState.isLoading
@@ -272,7 +281,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                   ),
                 ),
-                const SizedBox(height: 30),
+                SizedBox(
+                  height: responsive.height(0.04),
+                ),
                 // Register Now
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -313,6 +324,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       color: AppTheme.orange,
                     ),
                   ),
+                ),
+                SizedBox(
+                  height: responsive.height(0.02),
                 ),
               ],
             ),

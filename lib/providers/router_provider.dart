@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lis_keithel_v1/utils/go_router_refresh_stream.dart';
-import 'package:lis_keithel_v1/providers/auth_provider.dart';
+import '../utils/go_router_refresh_stream.dart';
+import '../providers/auth_provider.dart';
 // Import your screen files here
 import '../screens/screens.dart';
 
@@ -69,6 +69,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/change-password',
         builder: (context, state) => const ChangePasswordScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationScreen(),
       ),
       // GoRoute(
       //   path: '/new-password',

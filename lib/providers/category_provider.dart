@@ -1,6 +1,6 @@
 // lib/providers/category_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lis_keithel_v1/utils/config.dart';
+import '../utils/config.dart';
 import '../services/category_service.dart';
 import '../models/models.dart';
 import 'product_provider.dart';

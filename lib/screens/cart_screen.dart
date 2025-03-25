@@ -2,9 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:lis_keithel_v1/providers/selected_index_provider.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
-import 'package:lis_keithel_v1/widgets/gift_code_button.dart';
+import '../providers/selected_index_provider.dart';
+import '../utils/responsive_sizing.dart';
+import '../utils/theme.dart';
+import '../widgets/widgets.dart';
 import '../providers/cart_provider.dart';
 
 // Provider to hold the list of predefined delivery dates
@@ -38,19 +39,25 @@ class CartScreen extends ConsumerWidget {
     final predefinedDates = ref.watch(predefinedDatesProvider);
     final selectedDate = ref.watch(selectedDateProvider);
 
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(70),
+        preferredSize: Size.fromHeight(responsive.appBarHeight(65)),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(responsive.padding(7)),
           child: AppBar(
             backgroundColor: AppTheme.white,
             scrolledUnderElevation: 0,
             elevation: 0,
             automaticallyImplyLeading: false,
-            title: const Text(
+            title: Text(
               'Cart',
-              style: TextStyle(fontSize: 24),
+              style: TextStyle(
+                fontSize: responsive.textSize(23),
+              ),
             ),
             actions: [
               if (cartItems.isNotEmpty)
@@ -64,8 +71,7 @@ class CartScreen extends ConsumerWidget {
                       context: context,
                       builder: (context) => AlertDialog(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                              16.0), // Set border radius here
+                          borderRadius: BorderRadius.circular(16.0),
                         ),
                         title: const Text(
                           'Clear Cart',
@@ -107,22 +113,24 @@ class CartScreen extends ConsumerWidget {
                 children: [
                   Image.asset(
                     'assets/icons/empty.png',
-                    width: 90,
+                    width: responsive.width(0.2),
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
+                  SizedBox(height: responsive.height(0.02)),
+                  Text(
                     'Your cart is empty',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: responsive.textSize(12),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: responsive.height(0.025)),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.orange,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: responsive.padding(23),
+                        vertical: responsive.padding(11),
+                      ),
                     ),
                     onPressed: () {
                       ref.read(selectedIndexProvider.notifier).state = 0;
@@ -136,8 +144,9 @@ class CartScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: ListView.builder(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 25, vertical: 2),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: responsive.padding(22),
+                        vertical: responsive.padding(2)),
                     itemCount: cartItems.length,
                     itemBuilder: (context, index) {
                       final item = cartItems[index];
@@ -160,8 +169,10 @@ class CartScreen extends ConsumerWidget {
                 ),
                 // Cart summary
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: responsive.padding(23),
+                    vertical: responsive.padding(18),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -169,16 +180,16 @@ class CartScreen extends ConsumerWidget {
                         color: Colors.grey[300],
                       ),
                       SizedBox(
-                        height: 20,
+                        height: responsive.height(0.02),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             'Subtotal',
                             style: TextStyle(
                               color: AppTheme.black,
-                              fontSize: 18,
+                              fontSize: responsive.textSize(16),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -186,7 +197,7 @@ class CartScreen extends ConsumerWidget {
                             'Rs. ${totalAmount.toStringAsFixed(2)}/-',
                             style: TextStyle(
                               color: AppTheme.black,
-                              fontSize: 18,
+                              fontSize: responsive.textSize(16),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -199,7 +210,7 @@ class CartScreen extends ConsumerWidget {
                           Text(
                             'Delivery',
                             style: TextStyle(
-                              fontSize: 16.0,
+                              fontSize: responsive.textSize(15),
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
@@ -219,17 +230,17 @@ class CartScreen extends ConsumerWidget {
                                         date,
                                         style: TextStyle(
                                           fontFamily: 'Poppins',
-                                          fontSize: 14.0,
+                                          fontSize: responsive.textSize(14),
                                           fontWeight: FontWeight.w600,
                                           color: Colors.black,
                                         ),
                                       ),
                                       SizedBox(
-                                          width:
-                                              8.0), // Space between text and arrow
+                                        width: responsive.width(0.02),
+                                      ),
                                       Image.asset(
                                         'assets/icons/drop.png',
-                                        width: 10,
+                                        width: responsive.width(0.025),
                                       )
                                     ],
                                   ),
@@ -254,7 +265,7 @@ class CartScreen extends ConsumerWidget {
                         ],
                       ),
                       SizedBox(
-                        height: 8,
+                        height: responsive.height(0.01),
                       ),
                       Divider(
                         color: Colors.grey[300],
@@ -262,7 +273,8 @@ class CartScreen extends ConsumerWidget {
                       GestureDetector(
                         onTap: () {},
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 20),
+                          padding: EdgeInsets.symmetric(
+                              vertical: responsive.padding(19)),
                           width: double.infinity,
                           child: Text(
                             'Click to check for coupons!',
@@ -272,17 +284,17 @@ class CartScreen extends ConsumerWidget {
                       ),
                       GiftCodeField(),
                       SizedBox(
-                        height: 30,
+                        height: responsive.height(0.025),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             'Grand Total',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: AppTheme.orange,
-                              fontSize: 20,
+                              fontSize: responsive.textSize(18),
                             ),
                           ),
                           Text(
@@ -290,18 +302,22 @@ class CartScreen extends ConsumerWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: AppTheme.orange,
-                              fontSize: 20,
+                              fontSize: responsive.textSize(18),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(
+                        height: responsive.height(0.02),
+                      ),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.orange,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: EdgeInsets.symmetric(
+                              vertical: responsive.padding(15),
+                            ),
                           ),
                           onPressed: () {
                             // Implement checkout logic
@@ -311,10 +327,10 @@ class CartScreen extends ConsumerWidget {
                               ),
                             );
                           },
-                          child: const Text(
+                          child: Text(
                             'Checkout',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: responsive.textSize(15),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -343,8 +359,12 @@ class CartItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(bottom: responsive.padding(11)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -353,20 +373,20 @@ class CartItemCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             child: Image.network(
               cartItem.product.photo,
-              width: 100,
-              height: 100,
+              width: responsive.width(0.25),
+              height: responsive.height(0.11),
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
-                  width: 80,
-                  height: 80,
+                  width: responsive.width(0.2),
+                  height: responsive.height(0.1),
                   color: Colors.grey.shade200,
                   child: const Icon(Icons.image_not_supported),
                 );
               },
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: responsive.width(0.04)),
           // Product details
           Expanded(
             child: Column(
@@ -380,17 +400,17 @@ class CartItemCard extends StatelessWidget {
                       children: [
                         Text(
                           cartItem.product.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: AppTheme.black,
-                            fontSize: 16,
+                            fontSize: responsive.textSize(15),
                           ),
                         ),
                         GestureDetector(
                           onTap: onRemove,
                           child: Image.asset(
                             'assets/icons/trash.png',
-                            width: 18,
+                            width: responsive.width(0.05),
                           ),
                         ),
                       ],
@@ -399,15 +419,13 @@ class CartItemCard extends StatelessWidget {
                       'Rs. ${cartItem.product.price}/kg',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 12,
+                        fontSize: responsive.textSize(11),
                         color: Colors.grey.shade700,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 20,
-                ),
+                SizedBox(height: responsive.height(0.02)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -430,7 +448,7 @@ class CartItemCard extends StatelessWidget {
                         ),
                         // Quantity
                         Container(
-                          width: 40,
+                          width: responsive.width(0.1),
                           alignment: Alignment.center,
                           child: Text(
                             '${cartItem.quantity}',

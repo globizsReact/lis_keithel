@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:lis_keithel_v1/utils/config.dart';
+import '../utils/config.dart';
 
 import '../models/models.dart';
 

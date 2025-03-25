@@ -1,6 +1,5 @@
 export 'home_screen.dart';
 export 'login_screen.dart';
-
 export 'multi_register_screen.dart';
 export 'order_screen.dart';
 export 'account_screen.dart';
@@ -12,3 +11,5 @@ export 'update_address_screen.dart';
 export 'reward_points_screen.dart';
 export 'order_list_screen.dart';
 export 'order_details_screen.dart';
+export 'notification_screen.dart';
+export 'forgot_password_screen.dart';

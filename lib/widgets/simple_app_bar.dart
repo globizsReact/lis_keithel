@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
+import '../utils/responsive_sizing.dart';
+import '../utils/theme.dart';
 
 class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -25,8 +26,14 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
+      padding: EdgeInsets.only(
+        top: responsive.padding(7),
+      ),
       child: AppBar(
         title: Text(
           title,

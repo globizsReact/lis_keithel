@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lis_keithel_v1/screens/screens.dart';
-import 'package:lis_keithel_v1/utils/theme.dart';
+import '../screens/screens.dart';
+import '../utils/theme.dart';
+import '../widgets/custom_toast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Import the new auth service
@@ -125,12 +126,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
             isLoggedIn: true, isLoading: false, errorMessage: '');
 
         // Show success toast
-        Fluttertoast.showToast(
-          msg: 'Login successful! Welcome, $fullname',
-          toastLength: Toast.LENGTH_SHORT,
+
+        CustomToast.show(
+          context: context,
+          message: 'Login successful! Welcome, $fullname',
+          icon: Icons.check,
+          backgroundColor: AppTheme.green,
+          textColor: Colors.white,
           gravity: ToastGravity.CENTER,
-          backgroundColor: AppTheme.orange,
-          textColor: AppTheme.white,
+          duration: Duration(seconds: 3),
         );
 
         if (context.mounted) {

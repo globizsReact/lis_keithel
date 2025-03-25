@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/auth_provider.dart';
 import 'package:location/location.dart';
+import '../utils/responsive_sizing.dart';
+import '../providers/auth_provider.dart';
 import '../utils/theme.dart';
 
 class MultiRegisterScreen extends ConsumerStatefulWidget {
@@ -105,46 +106,62 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
 
   void _previousStep() {
     if (_currentStep > 0) {
+      // Reset the form validation state
+      _formKey.currentState?.reset();
+
       setState(() {
         _currentStep--;
+
+        // Reset password validation when going back to details step
+        _passwordController.clear();
+        _confirmPasswordController.clear();
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // provider
     final authState = ref.watch(authProvider);
     final isLoading = authState.isLoading;
+
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
 
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 32),
+          padding: EdgeInsets.symmetric(horizontal: responsive.padding(30)),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 20),
+                SizedBox(
+                  height: responsive.height(0.08),
+                ),
 
                 // Logo
                 Image.asset(
-                  'assets/images/logo.png', // You'll need to add this asset
-                  height: 120,
+                  'assets/images/logo.png',
+                  width: responsive.width(0.4),
                 ),
 
-                const SizedBox(height: 20),
+                SizedBox(
+                  height: responsive.height(0.06),
+                ),
 
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Register Title
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Register',
                         style: TextStyle(
-                          fontSize: 35,
+                          fontSize: responsive.textSize(30),
                           fontWeight: FontWeight.bold,
                           color: AppTheme.black,
                         ),
@@ -152,19 +169,22 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
                     ),
 
                     // Subtitle
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'to get started',
                         style: TextStyle(
-                            fontSize: 14,
-                            color: AppTheme.grey,
-                            fontWeight: FontWeight.w600),
+                          fontSize: responsive.textSize(14),
+                          color: AppTheme.grey,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                SizedBox(
+                  height: responsive.height(0.025),
+                ),
 
                 // Step Indicator
                 Row(
@@ -172,14 +192,16 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
                   children: [
                     _buildStepIndicator(0, 'Details'),
                     SizedBox(
-                      width: 180,
+                      width: responsive.width(0.55),
                       child: Divider(),
                     ),
                     _buildStepIndicator(1, 'Password'),
                   ],
                 ),
 
-                const SizedBox(height: 10),
+                SizedBox(
+                  height: responsive.height(0.01),
+                ),
 
                 // Conditional Rendering for Steps
                 if (_currentStep == 0) ...[
@@ -190,7 +212,9 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
                   _buildPasswordSection(),
                 ],
 
-                const SizedBox(height: 20),
+                SizedBox(
+                  height: responsive.height(0.015),
+                ),
 
                 // Navigation Buttons
                 Row(
@@ -198,14 +222,14 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
                     Expanded(
                       child: SizedBox(
                         width: double.infinity,
-                        height: 60,
+                        height: responsive.height(0.075),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
                                 isLoading ? AppTheme.grey : AppTheme.orange,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(11),
                             ),
                           ),
                           onPressed: _nextStep,
@@ -221,7 +245,7 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
                               : Text(
                                   _currentStep == 0 ? 'Next' : 'Register',
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: responsive.textSize(16),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -239,10 +263,10 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
                         child: SizedBox(
                           child: TextButton(
                             onPressed: _previousStep,
-                            child: const Text(
+                            child: Text(
                               'Back',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: responsive.textSize(16),
                                 color: AppTheme.navy,
                               ),
                             ),
@@ -252,8 +276,11 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
                   ],
                 ),
 
+                SizedBox(
+                  height: responsive.height(0.04),
+                ),
                 // Login now
-                const SizedBox(height: 30),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -278,6 +305,9 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
                     ),
                   ],
                 ),
+                SizedBox(
+                  height: responsive.height(0.02),
+                ),
               ],
             ),
           ),
@@ -288,6 +318,9 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
 
 // stepper
   Widget _buildStepIndicator(int stepIndex, String label) {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
     return Column(
       children: [
         Container(
@@ -304,12 +337,12 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
           child: Center(
             child: _currentStep > stepIndex
                 ? Icon(
-                    Icons.check, // Checkmark icon for completed steps
+                    Icons.check,
                     color: Colors.white,
                     size: 16,
                   )
                 : Text(
-                    '${stepIndex + 1}', // Step number for active/incomplete steps
+                    '${stepIndex + 1}',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -317,11 +350,11 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
                   ),
           ),
         ),
-        const SizedBox(height: 5),
+        SizedBox(height: responsive.height(0.007)),
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: responsive.textSize(12),
             color: AppTheme.black,
           ),
         ),
@@ -331,46 +364,53 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
 
 // Details
   Widget _buildDetailsSection() {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 20),
-        const Align(
+        SizedBox(height: responsive.height(0.007)),
+        Align(
           alignment: Alignment.centerLeft,
           child: Text(
             'Enter your details',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: responsive.textSize(18),
               fontWeight: FontWeight.w600,
               color: AppTheme.black,
             ),
           ),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: responsive.height(0.015)),
         TextFormField(
           controller: _nameController,
+          style: TextStyle(
+            color: AppTheme.black,
+          ),
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 20,
-              horizontal: 20,
+            contentPadding: EdgeInsets.symmetric(
+              vertical: responsive.padding(20),
+              horizontal: responsive.padding(20),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: AppTheme.orange),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: AppTheme.orange),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(
                 color: AppTheme.orange,
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: Colors.red),
             ),
             hintText: 'Name',
@@ -382,34 +422,37 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
             return null;
           },
         ),
-        const SizedBox(height: 5),
+        SizedBox(height: responsive.height(0.006)),
         TextFormField(
           controller: _mobileController,
           maxLength: 10,
+          style: TextStyle(
+            color: AppTheme.black,
+          ),
           decoration: InputDecoration(
             counterText: '',
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 20,
-              horizontal: 20,
+            contentPadding: EdgeInsets.symmetric(
+              vertical: responsive.padding(20),
+              horizontal: responsive.padding(20),
             ),
             hintText: 'Mobile number',
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: AppTheme.orange),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: AppTheme.orange),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(
                 color: AppTheme.orange,
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: Colors.red),
             ),
           ),
@@ -425,32 +468,35 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
             return null;
           },
         ),
-        const SizedBox(height: 5),
+        SizedBox(height: responsive.height(0.006)),
         TextFormField(
           controller: _addressController,
+          style: TextStyle(
+            color: AppTheme.black,
+          ),
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 20,
-              horizontal: 20,
+            contentPadding: EdgeInsets.symmetric(
+              vertical: responsive.padding(20),
+              horizontal: responsive.padding(20),
             ),
             hintText: 'Address',
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: AppTheme.orange),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: AppTheme.orange),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(
                 color: AppTheme.orange,
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: Colors.red),
             ),
           ),
@@ -467,58 +513,62 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
 
 // password
   Widget _buildPasswordSection() {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(
-          height: 20,
-        ),
-        const Align(
+        SizedBox(height: responsive.height(0.007)),
+        Align(
           alignment: Alignment.centerLeft,
           child: Text(
             'Set your password',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: responsive.textSize(18),
               fontWeight: FontWeight.w600,
               color: AppTheme.black,
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: responsive.height(0.015)),
         TextFormField(
           controller: _passwordController,
           obscureText: !_passwordVisible,
+          style: TextStyle(
+            color: AppTheme.black,
+          ),
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 20,
-              horizontal: 20,
+            contentPadding: EdgeInsets.symmetric(
+              vertical: responsive.padding(20),
+              horizontal: responsive.padding(20),
             ),
             hintText: 'Password',
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: AppTheme.orange),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: AppTheme.orange),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(
                 color: AppTheme.orange,
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: Colors.red),
             ),
             suffixIcon: IconButton(
               icon: Image.asset(
                 _passwordVisible
-                    ? 'assets/icons/eye_close.png'
-                    : 'assets/icons/eye_open.png',
-                width: 20,
+                    ? 'assets/icons/eye_open.png'
+                    : 'assets/icons/eye_close.png',
+                width: responsive.width(0.05),
               ),
               onPressed: () {
                 setState(() {
@@ -537,33 +587,36 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
             return null;
           },
         ),
-        const SizedBox(height: 5),
+        SizedBox(height: responsive.height(0.006)),
         TextFormField(
           controller: _confirmPasswordController,
           obscureText: true,
+          style: TextStyle(
+            color: AppTheme.black,
+          ),
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 20,
-              horizontal: 20,
+            contentPadding: EdgeInsets.symmetric(
+              vertical: responsive.padding(20),
+              horizontal: responsive.padding(20),
             ),
             hintText: 'Confirm password',
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: AppTheme.orange),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: AppTheme.orange),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(
                 color: AppTheme.orange,
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(color: Colors.red),
             ),
           ),

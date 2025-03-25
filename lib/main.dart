@@ -1,13 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../providers/router_provider.dart';
-
 import '../providers/providers.dart';
-
 import '../utils/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:upgrader/upgrader.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,11 +31,18 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
-    return MaterialApp.router(
-      title: 'LIS Keithel',
-      debugShowCheckedModeBanner: false,
-      routerConfig: router,
-      theme: AppTheme.themeData,
+    return UpgradeAlert(
+      upgrader: Upgrader(
+        durationUntilAlertAgain: const Duration(days: 1),
+        countryCode: 'IN',
+        debugLogging: true,
+      ),
+      child: MaterialApp.router(
+        title: 'LIS Keithel',
+        debugShowCheckedModeBanner: false,
+        routerConfig: router,
+        theme: AppTheme.themeData,
+      ),
     );
   }
 }
