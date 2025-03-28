@@ -89,7 +89,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 // Mobile Number Field
                 TextFormField(
                   controller: _mobileController,
-                  maxLength: 11,
+                  maxLength: 10,
                   keyboardType: TextInputType.phone,
                   style: TextStyle(
                     color: AppTheme.black,

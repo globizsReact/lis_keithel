@@ -1,4 +1,5 @@
 // lib/widgets/quantity_selector.dart
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -86,11 +87,14 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    widget.product.photo,
-                    width: 70,
-                    height: 75,
-                    fit: BoxFit.cover,
+                  child: Hero(
+                    tag: 'productImage_${widget.product.id}',
+                    child: CachedNetworkImage(
+                      imageUrl: widget.product.photo!,
+                      width: 70,
+                      height: 75,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 SizedBox(

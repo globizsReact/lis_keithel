@@ -1,6 +1,6 @@
 // lib/services/category_service.dart
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'dart:convert';
 import '../models/category_model.dart';
 

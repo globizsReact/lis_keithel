@@ -75,31 +75,34 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
               height: responsive.height(0.01),
             ),
             Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: responsive.padding(23),
-                ),
-                child: categoriesState.isLoading
-                    ? CategoryLoading()
-                    : SizedBox(
-                        height: responsive.height(0.032),
-                        child: ListView.builder(
-                          clipBehavior: Clip.none,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: categoriesState.categories.length,
-                          itemBuilder: (context, index) {
-                            final category = categoriesState.categories[index];
-                            return FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                    right: responsive.padding(14.0)),
-                                child: _buildCategoryButton(category),
-                              ),
-                            );
-                          },
-                        ),
-                      )),
-
+              padding: EdgeInsets.symmetric(
+                horizontal: responsive.padding(23),
+              ),
+              child: categoriesState.isLoading
+                  ? CategoryLoading()
+                  : SizedBox(
+                      height: responsive.height(0.032),
+                      child: ListView.builder(
+                        clipBehavior: Clip.none,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: categoriesState.categories.length,
+                        itemBuilder: (context, index) {
+                          final category = categoriesState.categories[index];
+                          return FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                  right: responsive.padding(14.0)),
+                              child: _buildCategoryButton(category),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+            ),
+            SizedBox(
+              height: responsive.height(0.015),
+            ),
             // Product listing
             Expanded(
                 child: Stack(
@@ -108,27 +111,48 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                     ? ProductLoading()
                     : productsState.error != null
                         ? Center(child: Text('Error: ${productsState.error}'))
-                        : ListView.builder(
-                            padding: EdgeInsets.only(
-                                left: responsive.padding(23),
-                                right: responsive.padding(23),
-                                top: responsive.padding(18),
-                                bottom: cartItems.isNotEmpty
-                                    ? responsive.padding(75)
-                                    : responsive.padding(18)),
-                            itemCount: filteredProducts.length,
-                            itemBuilder: (context, index) {
-                              final product = filteredProducts[index];
-                              return GestureDetector(
-                                onTap: () {
-                                  showQuantitySelector(context, product);
-                                },
-                                child: ProductCard(
-                                  product: product,
+                        : filteredProducts.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      'assets/icons/noPro.png',
+                                      width: responsive.width(0.2),
+                                    ),
+                                    SizedBox(height: responsive.height(0.02)),
+                                    Text(
+                                      'No product found \nfor this category',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: responsive.textSize(12),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: responsive.height(0.025)),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
+                              )
+                            : ListView.builder(
+                                padding: EdgeInsets.only(
+                                    left: responsive.padding(23),
+                                    right: responsive.padding(23),
+                                    bottom: cartItems.isNotEmpty
+                                        ? responsive.padding(75)
+                                        : responsive.padding(18)),
+                                itemCount: filteredProducts.length,
+                                itemBuilder: (context, index) {
+                                  final product = filteredProducts[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      showQuantitySelector(context, product);
+                                    },
+                                    child: ProductCard(
+                                      product: product,
+                                    ),
+                                  );
+                                },
+                              ),
 
                 // Bottom checkout bar
                 if (cartItems.isNotEmpty)
@@ -269,14 +293,19 @@ class ProductCard extends StatelessWidget {
               topLeft: Radius.circular(12.0),
               topRight: Radius.circular(12.0),
             ),
-            child: CachedNetworkImage(
-              imageUrl: product.photo,
-              placeholder: (context, url) =>
-                  Image.asset('assets/images/placeholder.png'),
-              errorWidget: (context, url, error) => Icon(Icons.error),
-              height: responsive.height(0.178),
-              width: double.infinity,
-              fit: BoxFit.cover,
+            child: Hero(
+              tag: 'productImage_${product.id}',
+              child: CachedNetworkImage(
+                imageUrl: product.photo == null
+                    ? 'assets/images/placeholder.png'
+                    : product.photo!,
+                placeholder: (context, url) =>
+                    Image.asset('assets/images/placeholder.png'),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+                height: responsive.height(0.178),
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           Padding(

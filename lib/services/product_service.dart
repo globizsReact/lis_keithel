@@ -1,6 +1,5 @@
 // lib/services/product_service.dart
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/models.dart';
 
@@ -32,7 +31,9 @@ class ProductService {
           // 'Authorization': 'Bearer YOUR_TOKEN',
         },
         // Add request body if needed
-        body: jsonEncode({'type_id': '1'}),
+        body: jsonEncode(
+          {'type_id': '0'},
+        ),
       );
 
       if (response.statusCode == 200) {

@@ -53,13 +53,15 @@ class AuthService {
   }
 
   // Verify OTP API call
-  Future<Map<String, dynamic>> verifyOtp(String phone, String otp) async {
+  Future<Map<String, dynamic>> verifyOtp(String token) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/clients/verify-otp'),
-      headers: {'Content-Type': 'application/json'},
+      Uri.parse('$baseUrl/clients/verify_registration'),
+      headers: {
+        'Content-Type': 'application/json',
+        'token': token,
+      },
       body: jsonEncode({
-        "Phone": phone,
-        "OTP": otp,
+        "id": 1,
       }),
     );
 

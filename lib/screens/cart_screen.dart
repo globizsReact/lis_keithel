@@ -372,7 +372,7 @@ class CartItemCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Image.network(
-              cartItem.product.photo,
+              cartItem.product.photo!,
               width: responsive.width(0.25),
               height: responsive.height(0.11),
               fit: BoxFit.cover,

@@ -51,7 +51,7 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
       final products = await _productService.fetchProducts();
       state = state.copyWith(products: products, isLoading: false);
 
-      print(state);
+      print(state.products);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,

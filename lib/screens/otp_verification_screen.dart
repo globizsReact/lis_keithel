@@ -89,7 +89,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
           _isLoading = true;
         });
 
-        authNotifier.verifyOtp(
+        authNotifier.verifyOtpWithBackend(
+          context,
           otp,
         );
 

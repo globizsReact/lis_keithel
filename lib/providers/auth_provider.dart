@@ -267,6 +267,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     BuildContext context,
     String enteredOtp,
   ) async {
+    final token = await _preferences.getString('token');
+
     try {
       if (state.phone == null) {
         throw Exception("Phone number not found");
@@ -276,10 +278,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = state.copyWith(isLoading: true, errorMessage: '');
 
       // Use the service to make the API call
-      final responseData = await _authService.verifyOtp(
-        state.phone!,
-        enteredOtp,
-      );
+      final responseData = await _authService.verifyOtp(token!);
 
       if (responseData['type'] == 'success') {
         // OTP verification successful
@@ -318,7 +317,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           msg: responseData['msg'],
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
-          backgroundColor: AppTheme.red,
+          backgroundColor: AppTheme.orange,
           textColor: AppTheme.white,
         );
       }

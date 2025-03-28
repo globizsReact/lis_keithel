@@ -124,6 +124,6 @@ final filteredProductsProvider = Provider<List<Product>>((ref) {
 
   // Filter products by product_type_id matching the selected category ID
   return productsState.products
-      .where((product) => product.id == selectedCategoryId)
+      .where((product) => product.productTypeId == selectedCategoryId)
       .toList();
 });
