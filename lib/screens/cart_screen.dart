@@ -312,12 +312,10 @@ class CartScreen extends ConsumerWidget {
                       ),
                       SizedBox(
                         width: double.infinity,
+                        height: responsive.height(0.07),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.orange,
-                            padding: EdgeInsets.symmetric(
-                              vertical: responsive.padding(15),
-                            ),
                           ),
                           onPressed: () {
                             // Implement checkout logic

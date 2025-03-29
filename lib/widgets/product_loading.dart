@@ -15,7 +15,6 @@ class ProductLoading extends StatelessWidget {
       itemCount: 6,
       padding: EdgeInsets.symmetric(
         horizontal: responsive.padding(23),
-        vertical: responsive.padding(18),
       ),
       itemBuilder: (context, index) {
         return Padding(

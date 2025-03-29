@@ -1,166 +1,108 @@
 // order_service.dart
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/config.dart';
-
 import '../models/models.dart';
 
 class OrderService {
   // Base URL for API
   final String baseUrl = Config.baseUrl;
 
-  // Mock data for demo
-  final List<Order> _mockOrders = [
-    Order(
-      id: '56ASDFH',
-      date: DateTime(2025, 1, 29),
-      status: OrderStatus.noPayment,
-      items: [
-        OrderItem(
-          name: 'Khamdenu 10mm',
-          pricePerKg: 64.60,
-          quantity: 15,
-          imageUrl: 'assets/images/khamdenu.png',
-        ),
-        OrderItem(
-          name: 'Khamdenu 8mm',
-          pricePerKg: 66.0,
-          quantity: 50,
-          imageUrl: 'assets/images/shyam.png',
-        ),
-      ],
-      imageUrl: 'assets/images/dalmia.png',
-    ),
-    Order(
-      id: '56ASDFH',
-      date: DateTime(2025, 1, 29),
-      status: OrderStatus.cancel,
-      items: [
-        OrderItem(
-          name: 'Ultratech Cement',
-          pricePerKg: 350.0,
-          quantity: 10,
-          imageUrl: 'assets/images/ultratech.png',
-        ),
-      ],
-      imageUrl: 'assets/images/ultratech.png',
-    ),
-    Order(
-      id: '56ASDFH',
-      date: DateTime(2025, 1, 29),
-      status: OrderStatus.newOrder,
-      items: [
-        OrderItem(
-          name: 'Dalmia Cement',
-          pricePerKg: 330.0,
-          quantity: 15,
-          imageUrl: 'assets/images/dalmia.png',
-        ),
-      ],
-      imageUrl: 'assets/images/dalmia.png',
-    ),
-    Order(
-      id: '56ASDFH',
-      date: DateTime(2025, 1, 29),
-      status: OrderStatus.paid,
-      items: [
-        OrderItem(
-          name: 'AAC Blocks',
-          pricePerKg: 45.0,
-          quantity: 100,
-          imageUrl: 'assets/images/acc.png',
-        ),
-      ],
-      imageUrl: 'assets/images/acc.png',
-    ),
-    Order(
-      id: '57TYUIO',
-      date: DateTime(2025, 2, 15),
-      status: OrderStatus.paid,
-      items: [
-        OrderItem(
-          name: 'Khamdenu 12mm',
-          pricePerKg: 68.50,
-          quantity: 25,
-          imageUrl: 'assets/images/xtech.png',
-        ),
-      ],
-      imageUrl: 'assets/images/xtech.png',
-    ),
-    Order(
-      id: '58QWERT',
-      date: DateTime(2025, 3, 10),
-      status: OrderStatus.noPayment,
-      items: [
-        OrderItem(
-          name: 'PVC Pipes',
-          pricePerKg: 120.0,
-          quantity: 30,
-          imageUrl: 'assets/images/tata.png',
-        ),
-      ],
-      imageUrl: 'assets/images/tata.png',
-    ),
-  ];
-
   // Get all orders
   Future<List<Order>> getOrders() async {
+    final url = '$baseUrl/salesorders/clientorderlist';
     try {
-      // For demo, return mock data
-      // In real app, use HTTP call
-      // final response = await http.get(Uri.parse('$baseUrl/orders'));
+      // Access SharedPreferences instance
+      final prefs = await SharedPreferences.getInstance();
 
-      // if (response.statusCode == 200) {
-      //   final List<dynamic> data = json.decode(response.body);
-      //   return data.map((json) => Order.fromJson(json)).toList();
-      // } else {
-      //   throw Exception('Failed to load orders');
-      // }
+      // Retrieve the token from SharedPreferences
+      final token = prefs.getString('token');
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not found in SharedPreferences');
+      }
 
-      await Future.delayed(
-          const Duration(milliseconds: 800)); // Simulate network delay
-      return _mockOrders;
+      // Make HTTP call
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'token': token,
+        },
+        body: jsonEncode(
+          {},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Order.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load orders: ${response.statusCode}');
+      }
     } catch (e) {
       debugPrint('Error fetching orders: $e');
       return [];
     }
   }
-
   // Get orders filtered by date range
-  Future<List<Order>> getOrdersByDateRange(DateTime start, DateTime end) async {
-    try {
-      // For demo, filter mock data
-      // In real app, use HTTP call with query parameters
-      // final response = await http.get(
-      //   Uri.parse('$baseUrl/orders?start=${start.toIso8601String()}&end=${end.toIso8601String()}')
-      // );
+  // Future<List<Order>> getOrdersByDateRange(DateTime start, DateTime end) async {
+  //   try {
+  //     // For demo, filter mock data
+  //     // In real app, use HTTP call with query parameters
+  //     // final response = await http.get(
+  //     //   Uri.parse('$baseUrl/orders?start=${start.toIso8601String()}&end=${end.toIso8601String()}')
+  //     // );
 
-      await Future.delayed(
-          const Duration(milliseconds: 800)); // Simulate network delay
+  //     await Future.delayed(
+  //         const Duration(milliseconds: 800)); // Simulate network delay
 
-      return _mockOrders.where((order) {
-        return order.date.isAfter(start.subtract(const Duration(days: 1))) &&
-            order.date.isBefore(end.add(const Duration(days: 1)));
-      }).toList();
-    } catch (e) {
-      debugPrint('Error fetching orders by date range: $e');
-      return [];
-    }
-  }
+  //     return _mockOrders.where((order) {
+  //       return order.date.isAfter(start.subtract(const Duration(days: 1))) &&
+  //           order.date.isBefore(end.add(const Duration(days: 1)));
+  //     }).toList();
+  //   } catch (e) {
+  //     debugPrint('Error fetching orders by date range: $e');
+  //     return [];
+  //   }
+  // }
 
   // Get order details by ID
-  Future<Order?> getOrderById(String id) async {
+  Future<OrderDetail?> getOrderById(String id) async {
+    final url = '$baseUrl/salesorders/clientorderview';
+
     try {
-      // For demo, find in mock data
-      // In real app, use HTTP call
-      // final response = await http.get(Uri.parse('$baseUrl/orders/$id'));
+      // Access SharedPreferences instance if you need the token
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
 
-      await Future.delayed(
-          const Duration(milliseconds: 500)); // Simulate network delay
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not found in SharedPreferences');
+      }
 
-      return _mockOrders.firstWhere((order) => order.id == id);
+      // Make HTTP call
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'token': token
+          // Add any other required headers
+        },
+        body: jsonEncode(
+          {
+            "id": id,
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        return OrderDetail.fromJson(data);
+      } else {
+        debugPrint('Failed to load order: ${response.statusCode}');
+        return null;
+      }
     } catch (e) {
       debugPrint('Error fetching order details: $e');
       return null;

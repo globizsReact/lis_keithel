@@ -199,10 +199,10 @@ class OrderListScreen extends ConsumerWidget {
       },
     );
 
-    if (result != null) {
-      // Apply filter
-      notifier.filterByDateRange(result.start, result.end);
-    }
+    // if (result != null) {
+    //   // Apply filter
+    //   notifier.filterByDateRange(result.start, result.end);
+    // }
   }
 }
 
@@ -240,47 +240,48 @@ class _OrderCard extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(8),
                   image: DecorationImage(
                     image: AssetImage(
-                      order.imageUrl ?? 'assets/images/default.jpg',
+                      'assets/images/placeholder.png',
                     ),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
-              SizedBox(width: responsive.width(0.04)),
+              SizedBox(
+                width: responsive.width(0.04),
+              ),
 
               // Order details
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      order.id,
-                      style: TextStyle(
-                        color: AppTheme.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: responsive.textSize(17),
-                      ),
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '#${order.id}',
+                    style: TextStyle(
+                      color: AppTheme.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: responsive.textSize(17),
                     ),
-                    Text(
-                      dateFormat.format(order.date),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: Colors.grey[600],
-                        fontSize: responsive.textSize(11),
-                      ),
+                  ),
+                  Text(
+                    dateFormat.format(order.date),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: Colors.grey[600],
+                      fontSize: responsive.textSize(11),
                     ),
-                    SizedBox(height: responsive.height(0.018)),
-                    Text(
-                      order.status.displayName,
-                      style: TextStyle(
-                        fontSize: responsive.textSize(12),
-                        color: order.status.color,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  ),
+                  SizedBox(height: responsive.height(0.018)),
+                  Text(
+                    order.status.displayName,
+                    style: TextStyle(
+                      fontSize: responsive.textSize(12),
+                      color: order.status.color,
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                ],
+              )),
 
               // Arrow icon
               Image.asset(

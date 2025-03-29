@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:lis_keithel/models/order_detail_model.dart';
 import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
 import '../widgets/widgets.dart';
@@ -51,47 +52,142 @@ class OrderDetailsScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Order ID and Status
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '#$orderId',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.orange,
+                                      fontSize: responsive.textSize(19),
+                                    ),
+                                  ),
+                                  Text(
+                                    order.date,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: responsive.textSize(13),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Status: ',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: responsive.textSize(15),
+                                    ),
+                                  ),
+                                  Text(
+                                    order.status,
+                                    style: TextStyle(
+                                      color: order.statusColor,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: responsive.textSize(15),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(
+                            height: responsive.height(0.020),
+                          ),
+
+                          // Payment info
+                          Row(
+                            children: [
+                              Image.asset(
+                                'assets/icons/payment.png',
+                                width: responsive.width(0.035),
+                                gaplessPlayback: true,
+                              ),
+                              SizedBox(
+                                width: responsive.width(0.015),
+                              ),
+                              Text(
+                                'Payment info',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: responsive.textSize(13),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: responsive.height(0.002),
+                          ),
                           Row(
                             children: [
                               Text(
-                                'Order Id: ',
+                                'Mode: ',
                                 style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: responsive.textSize(19),
+                                  color: AppTheme.black,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: responsive.textSize(16),
                                 ),
                               ),
                               Text(
-                                '#${order.id}',
+                                order.paymentMode.toUpperCase(),
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.black,
-                                  fontSize: responsive.textSize(19),
+                                  color: AppTheme.green,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: responsive.textSize(16),
                                 ),
                               ),
                             ],
                           ),
 
+                          SizedBox(
+                            height: responsive.height(0.020),
+                          ),
+
+                          // Delivery Info
+                          Row(
+                            children: [
+                              Image.asset(
+                                'assets/icons/truck.png',
+                                width: responsive.width(0.045),
+                                gaplessPlayback: true,
+                              ),
+                              SizedBox(
+                                width: responsive.width(0.015),
+                              ),
+                              Text(
+                                'Delivery Info',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: responsive.textSize(13),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: responsive.height(0.002),
+                          ),
                           Row(
                             children: [
                               Text(
-                                'Status: ',
+                                'Date: ',
                                 style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: responsive.textSize(15),
+                                  color: AppTheme.black,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: responsive.textSize(16),
                                 ),
                               ),
-                              SizedBox(
-                                height: responsive.height(0.023),
-                              ),
                               Text(
-                                order.status.displayName,
+                                dateFormat.format(order.delDate),
                                 style: TextStyle(
-                                  color: order.status.color,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: responsive.textSize(15),
+                                  color: AppTheme.black,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: responsive.textSize(16),
                                 ),
                               ),
                             ],
@@ -101,11 +197,11 @@ class OrderDetailsScreen extends ConsumerWidget {
                             height: responsive.height(0.025),
                           ),
                           Text(
-                            'Items',
+                            'Item Details (${order.items.length} ${order.items.length > 1 ? 'items' : 'item'})',
                             style: TextStyle(
-                              color: AppTheme.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: responsive.textSize(20),
+                              color: AppTheme.grey,
+                              fontWeight: FontWeight.w600,
+                              fontSize: responsive.textSize(16),
                             ),
                           ),
                           SizedBox(height: responsive.height(0.01)),
@@ -129,7 +225,8 @@ class OrderDetailsScreen extends ConsumerWidget {
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
                                         image: DecorationImage(
-                                          image: AssetImage(item.imageUrl),
+                                          image: AssetImage(
+                                              'assets/images/placeholder.png'),
                                           fit: BoxFit.cover,
                                         ),
                                       ),
@@ -151,7 +248,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                item.name,
+                                                item.product,
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize:
@@ -160,7 +257,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                                                 ),
                                               ),
                                               Text(
-                                                'Rs. ${item.pricePerKg}/kg',
+                                                'Rs. ${item.amount}/kg',
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w700,
                                                   color: AppTheme.grey,
@@ -176,8 +273,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                currencyFormat
-                                                    .format(item.total),
+                                                'Rs. ${item.amount}/-',
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   color: AppTheme.orange,
@@ -223,26 +319,52 @@ class OrderDetailsScreen extends ConsumerWidget {
                                   fontSize: responsive.textSize(20),
                                 ),
                               ),
-                              Text(
-                                '${currencyFormat.format(order.subTotal)}/-',
-                                style: TextStyle(
-                                  color: AppTheme.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: responsive.textSize(20),
-                                ),
-                              ),
+                              // Text(
+                              //   '${order.}/-',
+                              //   style: TextStyle(
+                              //     color: AppTheme.black,
+                              //     fontWeight: FontWeight.bold,
+                              //     fontSize: responsive.textSize(20),
+                              //   ),
+                              // ),
                             ],
                           ),
+                          SizedBox(
+                            height: responsive.height(0.020),
+                          ),
+                          if (order.status == 'Cancel')
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Cancel Remark',
+                                  style: TextStyle(
+                                    color: AppTheme.red,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: responsive.textSize(16),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: responsive.height(0.004),
+                                ),
+                                Text(
+                                  order.cancelRemark,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: responsive.textSize(16),
+                                  ),
+                                )
+                              ],
+                            )
                         ],
                       ),
                     ),
                   ),
 
                   // Bottom action buttons
-                  if (order.status != OrderStatus.cancel &&
-                      order.status != OrderStatus.paid)
+                  if (order.status != 'Cancel')
                     SizedBox(
-                      height: responsive.height(0.08),
+                      height: responsive.height(0.07),
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () =>

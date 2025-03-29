@@ -101,7 +101,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                     ),
             ),
             SizedBox(
-              height: responsive.height(0.015),
+              height: responsive.height(0.02),
             ),
             // Product listing
             Expanded(
@@ -109,50 +109,50 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
               children: [
                 productsState.isLoading
                     ? ProductLoading()
-                    : productsState.error != null
-                        ? Center(child: Text('Error: ${productsState.error}'))
-                        : filteredProducts.isEmpty
-                            ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      'assets/icons/noPro.png',
-                                      width: responsive.width(0.2),
-                                    ),
-                                    SizedBox(height: responsive.height(0.02)),
-                                    Text(
-                                      'No product found \nfor this category',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: responsive.textSize(12),
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(height: responsive.height(0.025)),
-                                  ],
+                    : filteredProducts.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  'assets/icons/noPro.png',
+                                  width: responsive.width(0.2),
                                 ),
-                              )
-                            : ListView.builder(
-                                padding: EdgeInsets.only(
-                                    left: responsive.padding(23),
-                                    right: responsive.padding(23),
-                                    bottom: cartItems.isNotEmpty
-                                        ? responsive.padding(75)
-                                        : responsive.padding(18)),
-                                itemCount: filteredProducts.length,
-                                itemBuilder: (context, index) {
-                                  final product = filteredProducts[index];
-                                  return GestureDetector(
-                                    onTap: () {
-                                      showQuantitySelector(context, product);
-                                    },
-                                    child: ProductCard(
-                                      product: product,
-                                    ),
-                                  );
+                                SizedBox(
+                                  height: responsive.height(0.02),
+                                ),
+                                Text(
+                                  'No product found',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: responsive.textSize(12),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: responsive.height(0.025)),
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: EdgeInsets.only(
+                                left: responsive.padding(23),
+                                right: responsive.padding(23),
+                                bottom: cartItems.isNotEmpty
+                                    ? responsive.padding(75)
+                                    : responsive.padding(18)),
+                            itemCount: filteredProducts.length,
+                            itemBuilder: (context, index) {
+                              final product = filteredProducts[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  showQuantitySelector(context, product);
                                 },
-                              ),
+                                child: ProductCard(
+                                  product: product,
+                                ),
+                              );
+                            },
+                          ),
 
                 // Bottom checkout bar
                 if (cartItems.isNotEmpty)
@@ -295,17 +295,17 @@ class ProductCard extends StatelessWidget {
             ),
             child: Hero(
               tag: 'productImage_${product.id}',
-              child: CachedNetworkImage(
-                imageUrl: product.photo == null
-                    ? 'assets/images/placeholder.png'
-                    : product.photo!,
-                placeholder: (context, url) =>
-                    Image.asset('assets/images/placeholder.png'),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                height: responsive.height(0.178),
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+              child: product.photo == null
+                  ? Image.asset('assets/images/placeholder.png')
+                  : CachedNetworkImage(
+                      imageUrl: product.photo!,
+                      placeholder: (context, url) =>
+                          Image.asset('assets/images/placeholder.png'),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                      height: responsive.height(0.178),
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
             ),
           ),
           Padding(

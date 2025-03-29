@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
 import '../widgets/widgets.dart';
 import '../models/models.dart';
@@ -43,6 +44,10 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive sizing
+    ResponsiveSizing().init(context);
+    final responsive = ResponsiveSizing();
+
     return Container(
       padding: const EdgeInsets.only(right: 30, left: 30, top: 25, bottom: 30),
       decoration: const BoxDecoration(
@@ -89,12 +94,19 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                   borderRadius: BorderRadius.circular(10),
                   child: Hero(
                     tag: 'productImage_${widget.product.id}',
-                    child: CachedNetworkImage(
-                      imageUrl: widget.product.photo!,
-                      width: 70,
-                      height: 75,
-                      fit: BoxFit.cover,
-                    ),
+                    child: widget.product.photo == null
+                        ? Image.asset(
+                            'assets/images/placeholder.png',
+                            width: 70,
+                            height: 75,
+                            fit: BoxFit.cover,
+                          )
+                        : CachedNetworkImage(
+                            imageUrl: widget.product.photo!,
+                            width: 70,
+                            height: 75,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 ),
                 SizedBox(
@@ -185,10 +197,10 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
           // Add to cart button
           SizedBox(
             width: double.infinity,
+            height: responsive.height(0.07),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.orange,
-                padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               onPressed: () {
                 // Add to cart

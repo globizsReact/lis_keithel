@@ -35,17 +35,17 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   }
 
   // Filter orders by date range
-  Future<void> filterByDateRange(DateTime start, DateTime end) async {
-    state = const AsyncValue.loading();
-    try {
-      _startDate = start;
-      _endDate = end;
-      final orders = await _orderService.getOrdersByDateRange(start, end);
-      state = AsyncValue.data(orders);
-    } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
-    }
-  }
+  // Future<void> filterByDateRange(DateTime start, DateTime end) async {
+  //   state = const AsyncValue.loading();
+  //   try {
+  //     _startDate = start;
+  //     _endDate = end;
+  //     final orders = await _orderService.getOrdersByDateRange(start, end);
+  //     state = AsyncValue.data(orders);
+  //   } catch (e, stack) {
+  //     state = AsyncValue.error(e, stack);
+  //   }
+  // }
 
   // Clear date filter
   Future<void> clearDateFilter() async {
@@ -64,7 +64,7 @@ final ordersProvider =
 
 // Provider for a single order
 final orderDetailsProvider =
-    FutureProvider.family<Order?, String>((ref, id) async {
+    FutureProvider.family<OrderDetail?, String>((ref, id) async {
   final orderService = ref.watch(orderServiceProvider);
   return await orderService.getOrderById(id);
 });
