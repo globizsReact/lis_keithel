@@ -1,4 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lis_keithel/utils/config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
 import '../widgets/widgets.dart';
@@ -12,17 +18,145 @@ class UpdateAddressScreen extends StatefulWidget {
 
 class UpdateAddressScreenState extends State<UpdateAddressScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final _addressController = TextEditingController();
+  bool _isLoading = false;
+  bool _isAddressChanged = false;
+  String _originalAddress = '';
 
-  // phone number from login details
-  String phoneNumber = '961562469';
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedAddress();
+    _addressController.addListener(_checkAddressChange);
+  }
 
   @override
   void dispose() {
     _addressController.dispose();
-
+    _addressController.removeListener(_checkAddressChange);
     super.dispose();
+  }
+
+  // Load the saved address from shared preferences
+  Future<void> _loadSavedAddress() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedAddress = prefs.getString('address') ?? '';
+
+    setState(() {
+      _addressController.text = savedAddress;
+      _originalAddress = savedAddress.trim();
+      _isAddressChanged = false;
+    });
+  }
+
+  // Check if the address has changed
+  void _checkAddressChange() {
+    final currentAddress = _addressController.text.trim();
+    setState(() {
+      _isAddressChanged = currentAddress != _originalAddress;
+    });
+  }
+
+  // Save the updated address to shared preferences
+  Future<void> _saveAddress(String address) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('address', address);
+  }
+
+  // Call the API to update the address
+  Future<bool> _updateAddressAPI(String address) async {
+    final url = Uri.parse('${Config.baseUrl}/clients/client_update_address');
+    final body = {'Address': address};
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+
+      if (token == null || token.isEmpty) {
+        Fluttertoast.showToast(
+          msg: 'Authentication token not found.',
+          backgroundColor: AppTheme.red,
+          textColor: AppTheme.white,
+          gravity: ToastGravity.CENTER,
+        );
+
+        return false;
+      }
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'token': token,
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['type'] == 'success') {
+          return true;
+        } else {
+          Fluttertoast.showToast(
+            msg: 'Error: ${responseData['msg']}',
+            backgroundColor: AppTheme.red,
+            textColor: AppTheme.white,
+            gravity: ToastGravity.CENTER,
+          );
+        }
+      } else {
+        Fluttertoast.showToast(
+          msg: 'Failed to update address. Please try again.',
+          backgroundColor: AppTheme.red,
+          textColor: AppTheme.white,
+          gravity: ToastGravity.CENTER,
+        );
+      }
+    } catch (e) {
+      debugPrint('Error updating address: $e');
+      Fluttertoast.showToast(
+        msg: 'An unexpected error occurred.',
+        backgroundColor: AppTheme.red,
+        textColor: AppTheme.white,
+        gravity: ToastGravity.CENTER,
+      );
+    }
+    return false;
+  }
+
+  // Handle the update process
+  Future<void> _updateAddress() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true; // Show loading indicator
+      });
+
+      final updatedAddress = _addressController.text.trim();
+
+      // Call the API to update the address
+      final success = await _updateAddressAPI(updatedAddress);
+
+      if (success) {
+        // Save the updated address to shared preferences
+        await _saveAddress(updatedAddress);
+
+        CustomToast.show(
+          context: context,
+          message: 'Address update successfully',
+          icon: Icons.check,
+          backgroundColor: AppTheme.green,
+          textColor: Colors.white,
+          gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 3),
+        );
+
+        context.go('/');
+      }
+
+      setState(() {
+        _isLoading = false; // Hide loading indicator
+      });
+    }
   }
 
   @override
@@ -65,6 +199,7 @@ class UpdateAddressScreenState extends State<UpdateAddressScreen> {
                       // Address TextField
                       TextFormField(
                         controller: _addressController,
+                        maxLines: 3,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.symmetric(
                             vertical: responsive.padding(20),
@@ -99,7 +234,6 @@ class UpdateAddressScreenState extends State<UpdateAddressScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your new address';
                           }
-
                           return null;
                         },
                       ),
@@ -108,23 +242,31 @@ class UpdateAddressScreenState extends State<UpdateAddressScreen> {
                 ),
                 SizedBox(
                   width: double.infinity,
-                  height: responsive.height(0.08),
+                  height: responsive.height(0.07),
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {}
-                    },
+                    onPressed: !_isAddressChanged ? null : _updateAddress,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.orange,
-                      foregroundColor: Colors.white,
+                      backgroundColor:
+                          _isLoading ? AppTheme.grey : AppTheme.orange,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: Text('Update',
-                        style: TextStyle(
-                          fontSize: responsive.textSize(17),
-                          fontWeight: FontWeight.w600,
-                        )),
+                    child: _isLoading
+                        ? SizedBox(
+                            height: 25,
+                            width: 25,
+                            child: const CircularProgressIndicator(
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            'Update',
+                            style: TextStyle(
+                              fontSize: responsive.textSize(17),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                   ),
                 ),
               ],

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 MaterialColor createMaterialColor(Color color) {
   List<double> strengths = <double>[.05, .1, .2, .3, .4, .5, .6, .7, .8, .9];
   Map<int, Color> swatch = <int, Color>{};
+  // ignore: deprecated_member_use
   final int r = color.red, g = color.green, b = color.blue;
 
   for (var strength in strengths) {
@@ -16,6 +17,7 @@ MaterialColor createMaterialColor(Color color) {
     );
   }
 
+  // ignore: deprecated_member_use
   return MaterialColor(color.value, swatch);
 }
 
@@ -56,6 +58,7 @@ class AppTheme {
       onPrimary: white,
       onSecondary: white,
       onError: white,
+      // ignore: deprecated_member_use
       background: white,
       surface: white,
     ),

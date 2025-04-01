@@ -1,12 +1,13 @@
 // lib/screens/cart_screen.dart
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../providers/cart_provider.dart';
 import '../providers/selected_index_provider.dart';
 import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
 import '../widgets/widgets.dart';
-import '../providers/cart_provider.dart';
 
 // Provider to hold the list of predefined delivery dates
 final predefinedDatesProvider = Provider<List<String>>((ref) {
@@ -34,6 +35,7 @@ class CartScreen extends ConsumerWidget {
     final cartItems = ref.watch(cartProvider);
     final cartSummary = ref.watch(cartSummaryProvider);
     final totalAmount = cartSummary['totalAmount'] as double;
+    // final totalWeightType2 = cartSummary['totalWeightType2'] as double;
 
     // Access the predefined dates and selected date from providers
     final predefinedDates = ref.watch(predefinedDatesProvider);
@@ -144,6 +146,7 @@ class CartScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: ListView.builder(
+                    physics: BouncingScrollPhysics(),
                     padding: EdgeInsets.symmetric(
                         horizontal: responsive.padding(22),
                         vertical: responsive.padding(2)),
@@ -160,7 +163,7 @@ class CartScreen extends ConsumerWidget {
                         onQuantityChanged: (quantity) {
                           ref.read(cartProvider.notifier).updateQuantity(
                                 item.product.id,
-                                quantity,
+                                quantityPcs: quantity,
                               );
                         },
                       );
@@ -361,28 +364,44 @@ class CartItemCard extends StatelessWidget {
     ResponsiveSizing().init(context);
     final responsive = ResponsiveSizing();
 
+// Calculate the total amount based on product type
+    String totalAmountText = '';
+    if (cartItem.product.productTypeId == '2') {
+      // Weight-based product (type 2): Use quantityKg for calculation
+      totalAmountText =
+          'Rs. ${(cartItem.product.price * cartItem.quantityKg).toStringAsFixed(2)}';
+    } else {
+      // Count-based product: Use quantityPcs for calculation
+      totalAmountText =
+          'Rs. ${(cartItem.product.price * cartItem.quantityPcs).toStringAsFixed(2)}';
+    }
+
     return Padding(
-      padding: EdgeInsets.only(bottom: responsive.padding(11)),
+      padding: EdgeInsets.only(
+        bottom: responsive.padding(11),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Product image
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              cartItem.product.photo!,
-              width: responsive.width(0.25),
-              height: responsive.height(0.11),
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: responsive.width(0.2),
-                  height: responsive.height(0.1),
-                  color: Colors.grey.shade200,
-                  child: const Icon(Icons.image_not_supported),
-                );
-              },
-            ),
+            child: cartItem.product.photo == null
+                ? Image.asset(
+                    'assets/images/placeholder.png',
+                    width: responsive.width(0.25),
+                    height: responsive.height(0.11),
+                    fit: BoxFit.cover,
+                  )
+                : CachedNetworkImage(
+                    imageUrl: cartItem.product.photo!,
+                    width: responsive.width(0.25),
+                    height: responsive.height(0.11),
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        Image.asset('assets/images/placeholder.png'),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
           ),
           SizedBox(width: responsive.width(0.04)),
           // Product details
@@ -414,7 +433,7 @@ class CartItemCard extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      'Rs. ${cartItem.product.price}/kg',
+                      'Rs. ${cartItem.product.price}/${cartItem.product.uomCode}',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: responsive.textSize(11),
@@ -428,7 +447,7 @@ class CartItemCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Rs. ${(cartItem.product.price * cartItem.quantity)}',
+                      totalAmountText,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
@@ -439,8 +458,8 @@ class CartItemCard extends StatelessWidget {
                         _buildQuantityButton(
                           icon: Icons.remove,
                           onPressed: () {
-                            if (cartItem.quantity > 1) {
-                              onQuantityChanged(cartItem.quantity - 1);
+                            if (cartItem.quantityPcs > 1) {
+                              onQuantityChanged(cartItem.quantityPcs - 1);
                             }
                           },
                         ),
@@ -449,7 +468,7 @@ class CartItemCard extends StatelessWidget {
                           width: responsive.width(0.1),
                           alignment: Alignment.center,
                           child: Text(
-                            '${cartItem.quantity}',
+                            '${cartItem.quantityPcs}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
@@ -459,7 +478,7 @@ class CartItemCard extends StatelessWidget {
                         _buildQuantityButton(
                           icon: Icons.add,
                           onPressed: () {
-                            onQuantityChanged(cartItem.quantity + 1);
+                            onQuantityChanged(cartItem.quantityPcs + 1);
                           },
                         ),
                       ],

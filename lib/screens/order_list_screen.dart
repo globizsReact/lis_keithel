@@ -30,7 +30,7 @@ class OrderListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(responsive.appBarHeight(65)),
+        preferredSize: Size.fromHeight(65),
         child: Padding(
           padding: EdgeInsets.all(
             responsive.padding(8),
@@ -75,7 +75,9 @@ class OrderListScreen extends ConsumerWidget {
                     width: 90,
                     gaplessPlayback: true,
                   ),
-                  SizedBox(height: responsive.height(0.02)),
+                  SizedBox(
+                    height: responsive.height(0.02),
+                  ),
                   Text(
                     'Sign in to see your orders',
                     style: TextStyle(
@@ -143,11 +145,13 @@ class OrderListScreen extends ConsumerWidget {
                 }
 
                 return ListView.separated(
+                  physics: BouncingScrollPhysics(),
                   padding:
                       EdgeInsets.symmetric(horizontal: responsive.padding(23)),
                   itemCount: orders.length,
-                  separatorBuilder: (context, index) =>
-                      SizedBox(height: responsive.height(0.008)),
+                  separatorBuilder: (context, index) => SizedBox(
+                    height: 5,
+                  ),
                   itemBuilder: (context, index) {
                     final order = orders[index];
                     return _OrderCard(

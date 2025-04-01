@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../utils/go_router_refresh_stream.dart';
@@ -14,7 +15,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authProvider);
 
       // Debug print to verify state changes
-      print('GoRouter redirect: isLoggedIn = ${authState.isLoggedIn}');
+      debugPrint('GoRouter redirect: isLoggedIn = ${authState.isLoggedIn}');
 
       // Check if the current route is a protected route
       final isProtectedRoute =
@@ -75,6 +76,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ForgotPasswordScreen(),
       ),
       GoRoute(
+        path: '/reset-password',
+        builder: (context, state) => const ResetPasswordScreen(),
+      ),
+      GoRoute(
         path: '/notifications',
         builder: (context, state) => const NotificationScreen(),
       ),
@@ -112,11 +117,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             onVerificationSuccess: (otp, context) {
               if (extras['type'] == OtpScreenType.registration) {
                 // Handle registration OTP verification
-                print('Registration OTP verified: $otp');
+                debugPrint('Registration OTP verified: $otp');
                 GoRouter.of(context).go('/');
               } else {
                 // Handle password change OTP verification
-                print('Password change OTP verified: $otp');
+                debugPrint('Password change OTP verified: $otp');
                 GoRouter.of(context).go('/', extra: {
                   'phoneNumber': extras['phoneNumber'],
                 });
@@ -124,7 +129,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             },
             onResendOtp: () {
               // Call your API to resend OTP
-              print('Resending OTP');
+              debugPrint('Resending OTP');
             },
           );
         },

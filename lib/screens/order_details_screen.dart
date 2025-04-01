@@ -1,14 +1,14 @@
 // screens/order_details_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:lis_keithel/models/order_detail_model.dart';
+
+import '../providers/providers.dart';
 import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
 import '../widgets/widgets.dart';
-import '../models/order_model.dart';
-import '../providers/providers.dart';
 
 class OrderDetailsScreen extends ConsumerWidget {
   final String orderId;
@@ -21,7 +21,7 @@ class OrderDetailsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final orderAsyncValue = ref.watch(orderDetailsProvider(orderId));
-    final currencyFormat = NumberFormat.currency(symbol: '₹', decimalDigits: 2);
+    // final currencyFormat = NumberFormat.currency(symbol: '₹', decimalDigits: 2);
     final dateFormat = DateFormat('dd MMM yyyy');
 
     // Initialize responsive sizing
@@ -33,16 +33,39 @@ class OrderDetailsScreen extends ConsumerWidget {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(
-            left: responsive.padding(23),
-            right: responsive.padding(23),
-            bottom: responsive.padding(23),
+            left: 25,
+            right: 25,
+            bottom: 25,
           ),
           child: orderAsyncValue.when(
             loading: () => OrderDetailsShimmer(),
             error: (error, stack) => Center(child: Text('Error: $error')),
             data: (order) {
               if (order == null) {
-                return const Center(child: Text('Order not found'));
+                return Center(
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/icons/orderE.png',
+                      width: responsive.width(0.2),
+                      gaplessPlayback: true,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      'Order not found',
+                      style: TextStyle(
+                        fontSize: responsive.textSize(12),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                  ],
+                ));
               }
 
               return Column(
@@ -75,30 +98,19 @@ class OrderDetailsScreen extends ConsumerWidget {
                                   ),
                                 ],
                               ),
-                              Row(
-                                children: [
-                                  Text(
-                                    'Status: ',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: responsive.textSize(15),
-                                    ),
-                                  ),
-                                  Text(
-                                    order.status,
-                                    style: TextStyle(
-                                      color: order.statusColor,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: responsive.textSize(15),
-                                    ),
-                                  ),
-                                ],
+                              Text(
+                                order.status,
+                                style: TextStyle(
+                                  color: order.statusColor,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: responsive.textSize(15),
+                                ),
                               ),
                             ],
                           ),
 
                           SizedBox(
-                            height: responsive.height(0.020),
+                            height: 17,
                           ),
 
                           // Payment info
@@ -122,7 +134,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                             ],
                           ),
                           SizedBox(
-                            height: responsive.height(0.002),
+                            height: 2,
                           ),
                           Row(
                             children: [
@@ -146,7 +158,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                           ),
 
                           SizedBox(
-                            height: responsive.height(0.020),
+                            height: 17,
                           ),
 
                           // Delivery Info
@@ -170,7 +182,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                             ],
                           ),
                           SizedBox(
-                            height: responsive.height(0.002),
+                            height: 2,
                           ),
                           Row(
                             children: [
@@ -194,7 +206,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                           ),
 
                           SizedBox(
-                            height: responsive.height(0.025),
+                            height: 22,
                           ),
                           Text(
                             'Item Details (${order.items.length} ${order.items.length > 1 ? 'items' : 'item'})',
@@ -204,7 +216,9 @@ class OrderDetailsScreen extends ConsumerWidget {
                               fontSize: responsive.textSize(16),
                             ),
                           ),
-                          SizedBox(height: responsive.height(0.01)),
+                          SizedBox(
+                            height: 10,
+                          ),
 
                           // Item list
                           ListView.builder(
@@ -221,7 +235,7 @@ class OrderDetailsScreen extends ConsumerWidget {
                                     // Item image
                                     Container(
                                       width: responsive.width(0.2),
-                                      height: responsive.height(0.08),
+                                      height: 70,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
                                         image: DecorationImage(
@@ -266,14 +280,14 @@ class OrderDetailsScreen extends ConsumerWidget {
                                             ],
                                           ),
                                           SizedBox(
-                                            height: responsive.height(0.012),
+                                            height: 12,
                                           ),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                'Rs. ${item.amount}/-',
+                                                'Rs. ${(double.parse(item.amount) * double.parse(item.quantity)).toStringAsFixed(2)}/-',
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   color: AppTheme.orange,
@@ -298,13 +312,13 @@ class OrderDetailsScreen extends ConsumerWidget {
                           ),
 
                           SizedBox(
-                            height: responsive.height(0.016),
+                            height: 16,
                           ),
                           const Divider(
                             color: Colors.grey,
                           ),
                           SizedBox(
-                            height: responsive.height(0.016),
+                            height: 16,
                           ),
 
                           // Subtotal
@@ -319,18 +333,18 @@ class OrderDetailsScreen extends ConsumerWidget {
                                   fontSize: responsive.textSize(20),
                                 ),
                               ),
-                              // Text(
-                              //   '${order.}/-',
-                              //   style: TextStyle(
-                              //     color: AppTheme.black,
-                              //     fontWeight: FontWeight.bold,
-                              //     fontSize: responsive.textSize(20),
-                              //   ),
-                              // ),
+                              Text(
+                                'Rs. ${order.formattedTotalAmount}/-',
+                                style: TextStyle(
+                                  color: AppTheme.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: responsive.textSize(20),
+                                ),
+                              ),
                             ],
                           ),
                           SizedBox(
-                            height: responsive.height(0.020),
+                            height: 18,
                           ),
                           if (order.status == 'Cancel')
                             Column(
@@ -345,13 +359,13 @@ class OrderDetailsScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 SizedBox(
-                                  height: responsive.height(0.004),
+                                  height: 5,
                                 ),
                                 Text(
                                   order.cancelRemark,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
-                                    fontSize: responsive.textSize(16),
+                                    fontSize: responsive.textSize(14),
                                   ),
                                 )
                               ],
@@ -364,11 +378,11 @@ class OrderDetailsScreen extends ConsumerWidget {
                   // Bottom action buttons
                   if (order.status != 'Cancel')
                     SizedBox(
-                      height: responsive.height(0.07),
+                      height: 65,
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () =>
-                            _confirmCancelOrder(context, ref, orderId),
+                        onPressed: () => _confirmCancelOrder(
+                            context, ref, orderId, order.canCancel),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.orange,
                           foregroundColor: Colors.white,
@@ -395,7 +409,7 @@ class OrderDetailsScreen extends ConsumerWidget {
   }
 
   void _confirmCancelOrder(
-      BuildContext context, WidgetRef ref, String orderId) {
+      BuildContext context, WidgetRef ref, String orderId, String canCancel) {
     final _formKey = GlobalKey<FormState>();
     String? _cancelReason;
 
@@ -466,9 +480,9 @@ class OrderDetailsScreen extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () async {
-              if (_formKey.currentState!.validate()) {
+              if (_formKey.currentState!.validate() && canCancel == '1') {
                 _formKey.currentState!.save();
-                print('User Input: $_cancelReason');
+                debugPrint('User Input: $_cancelReason');
 
                 Navigator.pop(context);
 
@@ -477,15 +491,13 @@ class OrderDetailsScreen extends ConsumerWidget {
                     await ref.read(cancelOrderProvider(orderId).future);
 
                 // Show result
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      result
-                          ? 'Order cancelled successfully'
-                          : 'Failed to cancel order',
-                    ),
-                    backgroundColor: result ? Colors.green : Colors.red,
-                  ),
+                Fluttertoast.showToast(
+                  msg: result
+                      ? 'Order cancelled successfully'
+                      : 'Failed to cancel order',
+                  backgroundColor: result ? AppTheme.green : AppTheme.red,
+                  textColor: AppTheme.white,
+                  gravity: ToastGravity.CENTER,
                 );
 
                 // Navigate back to orders list if successful

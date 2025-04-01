@@ -83,6 +83,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                   : SizedBox(
                       height: responsive.height(0.032),
                       child: ListView.builder(
+                        physics: BouncingScrollPhysics(),
                         clipBehavior: Clip.none,
                         scrollDirection: Axis.horizontal,
                         itemCount: categoriesState.categories.length,
@@ -134,6 +135,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                             ),
                           )
                         : ListView.builder(
+                            physics: BouncingScrollPhysics(),
                             padding: EdgeInsets.only(
                                 left: responsive.padding(23),
                                 right: responsive.padding(23),
@@ -327,7 +329,7 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Rs. ${product.price}/-',
+                      'Rs. ${product.price}/${product.uomCode == null ? '-' : '${product.uomCode}'}',
                       style: TextStyle(
                         fontSize: responsive.textSize(11),
                         fontWeight: FontWeight.bold,

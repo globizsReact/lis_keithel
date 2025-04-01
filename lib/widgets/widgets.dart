@@ -8,3 +8,4 @@ export 'cart_button.dart';
 export 'quantity_selector.dart';
 export 'custom_toast.dart';
 export 'simple_app_bar.dart';
+export 'profile_card_loading.dart';

@@ -76,7 +76,7 @@ class Order {
         break;
       default:
         // Handle unknown status - either throw an error or default to a status
-        print('Unknown status: ${json['status']}');
+        debugPrint('Unknown status: ${json['status']}');
         orderStatus = OrderStatus.cancel; // Default value
         break;
     }

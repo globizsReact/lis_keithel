@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lis_keithel/widgets/custom_toast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/config.dart';
 import '../utils/theme.dart';
 
@@ -29,35 +32,60 @@ class LocationNotifier extends StateNotifier<Map<String, double>?> {
   }
 }
 
-Future<void> sendLocationToApi(Map<String, double> location) async {
-  final url =
-      Uri.parse('${Config.baseUrl}/location'); // Replace with your API endpoint
+Future<void> sendLocationToApi(
+    BuildContext context, Map<String, double> location) async {
+  final url = Uri.parse(
+      '${Config.baseUrl}/clients/client_update_location'); // Replace with your API endpoint
   final body = jsonEncode({
-    'latitude': location['latitude'],
-    'longitude': location['longitude'],
+    'Lat': location['latitude'],
+    'Lan': location['longitude'],
   });
 
   try {
+    // Access SharedPreferences instance
+    final prefs = await SharedPreferences.getInstance();
+    // Retrieve the token from SharedPreferences
+    final token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      throw Exception('Token not found in SharedPreferences');
+    }
+
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'token': token,
+      },
       body: body,
     );
 
     if (response.statusCode == 200) {
-      print('Location sent successfully');
-      // Show success toast
-      Fluttertoast.showToast(
-        msg: 'Location update successfully',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        backgroundColor: AppTheme.orange,
-        textColor: AppTheme.white,
-      );
+      final responseData = jsonDecode(response.body);
+      if (responseData['type'] == 'success') {
+        CustomToast.show(
+          context: context,
+          message: responseData['msg'],
+          icon: Icons.check,
+          backgroundColor: AppTheme.green,
+          textColor: Colors.white,
+          gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 3),
+        );
+      } else {
+        CustomToast.show(
+          context: context,
+          message: responseData['msg'],
+          icon: Icons.check,
+          backgroundColor: AppTheme.red,
+          textColor: Colors.white,
+          gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 3),
+        );
+      }
     } else {
-      print('Failed to send location: ${response.statusCode}');
+      debugPrint('Failed to send location: ${response.statusCode}');
     }
   } catch (e) {
-    print('Error sending location: $e');
+    debugPrint('Error sending location: $e');
   }
 }

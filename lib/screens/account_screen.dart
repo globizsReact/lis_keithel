@@ -1,36 +1,137 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+import 'package:lis_keithel/widgets/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/config.dart';
 import '../providers/providers.dart';
 import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
-import '../widgets/custom_toast.dart';
 
-class AccountScreen extends ConsumerWidget {
+class AccountScreen extends ConsumerStatefulWidget {
   const AccountScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authNotifier = ref.read(authProvider.notifier);
+  ConsumerState<AccountScreen> createState() => _AccountScreenState();
+}
 
-    // Access SharedPreferences instance
-    final sharedPreferences = ref.watch(sharedPreferencesProvider);
+class _AccountScreenState extends ConsumerState<AccountScreen> {
+  late ResponsiveSizing responsive;
 
-    // Retrieve the fullname from SharedPreferences
-    final fullname = sharedPreferences.getString('fullname') ?? 'Guest';
+  // Variables to store the fetched data
+  String name = '';
+  String phone = '';
+  String address = '';
 
-    // Initialize responsive sizing
-    ResponsiveSizing().init(context);
-    final responsive = ResponsiveSizing();
+// Loading state
+  bool isLoading = true;
+  bool isLocationLoading = false;
+
+// Flag to check if data has already been fetched
+  bool isDataFetched = false;
+
+// Function to fetch data from the API
+  Future<void> fetchData() async {
+    try {
+      // Access SharedPreferences instance
+      final prefs = await SharedPreferences.getInstance();
+
+      // Check if data is already stored in SharedPreferences
+      if (prefs.containsKey('name') &&
+          prefs.containsKey('phone') &&
+          prefs.containsKey('address')) {
+        setState(() {
+          name = prefs.getString('name') ?? '';
+          phone = prefs.getString('phone') ?? '';
+          address = prefs.getString('address') ?? '';
+          isLoading = false;
+          isDataFetched = true;
+        });
+        return;
+      }
+
+      // Retrieve the token from SharedPreferences
+      final token = prefs.getString('token');
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not found in SharedPreferences');
+      }
+
+      final url = '${Config.baseUrl}/clients/myprofile';
+
+      // Replace with your API endpoint
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'token': token
+          // 'Authorization': 'Bearer YOUR_TOKEN',
+        },
+        body: jsonEncode({}),
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the JSON response
+        final jsonData = json.decode(response.body);
+
+        debugPrint(response.body);
+
+        // Extract the required fields from the response
+        final fetchedName = jsonData['msg']['name'];
+        final fetchedPhone = jsonData['msg']['phone'];
+        final fetchedAddress = jsonData['msg']['leikai'];
+
+        // Save the fetched data to SharedPreferences
+        await prefs.setString('name', fetchedName);
+        await prefs.setString('phone', fetchedPhone);
+        await prefs.setString('address', fetchedAddress);
+
+        await Future.delayed(Duration(seconds: 2));
+        setState(() {
+          name = fetchedName;
+          phone = fetchedPhone;
+          address = fetchedAddress;
+          isLoading = false; // Stop loading after data is fetched
+          isDataFetched = true; // Mark data as fetched
+        });
+      } else {
+        // Handle error cases
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      // Handle exceptions
+      setState(() {
+        isLoading = false; // Stop loading in case of an error
+      });
+      debugPrint('Error: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize responsive sizing in initState
+    responsive = ResponsiveSizing();
+
+    // Fetch data only if it hasn't been fetched yet
+    if (!isDataFetched) {
+      fetchData();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Initialize responsive sizing for the current context
+    responsive.init(context);
 
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(responsive.appBarHeight(65)),
         child: Padding(
-          padding: EdgeInsets.all(
-            responsive.padding(8),
-          ),
+          padding: EdgeInsets.all(responsive.padding(8)),
           child: AppBar(
             backgroundColor: AppTheme.white,
             scrolledUnderElevation: 0,
@@ -52,102 +153,96 @@ class AccountScreen extends ConsumerWidget {
         ),
         child: Column(
           children: [
-            Container(
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                color: AppTheme.lightOrange,
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              padding: EdgeInsets.symmetric(
-                horizontal: responsive.padding(20),
-                vertical: responsive.padding(20),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: responsive.width(0.56),
-                        child: Text(
-                          fullname,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: true,
-                          style: TextStyle(
-                            fontSize: responsive.textSize(19),
-                            fontWeight: FontWeight.w800,
-                            color: AppTheme.black,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: responsive.height(0.01),
-                      ),
-                      Row(
-                        children: [
-                          Image.asset(
-                            'assets/icons/phone.png',
-                            width: responsive.width(0.035),
-                            gaplessPlayback: true,
-                          ),
-                          SizedBox(
-                            width: responsive.width(0.02),
-                          ),
-                          Text(
-                            '+91 7629 865 803',
-                            style: TextStyle(
-                              color: AppTheme.grey,
-                              fontWeight: FontWeight.w600,
-                              fontSize: responsive.textSize(13),
-                            ),
-                          )
-                        ],
-                      ),
-                      SizedBox(
-                        height: responsive.height(0.005),
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Image.asset(
-                            'assets/icons/address.png',
-                            width: responsive.width(0.037),
-                            gaplessPlayback: true,
-                          ),
-                          SizedBox(
-                            width: responsive.width(0.02),
-                          ),
-                          SizedBox(
-                            width: responsive.width(0.5),
-                            child: Text(
-                              'Kwakeithel Thokchom Leikai',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: true,
-                              style: TextStyle(
-                                color: AppTheme.grey,
-                                fontWeight: FontWeight.w600,
-                                fontSize: responsive.textSize(13),
+            isLoading
+                ? const Center(
+                    child: ProfileCardLoading(),
+                  ) // Show loader while loading
+                : Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      color: AppTheme.lightOrange,
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: responsive.padding(20),
+                      vertical: responsive.padding(20),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: responsive.width(0.56),
+                              child: Text(
+                                name,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                style: TextStyle(
+                                  fontSize: responsive.textSize(19),
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.black,
+                                ),
                               ),
                             ),
-                          )
-                        ],
-                      )
-                    ],
+                            SizedBox(height: responsive.height(0.01)),
+                            Row(
+                              children: [
+                                Image.asset(
+                                  'assets/icons/phone.png',
+                                  width: responsive.width(0.035),
+                                  gaplessPlayback: true,
+                                ),
+                                SizedBox(width: responsive.width(0.02)),
+                                Text(
+                                  '+91 $phone',
+                                  style: TextStyle(
+                                    color: AppTheme.grey,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: responsive.textSize(13),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: responsive.height(0.005)),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Image.asset(
+                                  'assets/icons/address.png',
+                                  width: responsive.width(0.037),
+                                  gaplessPlayback: true,
+                                ),
+                                SizedBox(width: responsive.width(0.02)),
+                                SizedBox(
+                                  width: responsive.width(0.5),
+                                  child: Text(
+                                    address,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                    style: TextStyle(
+                                      color: AppTheme.grey,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: responsive.textSize(13),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Image.asset(
+                          'assets/images/profileS.png',
+                          width: responsive.width(0.18),
+                          gaplessPlayback: true,
+                        ),
+                      ],
+                    ),
                   ),
-                  Image.asset(
-                    'assets/images/profileS.png',
-                    width: responsive.width(0.18),
-                    gaplessPlayback: true,
-                  )
-                ],
-              ),
-            ),
-            SizedBox(
-              height: responsive.height(0.04),
-            ),
+            SizedBox(height: responsive.height(0.04)),
             AccountButton(
               image: 'assets/icons/house.png',
               name: 'Update Address',
@@ -161,8 +256,7 @@ class AccountScreen extends ConsumerWidget {
                   context: context,
                   builder: (context) => AlertDialog(
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(16.0), // Set border radius here
+                      borderRadius: BorderRadius.circular(16.0),
                     ),
                     title: const Text(
                       'Update',
@@ -180,38 +274,37 @@ class AccountScreen extends ConsumerWidget {
                       ),
                       TextButton(
                         onPressed: () async {
-                          context.pop();
-
                           try {
                             // Fetch the location
                             await ref
                                 .read(locationProvider.notifier)
                                 .fetchLocation();
-
                             // Get the updated location
                             final currentLocation = ref.read(locationProvider);
-
                             if (currentLocation != null) {
                               // Send location to API
-                              await sendLocationToApi(currentLocation);
+                              await sendLocationToApi(context, currentLocation);
+                              context.pop();
                             } else {
                               // Show error toast if location is null
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'Failed to get location. Please check your permissions.'),
-                                  backgroundColor: Colors.red,
-                                ),
+
+                              Fluttertoast.showToast(
+                                msg:
+                                    'Failed to get location. Please check your permissions.',
+                                backgroundColor: AppTheme.red,
+                                textColor: AppTheme.white,
+                                gravity: ToastGravity.CENTER,
                               );
+                              context.pop();
                             }
                           } catch (e) {
                             // Close loading dialog and show error
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Error: ${e.toString()}'),
-                                backgroundColor: Colors.red,
-                              ),
+                            Fluttertoast.showToast(
+                              msg: 'Error: ${e.toString()}',
+                              backgroundColor: AppTheme.red,
+                              textColor: AppTheme.white,
+                              gravity: ToastGravity.CENTER,
                             );
                           }
                         },
@@ -233,9 +326,7 @@ class AccountScreen extends ConsumerWidget {
                           'assets/icons/location.png',
                           width: responsive.width(0.05),
                         ),
-                        SizedBox(
-                          width: responsive.width(0.045),
-                        ),
+                        SizedBox(width: responsive.width(0.045)),
                         Text(
                           'Update My Geolocation',
                           style: TextStyle(
@@ -272,8 +363,7 @@ class AccountScreen extends ConsumerWidget {
                   context: context,
                   builder: (context) => AlertDialog(
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(16.0), // Set border radius here
+                      borderRadius: BorderRadius.circular(16.0),
                     ),
                     title: const Text(
                       'Logout',
@@ -290,11 +380,10 @@ class AccountScreen extends ConsumerWidget {
                       ),
                       TextButton(
                         onPressed: () async {
-                          await authNotifier.logout();
+                          await ref.read(authProvider.notifier).logout();
                           context.pop();
                           ref.read(selectedIndexProvider.notifier).state = 0;
                           context.go('/');
-
                           CustomToast.show(
                             context: context,
                             message: 'Logout successfully',
@@ -324,9 +413,7 @@ class AccountScreen extends ConsumerWidget {
                           width: responsive.width(0.05),
                           gaplessPlayback: true,
                         ),
-                        SizedBox(
-                          width: responsive.width(0.045),
-                        ),
+                        SizedBox(width: responsive.width(0.045)),
                         Text(
                           'Logout',
                           style: TextStyle(
@@ -354,20 +441,16 @@ class AccountScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(top: 1.0),
                   child: Text(
                     'Powered by',
-                    style: TextStyle(
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(fontSize: 12),
                   ),
                 ),
                 Image.asset(
                   'assets/icons/globizs.png',
                   width: responsive.width(0.15),
-                )
+                ),
               ],
             ),
-            SizedBox(
-              height: responsive.height(0.03),
-            ),
+            SizedBox(height: responsive.height(0.03)),
           ],
         ),
       ),
@@ -379,13 +462,15 @@ class AccountButton extends StatelessWidget {
   final String route;
   final String image;
   final String name;
+  final VoidCallback? fetchData;
 
-  const AccountButton({
-    Key? key,
-    required this.route,
-    required this.image,
-    required this.name,
-  }) : super(key: key);
+  const AccountButton(
+      {Key? key,
+      required this.route,
+      required this.image,
+      required this.name,
+      this.fetchData})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -396,13 +481,16 @@ class AccountButton extends StatelessWidget {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      onTap: () {
+      onTap: () async {
+        // Navigate to the specified route
         context.push(route);
+
+        if (fetchData != null) {
+          fetchData!(); // Fetch data before navigation
+        }
       },
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: responsive.padding(13),
-        ),
+        padding: EdgeInsets.symmetric(vertical: responsive.padding(13)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -413,9 +501,7 @@ class AccountButton extends StatelessWidget {
                   width: responsive.width(0.05),
                   gaplessPlayback: true,
                 ),
-                SizedBox(
-                  width: responsive.width(0.045),
-                ),
+                SizedBox(width: responsive.width(0.045)),
                 Text(
                   name,
                   style: TextStyle(

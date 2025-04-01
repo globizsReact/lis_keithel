@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
 import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
 import '../widgets/custom_toast.dart';
 
-enum OtpScreenType { registration, passwordChange }
+enum OtpScreenType { registration, forgotPassword }
 
 class OtpVerificationScreen extends ConsumerStatefulWidget {
   final OtpScreenType type;
@@ -77,7 +78,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     return _otpControllers.map((controller) => controller.text).join();
   }
 
-  void verifyOtp() {
+  void verifyOtpRegistration() {
     final otp = getOtpString();
     if (otp.length == 6) {
       final authNotifier = ref.read(authProvider.notifier);
@@ -88,10 +89,8 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         setState(() {
           _isLoading = true;
         });
-
         authNotifier.verifyOtpWithBackend(
           context,
-          otp,
         );
 
         CustomToast.show(
@@ -115,6 +114,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
           msg: 'Invalid OTP. Please try again.',
           backgroundColor: AppTheme.red,
           textColor: AppTheme.white,
+          gravity: ToastGravity.CENTER,
         );
       }
     } else {
@@ -125,7 +125,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
       Fluttertoast.showToast(
         msg: 'Please enter a valid 6-digit OTP',
         toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
+        gravity: ToastGravity.CENTER,
         backgroundColor: AppTheme.red,
         textColor: AppTheme.white,
       );
@@ -245,7 +245,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
                         // Auto-verify when all fields are filled
                         if (index == 5 && value.isNotEmpty) {
-                          verifyOtp();
+                          verifyOtpRegistration;
                         }
                       },
                     ),
@@ -261,7 +261,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                 width: double.infinity,
                 height: responsive.height(0.075),
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : verifyOtp,
+                  onPressed: verifyOtpRegistration,
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         _isLoading ? AppTheme.grey : AppTheme.orange,
@@ -321,6 +321,23 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+
+              SizedBox(
+                height: 150,
+              ),
+              GestureDetector(
+                onTap: () {
+                  context.pop();
+                },
+                child: Text(
+                  'Back',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.orange,
                   ),
                 ),
               ),

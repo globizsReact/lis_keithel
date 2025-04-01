@@ -41,10 +41,10 @@ class OrderDetail {
 
   factory OrderDetail.fromJson(Map<String, dynamic> json) {
 // Parse the date which is in format "28 Mar 2025"
-    final DateFormat dateFormat = DateFormat('dd MMM yyyy');
+
     final DateTime parsedDate =
         DateTime.parse(json['date'].replaceAll(' ', 'T'));
-    String formattedDate = DateFormat.yMMMMd().add_jm().format(parsedDate);
+    String formattedDate = DateFormat.yMMMd().add_jm().format(parsedDate);
 
     // Parse delivery date which is in ISO format "2025-04-03"
     final DateTime parsedDelDate = DateTime.parse(json['del_date']);
@@ -90,11 +90,33 @@ class OrderDetail {
         break;
       default:
         // Handle unknown status - default to a neutral color
-        print('Unknown status: $status');
+        debugPrint('Unknown status: $status');
         return Colors.grey; // Default color for unknown statuses
     }
     // Return the color associated with the OrderStatus
     return orderStatus.color;
+  }
+
+  // Calculate total amount from all items
+  double get totalAmount {
+    double total = 0.0;
+    for (var item in items) {
+      // Parse amount and quantity to double
+      // Remove any currency symbols or commas from the amount string
+      final cleanAmount = item.amount.replaceAll(RegExp(r'[^\d\.\-]'), '');
+      final double itemAmount = double.tryParse(cleanAmount) ?? 0.0;
+      final double itemQuantity = double.tryParse(item.quantity) ?? 0.0;
+
+      total += itemAmount * itemQuantity;
+    }
+    return total;
+  }
+
+  // Formatted total amount with currency symbol if needed
+  String get formattedTotalAmount {
+    return totalAmount.toStringAsFixed(2);
+    // Or use NumberFormat for more complex formatting
+    // return NumberFormat.currency(symbol: '\$', decimalDigits: 2).format(totalAmount);
   }
 }
 

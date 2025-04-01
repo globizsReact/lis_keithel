@@ -35,6 +35,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   fluttertoast: ^8.2.12
   go_router: ^14.8.1
+  hidable: ^1.0.6
   http: ^1.3.0
   intl: ^0.20.2
   location: ^8.0.0
@@ -43,8 +44,8 @@ dependencies:
   upgrader: ^11.3.1
 
 dev_dependencies:
-  flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.3
+  flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
 

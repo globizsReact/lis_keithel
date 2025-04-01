@@ -1,4 +1,3 @@
-// lib/widgets/quantity_selector.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,31 +21,40 @@ class QuantitySelector extends ConsumerStatefulWidget {
 }
 
 class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
-  int quantity = 1;
-  final int minQuantity = 1;
-  final int maxQuantity = 99;
+  // State variables for kg and pcs
+  double quantityKg = 1.0;
+  int quantityPcs = 1;
 
-  void _incrementQuantity() {
-    if (quantity < maxQuantity) {
-      setState(() {
-        quantity++;
-      });
-    }
+  // Controllers for input fields
+  late TextEditingController _kgController;
+  late TextEditingController _pcsController;
+
+  // Initialize responsive sizing
+  late ResponsiveSizing responsive;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _kgController = TextEditingController(text: quantityKg.toString());
+    _pcsController = TextEditingController(text: quantityPcs.toString());
+    // Pre-calculate initial values if needed
+    // if (widget.product.productTypeId == '2') {
+    //   quantityPcs = (quantityKg / widget.product.weightPerPcs).round();
+    // }
   }
 
-  void _decrementQuantity() {
-    if (quantity > minQuantity) {
-      setState(() {
-        quantity--;
-      });
-    }
+  @override
+  void dispose() {
+    // Dispose controllers to avoid memory leaks
+    _kgController.dispose();
+    _pcsController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Initialize responsive sizing
-    ResponsiveSizing().init(context);
-    final responsive = ResponsiveSizing();
+    responsive = ResponsiveSizing()..init(context);
 
     return Container(
       padding: const EdgeInsets.only(right: 30, left: 30, top: 25, bottom: 30),
@@ -84,9 +92,8 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
           Container(
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(
-                  13), // Adjust the radius value as needed
-              color: AppTheme.lightOrange, // Optional: add background color
+              borderRadius: BorderRadius.circular(13),
+              color: AppTheme.lightOrange,
             ),
             child: Row(
               children: [
@@ -109,9 +116,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                           ),
                   ),
                 ),
-                SizedBox(
-                  width: 15,
-                ),
+                const SizedBox(width: 15),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -124,7 +129,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                       ),
                     ),
                     Text(
-                      'Rs. ${widget.product.price}/kg',
+                      'Rs. ${widget.product.price}/${widget.product.uomCode}',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -138,61 +143,176 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
           ),
 
           const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Quantity',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.black,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                    border: Border.all(color: AppTheme.orange),
-                    borderRadius: BorderRadius.circular(8)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+
+          // Conditional rendering for quantity input fields
+          if (widget.product.productTypeId == '2')
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Minus button
-                    _buildQuantityButton(
-                      onPressed: _decrementQuantity,
-                      icon: Icons.remove,
-                      isEnabled: quantity > minQuantity,
-                    ),
-
-                    // Quantity display
-                    Container(
-                      width: 80,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                      child: Text(
-                        quantity.toString(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: AppTheme.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Quantity (kg)',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: AppTheme.black,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                    ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: responsive.width(0.3),
+                          child: TextField(
+                            controller: _kgController,
+                            keyboardType: TextInputType.number,
+                            onChanged: (value) {
+                              setState(() {
+                                // Parse the input value
+                                quantityKg = double.tryParse(value) ?? 0.0;
 
-                    // Plus button
-                    _buildQuantityButton(
-                      onPressed: _incrementQuantity,
-                      icon: Icons.add,
-                      isEnabled: quantity < maxQuantity,
+                                // Update pcs based on kg
+                                quantityPcs =
+                                    (quantityKg / widget.product.weightPerPcs)
+                                        .round();
+
+                                // Update the pcs controller
+                                _pcsController.text = quantityPcs.toString();
+                              });
+                            },
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 10),
+                              hintText: 'Enter kg',
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
+                    Column(
+                      children: [
+                        SizedBox(
+                          height: responsive.height(0.04),
+                        ),
+                        Image.asset(
+                          'assets/icons/convert.png',
+                          width: responsive.width(0.045),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Quantity (pcs)',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: AppTheme.black,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: responsive.width(0.3),
+                          child: TextField(
+                            controller: _pcsController,
+                            keyboardType: TextInputType.number,
+                            onChanged: (value) {
+                              setState(() {
+                                // Parse the input value
+                                quantityPcs = int.tryParse(value) ?? 0;
+
+                                // Update kg based on pcs
+                                quantityKg =
+                                    (quantityPcs * widget.product.weightPerPcs);
+
+                                // Update the kg controller
+                                _kgController.text =
+                                    quantityKg.toStringAsFixed(2);
+                              });
+                            },
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: 'Enter pcs',
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 10),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
                   ],
                 ),
-              ),
-            ],
-          ),
+              ],
+            )
+          else
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Quantity',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: AppTheme.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(color: AppTheme.orange),
+                      borderRadius: BorderRadius.circular(8)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Minus button
+                      _buildQuantityButton(
+                        onPressed: () {
+                          setState(() {
+                            if (quantityPcs > 1) {
+                              quantityPcs--; // Decrement quantity
+                            }
+                          });
+                        },
+                        icon: Icons.remove,
+                        isEnabled: quantityPcs > 1,
+                      ),
+
+                      // Quantity display
+                      Container(
+                        width: 80,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        child: Text(
+                          '$quantityPcs',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppTheme.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+
+                      // Plus button
+                      _buildQuantityButton(
+                        onPressed: () {
+                          setState(() {
+                            quantityPcs++; // Increment quantity
+                          });
+                        },
+                        icon: Icons.add,
+                        isEnabled: true,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
 
           const SizedBox(height: 24),
-          // Subtotal display
 
           // Add to cart button
           SizedBox(
@@ -204,9 +324,23 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
               ),
               onPressed: () {
                 // Add to cart
-                ref
-                    .read(cartProvider.notifier)
-                    .addItem(widget.product, quantity);
+                // ref
+                //     .read(cartProvider.notifier)
+                //     .addItem(widget.product, quantityPcs);
+
+                // Add to cart with both pcs and kg values
+                if (widget.product.productTypeId == '2') {
+                  ref.read(cartProvider.notifier).addItem(
+                        widget.product,
+                        quantityPcs,
+                        quantityKg: quantityKg,
+                      );
+                } else {
+                  ref.read(cartProvider.notifier).addItem(
+                        widget.product,
+                        quantityPcs,
+                      );
+                }
 
                 // Close bottom sheet and show confirmation
                 Navigator.pop(context);
@@ -223,7 +357,9 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                 );
               },
               child: Text(
-                'Add to Cart  Rs.${(widget.product.price * quantity)}/-',
+                widget.product.productTypeId == '2'
+                    ? 'Add to Cart  Rs.${(widget.product.price * quantityKg).toStringAsFixed(2)}/-'
+                    : 'Add to Cart  Rs.${(widget.product.price * quantityPcs).toStringAsFixed(2)}/-',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -231,6 +367,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
               ),
             ),
           ),
+
           // Add padding for bottom safe area
           SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
@@ -267,6 +404,11 @@ Future<void> showQuantitySelector(BuildContext context, Product product) {
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (context) => QuantitySelector(product: product),
+    builder: (context) => Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: QuantitySelector(product: product),
+    ),
   );
 }

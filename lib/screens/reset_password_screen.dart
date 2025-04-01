@@ -1,31 +1,24 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
-import 'package:lis_keithel/utils/config.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lis_keithel/providers/auth_provider.dart';
 import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
 import '../widgets/widgets.dart';
 
-class ChangePasswordScreen extends StatefulWidget {
-  const ChangePasswordScreen({Key? key}) : super(key: key);
+class ResetPasswordScreen extends ConsumerStatefulWidget {
+  const ResetPasswordScreen({Key? key}) : super(key: key);
 
   @override
-  State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
+  ConsumerState<ResetPasswordScreen> createState() =>
+      _ResetPasswordScreenState();
 }
 
-class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _passwordVisible = false;
-
-  // Loading state for the button
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -35,79 +28,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   Future<void> _updatePassword() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (_formKey.currentState!.validate()) {
+      final authNotifier = ref.read(authProvider.notifier);
 
-    setState(() {
-      _isLoading = true; // Show loading state
-    });
-
-    final url = Uri.parse('${Config.baseUrl}/clients/client_update_pass');
-
-    // Create the request body
-    final requestBody = {
-      "Password": _passwordController.text,
-    };
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-
-      // Send the POST request
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'token': token!,
-        },
-        body: jsonEncode(requestBody),
+      authNotifier.resetPassword(
+        context,
+        _passwordController.text.trim(),
       );
-
-      // Parse the response
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        if (responseData['type'] == 'success') {
-          CustomToast.show(
-            context: context,
-            message: 'Password changed successfully',
-            icon: Icons.check,
-            backgroundColor: AppTheme.green,
-            textColor: Colors.white,
-            gravity: ToastGravity.CENTER,
-            duration: Duration(seconds: 3),
-          );
-          context.pop();
-        } else {
-          // Handle error from API
-          Fluttertoast.showToast(
-            msg: 'Error: ${responseData['msg']}',
-            backgroundColor: AppTheme.red,
-            textColor: AppTheme.white,
-            gravity: ToastGravity.CENTER,
-          );
-        }
-      } else {
-        // Handle HTTP errors
-        Fluttertoast.showToast(
-          msg: 'Failed to update password. Status code: ${response.statusCode}',
-          backgroundColor: AppTheme.red,
-          textColor: AppTheme.white,
-          gravity: ToastGravity.CENTER,
-        );
-      }
-    } catch (e) {
-      // Handle exceptions (e.g., network issues
-      Fluttertoast.showToast(
-        msg: 'An error occurred: $e',
-        backgroundColor: AppTheme.red,
-        textColor: AppTheme.white,
-        gravity: ToastGravity.CENTER,
-      );
-    } finally {
-      setState(() {
-        _isLoading = false; // Hide loading state
-      });
     }
   }
 
@@ -116,9 +43,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     // Initialize responsive sizing
     ResponsiveSizing().init(context);
     final responsive = ResponsiveSizing();
+    final authState = ref.watch(authProvider);
 
     return Scaffold(
-      appBar: SimpleAppBar(title: 'Change Password'),
+      appBar: SimpleAppBar(title: 'Reset Password'),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(
@@ -263,13 +191,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     onPressed: _updatePassword,
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                          _isLoading ? AppTheme.grey : AppTheme.orange,
+                          authState.isLoading ? AppTheme.grey : AppTheme.orange,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: _isLoading
+                    child: authState.isLoading
                         ? SizedBox(
                             height: 25,
                             width: 25,

@@ -71,4 +71,47 @@ class AuthService {
       throw Exception('Server error: ${response.reasonPhrase}');
     }
   }
+
+// Forgot Password & OTP Verify Call API call
+  Future<Map<String, dynamic>> forgotPassword({
+    required String phone,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/clients/verify_otp'),
+      headers: {
+        'Content-Type': 'application/json',
+        'token': 'JoDiVu13Eq9Ptqxyj84ukY7xHrm3Szhc'
+      },
+      body: jsonEncode({
+        "Phone_no": phone,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Server error: ${response.reasonPhrase}');
+    }
+  }
+
+  // Reset Password After OTP Verify API Call
+  Future<Map<String, dynamic>> resetPassword(
+      String password, String token) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/clients/reset_pass'),
+      headers: {
+        'Content-Type': 'application/json',
+        'token': token,
+      },
+      body: jsonEncode({
+        "Password": password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Server error: ${response.reasonPhrase}');
+    }
+  }
 }

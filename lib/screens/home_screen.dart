@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../utils/responsive_sizing.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
@@ -20,7 +21,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   }
 

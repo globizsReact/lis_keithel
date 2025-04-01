@@ -25,6 +25,7 @@ final authServiceProvider = Provider<AuthService>((ref) {
 class AuthState {
   final bool isLoggedIn;
   final bool isLoading;
+  final bool isOtpSent;
   final String errorMessage;
   final String? otp;
   final String? phone;
@@ -34,6 +35,7 @@ class AuthState {
     required this.isLoggedIn,
     required this.isLoading,
     required this.errorMessage,
+    required this.isOtpSent,
     this.otp,
     this.phone,
     this.isRegistered = false,
@@ -42,6 +44,7 @@ class AuthState {
   AuthState copyWith({
     bool? isLoggedIn,
     bool? isLoading,
+    bool? isOtpSent,
     String? errorMessage,
     String? otp,
     String? phone,
@@ -52,6 +55,7 @@ class AuthState {
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
       otp: otp ?? this.otp,
+      isOtpSent: isOtpSent ?? this.isOtpSent,
       phone: phone ?? this.phone,
       isRegistered: isRegistered ?? this.isRegistered,
     );
@@ -66,11 +70,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final _authStateController = StreamController<AuthState>.broadcast();
 
   // Expose the stream
-  Stream<AuthState> get stream => _authStateController.stream;
+  // Stream<AuthState> get stream => _authStateController.stream;
 
   AuthNotifier(this._preferences, this._authService)
-      : super(
-            AuthState(isLoggedIn: false, isLoading: false, errorMessage: '')) {
+      : super(AuthState(
+          isLoggedIn: false,
+          isLoading: false,
+          errorMessage: '',
+          isOtpSent: false,
+        )) {
     _loadLoginState();
   }
 
@@ -83,6 +91,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = AuthState(
       isLoggedIn: isLoggedIn,
       isLoading: false,
+      isOtpSent: false,
       errorMessage: '',
       otp: otp,
       phone: phone,
@@ -183,9 +192,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String lan,
   }) async {
     try {
-      // Set loading state
-      state = state.copyWith(isLoading: true, errorMessage: '');
-
       // Use the service to make the API call
       final responseData = await _authService.register(
         name: name,
@@ -216,21 +222,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
           isRegistered: true,
         );
 
-        print('OTP ${state.otp}');
+        debugPrint('OTP ${state.otp}');
 
         if (context.mounted) {
-          context.go('/otp-verification', extra: {
+          context.push('/otp-verification', extra: {
             'type': OtpScreenType.registration,
             'phoneNumber': phone,
           });
         }
       } else {
-        // Handle the specific failure response
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: responseData['msg'],
-        );
-
         // Show error toast
         Fluttertoast.showToast(
           msg: responseData['msg'],
@@ -265,9 +265,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   // Verify OTP with backend (optional additional step)
   Future<void> verifyOtpWithBackend(
     BuildContext context,
-    String enteredOtp,
   ) async {
-    final token = await _preferences.getString('token');
+    final token = _preferences.getString('token');
 
     try {
       if (state.phone == null) {
@@ -338,12 +337,171 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  // Forgot password
+  Future<void> forgotPassword(
+    BuildContext context,
+    String phone,
+  ) async {
+    try {
+      // Set loading state
+      state = state.copyWith(isLoading: true, errorMessage: '');
+
+      // Use the service to make the API call
+      final responseData = await _authService.forgotPassword(
+        phone: phone,
+      );
+
+      if (responseData['type'] == 'success') {
+        // Extract relevant data from the response
+        final token = responseData['msg'];
+        final otp = responseData['otp'];
+
+        // Save registration state and details
+        await _preferences.setString('token', token);
+        await _preferences.setString('otp', otp);
+
+        // Update the application state
+        state = state.copyWith(
+          isLoading: false,
+          isOtpSent: true,
+          errorMessage: '',
+          otp: otp,
+          phone: phone,
+        );
+
+        Fluttertoast.showToast(
+          msg: 'OTP sent successfully',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: AppTheme.green,
+          textColor: AppTheme.white,
+        );
+
+        // Reset isOtpSent after 5 minutes (300 seconds)
+        Future.delayed(const Duration(minutes: 1), () {
+          state = state.copyWith(isOtpSent: false);
+        });
+
+        debugPrint('OTP ${state.otp}');
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+        );
+        Fluttertoast.showToast(
+          msg: 'Invalid Phone number',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: AppTheme.red,
+          textColor: AppTheme.white,
+        );
+      }
+    } catch (e) {
+      // Handle exceptions (network issues, etc.)
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Connection error',
+      );
+
+      Fluttertoast.showToast(
+        msg: 'Connection error: ${e.toString()}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: AppTheme.red,
+        textColor: AppTheme.white,
+      );
+    }
+  }
+
+// Reset Password
+  Future<void> resetPassword(
+    BuildContext context,
+    String password,
+  ) async {
+    final token = _preferences.getString('token');
+
+    try {
+      if (state.phone == null) {
+        throw Exception("Phone number not found");
+      }
+
+      // Set loading state
+      state = state.copyWith(isLoading: true, errorMessage: '');
+
+      // Use the service to make the API call
+      final responseData = await _authService.resetPassword(
+        password,
+        token!,
+      );
+
+      if (responseData['type'] == 'success') {
+        // Update the application state
+        await _preferences.remove('otp'); // Clear OTP after verification
+
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: '',
+          otp: null, // Clear OTP in state
+        );
+
+        // Show success toast
+        Fluttertoast.showToast(
+          msg: 'Password Reset Successfully',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: AppTheme.orange,
+          textColor: AppTheme.white,
+        );
+
+        if (context.mounted) {
+          context.go('/');
+        }
+      } else {
+        // Handle the specific failure response
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: responseData['msg'],
+        );
+
+        // Show error toast
+        Fluttertoast.showToast(
+          msg: responseData['msg'],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: AppTheme.orange,
+          textColor: AppTheme.white,
+        );
+      }
+    } catch (e) {
+      // Handle exceptions (network issues, etc.)
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Connection error: ${e.toString()}',
+      );
+
+      Fluttertoast.showToast(
+        msg: 'Connection error: ${e.toString()}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: AppTheme.red,
+        textColor: AppTheme.white,
+      );
+    }
+  }
+
+// logout
   Future<void> logout() async {
     await _preferences.setBool('isLoggedIn', false);
     await _preferences.remove('token');
     await _preferences.remove('fullname');
+    await _preferences.remove('phone');
+    await _preferences.remove('address');
 
-    state = AuthState(isLoggedIn: false, isLoading: false, errorMessage: '');
+    state = AuthState(
+      isLoggedIn: false,
+      isLoading: false,
+      errorMessage: '',
+      isOtpSent: false,
+    );
   }
 }
 
