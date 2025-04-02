@@ -60,9 +60,9 @@ class AuthService {
         'Content-Type': 'application/json',
         'token': token,
       },
-      body: jsonEncode({
-        "id": 1,
-      }),
+      body: jsonEncode(
+        {"Id": "1"},
+      ),
     );
 
     if (response.statusCode == 200) {

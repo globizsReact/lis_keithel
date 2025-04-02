@@ -45,7 +45,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/order',
-        builder: (context, state) => const OrderScreen(),
+        builder: (context, state) => const OrderListScreen(),
       ),
       GoRoute(
         path: '/account',

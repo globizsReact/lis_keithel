@@ -192,6 +192,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String lan,
   }) async {
     try {
+      // Update the application state
+      state = state.copyWith(
+        isLoading: true,
+        errorMessage: '',
+      );
+
       // Use the service to make the API call
       final responseData = await _authService.register(
         name: name,
@@ -223,6 +229,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
 
         debugPrint('OTP ${state.otp}');
+        debugPrint('Register Token : ${_preferences.getString('token')}');
 
         if (context.mounted) {
           context.push('/otp-verification', extra: {
@@ -266,7 +273,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> verifyOtpWithBackend(
     BuildContext context,
   ) async {
-    final token = _preferences.getString('token');
+    final token = await _preferences.getString('token');
+
+    debugPrint('Verify OTP : $token');
 
     try {
       if (state.phone == null) {
@@ -290,15 +299,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
           isLoading: false,
           errorMessage: '',
           otp: null, // Clear OTP in state
-        );
-
-        // Show success toast
-        Fluttertoast.showToast(
-          msg: 'OTP verification successful!',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          backgroundColor: AppTheme.orange,
-          textColor: AppTheme.white,
         );
 
         if (context.mounted) {

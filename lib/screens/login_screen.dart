@@ -241,24 +241,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   width: double.infinity,
                   height: responsive.height(0.075),
                   child: ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        // Handle login logic here
-                        final authNotifier = ref.read(authProvider.notifier);
+                    onPressed: authState.isLoading
+                        ? null
+                        : () async {
+                            if (_formKey.currentState!.validate()) {
+                              // Handle login logic here
+                              final authNotifier =
+                                  ref.read(authProvider.notifier);
 
-                        await authNotifier.login(
-                          context,
-                          _mobileController.text,
-                          _passwordController.text,
-                        );
+                              await authNotifier.login(
+                                context,
+                                _mobileController.text,
+                                _passwordController.text,
+                              );
 
-                        ref.read(selectedIndexProvider.notifier).state = 0;
-                      }
-                    },
+                              ref.read(selectedIndexProvider.notifier).state =
+                                  0;
+                            }
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
                           authState.isLoading ? AppTheme.grey : AppTheme.orange,
                       foregroundColor: Colors.white,
+                      disabledBackgroundColor: AppTheme.grey,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(11),
                       ),

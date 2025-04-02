@@ -55,11 +55,23 @@ class CartScreen extends ConsumerWidget {
             scrolledUnderElevation: 0,
             elevation: 0,
             automaticallyImplyLeading: false,
-            title: Text(
-              'Cart',
-              style: TextStyle(
-                fontSize: responsive.textSize(23),
-              ),
+            title: Row(
+              children: [
+                Text(
+                  'Cart ',
+                  style: TextStyle(
+                    fontSize: responsive.textSize(23),
+                  ),
+                ),
+                if (cartItems.isNotEmpty)
+                  Text(
+                    '(${cartItems.length} ${cartItems.length > 1 ? 'Items' : 'Item'})',
+                    style: TextStyle(
+                        fontSize: responsive.textSize(23),
+                        color: AppTheme.grey,
+                        fontWeight: FontWeight.w600),
+                  )
+              ],
             ),
             actions: [
               if (cartItems.isNotEmpty)

@@ -46,27 +46,6 @@ class OrderService {
       return [];
     }
   }
-  // Get orders filtered by date range
-  // Future<List<Order>> getOrdersByDateRange(DateTime start, DateTime end) async {
-  //   try {
-  //     // For demo, filter mock data
-  //     // In real app, use HTTP call with query parameters
-  //     // final response = await http.get(
-  //     //   Uri.parse('$baseUrl/orders?start=${start.toIso8601String()}&end=${end.toIso8601String()}')
-  //     // );
-
-  //     await Future.delayed(
-  //         const Duration(milliseconds: 800)); // Simulate network delay
-
-  //     return _mockOrders.where((order) {
-  //       return order.date.isAfter(start.subtract(const Duration(days: 1))) &&
-  //           order.date.isBefore(end.add(const Duration(days: 1)));
-  //     }).toList();
-  //   } catch (e) {
-  //     debugPrint('Error fetching orders by date range: $e');
-  //     return [];
-  //   }
-  // }
 
   // Get order details by ID
   Future<OrderDetail?> getOrderById(String id) async {

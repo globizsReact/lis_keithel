@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lis_keithel/providers/providers.dart';
 import 'package:lis_keithel/utils/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -9,14 +11,15 @@ import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
 import '../widgets/widgets.dart';
 
-class UpdateAddressScreen extends StatefulWidget {
+class UpdateAddressScreen extends ConsumerStatefulWidget {
   const UpdateAddressScreen({Key? key}) : super(key: key);
 
   @override
-  State<UpdateAddressScreen> createState() => UpdateAddressScreenState();
+  ConsumerState<UpdateAddressScreen> createState() =>
+      UpdateAddressScreenState();
 }
 
-class UpdateAddressScreenState extends State<UpdateAddressScreen> {
+class UpdateAddressScreenState extends ConsumerState<UpdateAddressScreen> {
   final _formKey = GlobalKey<FormState>();
   final _addressController = TextEditingController();
   bool _isLoading = false;
@@ -137,6 +140,10 @@ class UpdateAddressScreenState extends State<UpdateAddressScreen> {
       final success = await _updateAddressAPI(updatedAddress);
 
       if (success) {
+        ref.read(selectedIndexProvider.notifier).state = 0;
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('address');
         // Save the updated address to shared preferences
         await _saveAddress(updatedAddress);
 
@@ -149,8 +156,8 @@ class UpdateAddressScreenState extends State<UpdateAddressScreen> {
           gravity: ToastGravity.CENTER,
           duration: Duration(seconds: 3),
         );
-
-        context.go('/');
+        context.pop();
+        ref.read(selectedIndexProvider.notifier).state = 3;
       }
 
       setState(() {
@@ -200,6 +207,9 @@ class UpdateAddressScreenState extends State<UpdateAddressScreen> {
                       TextFormField(
                         controller: _addressController,
                         maxLines: 3,
+                        style: TextStyle(
+                          color: AppTheme.black,
+                        ),
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.symmetric(
                             vertical: responsive.padding(20),

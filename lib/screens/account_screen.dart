@@ -28,7 +28,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   String address = '';
 
 // Loading state
-  bool isLoading = true;
+  bool isLoading = false;
   bool isLocationLoading = false;
 
 // Flag to check if data has already been fetched
@@ -37,22 +37,29 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 // Function to fetch data from the API
   Future<void> fetchData() async {
     try {
+      setState(() {
+        isLoading = true;
+      });
+
       // Access SharedPreferences instance
       final prefs = await SharedPreferences.getInstance();
 
+      // Always get the latest address from SharedPreferences
+      final cachedAddress = prefs.getString('address') ?? '';
+
       // Check if data is already stored in SharedPreferences
-      if (prefs.containsKey('name') &&
-          prefs.containsKey('phone') &&
-          prefs.containsKey('address')) {
-        setState(() {
-          name = prefs.getString('name') ?? '';
-          phone = prefs.getString('phone') ?? '';
-          address = prefs.getString('address') ?? '';
-          isLoading = false;
-          isDataFetched = true;
-        });
-        return;
-      }
+      // if (prefs.containsKey('name') &&
+      //     prefs.containsKey('phone') &&
+      //     prefs.containsKey('address')) {
+      //   setState(() {
+      //     name = prefs.getString('name') ?? '';
+      //     phone = prefs.getString('phone') ?? '';
+      //     address = prefs.getString('address') ?? '';
+      //     isLoading = false;
+      //     isDataFetched = true;
+      //   });
+      //   return;
+      // }
 
       // Retrieve the token from SharedPreferences
       final token = prefs.getString('token');
@@ -88,8 +95,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
         await prefs.setString('name', fetchedName);
         await prefs.setString('phone', fetchedPhone);
         await prefs.setString('address', fetchedAddress);
+        // final mostRecentAddress =
+        //     cachedAddress.isNotEmpty && cachedAddress != fetchedAddress
+        //         ? cachedAddress
+        //         : fetchedAddress;
 
-        await Future.delayed(Duration(seconds: 2));
         setState(() {
           name = fetchedName;
           phone = fetchedPhone;
@@ -98,14 +108,28 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           isDataFetched = true; // Mark data as fetched
         });
       } else {
+        setState(() {
+          name = prefs.getString('name') ?? '';
+          phone = prefs.getString('phone') ?? '';
+          address = cachedAddress;
+          isLoading = false;
+          isDataFetched = true;
+        });
+
         // Handle error cases
         throw Exception('Failed to load data');
       }
     } catch (e) {
       // Handle exceptions
+      final prefs = await SharedPreferences.getInstance();
+
       setState(() {
-        isLoading = false; // Stop loading in case of an error
+        name = prefs.getString('name') ?? '';
+        phone = prefs.getString('phone') ?? '';
+        address = prefs.getString('address') ?? '';
+        isLoading = false;
       });
+
       debugPrint('Error: $e');
     }
   }
@@ -115,12 +139,16 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     super.initState();
     // Initialize responsive sizing in initState
     responsive = ResponsiveSizing();
-
-    // Fetch data only if it hasn't been fetched yet
     if (!isDataFetched) {
       fetchData();
     }
   }
+
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   fetchData();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -388,7 +416,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                             context: context,
                             message: 'Logout successfully',
                             icon: Icons.check,
-                            backgroundColor: AppTheme.orange,
+                            backgroundColor: AppTheme.green,
                             textColor: Colors.white,
                             gravity: ToastGravity.CENTER,
                             duration: Duration(seconds: 3),

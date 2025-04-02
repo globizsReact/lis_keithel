@@ -178,7 +178,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                             BoxShadow(
                               color: Colors.black.withAlpha(100),
                               blurRadius: 8.0,
-                              offset: const Offset(0, 4),
+                              offset: const Offset(0, 10),
                             ),
                           ],
                         ),
@@ -304,7 +304,7 @@ class ProductCard extends StatelessWidget {
                       placeholder: (context, url) =>
                           Image.asset('assets/images/placeholder.png'),
                       errorWidget: (context, url, error) => Icon(Icons.error),
-                      height: responsive.height(0.178),
+                      height: responsive.height(0.2),
                       width: double.infinity,
                       fit: BoxFit.cover,
                     ),
@@ -331,7 +331,7 @@ class ProductCard extends StatelessWidget {
                     Text(
                       'Rs. ${product.price}/${product.uomCode == null ? '-' : '${product.uomCode}'}',
                       style: TextStyle(
-                        fontSize: responsive.textSize(11),
+                        fontSize: responsive.textSize(13),
                         fontWeight: FontWeight.bold,
                         color: AppTheme.orange,
                       ),

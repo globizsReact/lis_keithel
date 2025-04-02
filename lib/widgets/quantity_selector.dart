@@ -129,9 +129,9 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                       ),
                     ),
                     Text(
-                      'Rs. ${widget.product.price}/${widget.product.uomCode}',
+                      'Rs. ${widget.product.price}/${widget.product.uomCode == null ? '-' : '${widget.product.uomCode}'}',
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: AppTheme.orange,
                       ),
@@ -349,7 +349,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                   context: context,
                   message: 'Added to cart',
                   icon: Icons.check,
-                  backgroundColor: AppTheme.orange,
+                  backgroundColor: AppTheme.green,
                   textColor: Colors.white,
                   fontSize: 16.0,
                   gravity: ToastGravity.CENTER,

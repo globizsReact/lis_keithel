@@ -35,17 +35,43 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   }
 
   // Filter orders by date range
-  // Future<void> filterByDateRange(DateTime start, DateTime end) async {
-  //   state = const AsyncValue.loading();
-  //   try {
-  //     _startDate = start;
-  //     _endDate = end;
-  //     final orders = await _orderService.getOrdersByDateRange(start, end);
-  //     state = AsyncValue.data(orders);
-  //   } catch (e, stack) {
-  //     state = AsyncValue.error(e, stack);
-  //   }
-  // }
+  Future<void> filterOrdersByDateRange({
+    required DateTime? startDate,
+    required DateTime? endDate,
+  }) async {
+    _startDate = startDate;
+    _endDate = endDate;
+
+    // If no date range is provided, reset to all orders
+    if (_startDate == null && _endDate == null) {
+      await fetchOrders();
+      return;
+    }
+
+    state = const AsyncValue.loading();
+    try {
+      // Fetch all orders from the service
+      final allOrders = await _orderService.getOrders();
+
+      // Filter orders based on the date range
+      final filteredOrders = allOrders.where((order) {
+        final orderDate = order.date;
+        final isAfterStartDate = _startDate == null ||
+            orderDate.isAfter(_startDate!) ||
+            orderDate.isAtSameMomentAs(_startDate!);
+        final isBeforeEndDate = _endDate == null ||
+            orderDate.isBefore(_endDate!) ||
+            orderDate.isAtSameMomentAs(_endDate!);
+
+        return isAfterStartDate && isBeforeEndDate;
+      }).toList();
+
+      // Update the state with the filtered orders
+      state = AsyncValue.data(filteredOrders);
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
 
   // Clear date filter
   Future<void> clearDateFilter() async {

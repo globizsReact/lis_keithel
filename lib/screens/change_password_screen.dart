@@ -152,6 +152,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       TextFormField(
                         controller: _passwordController,
                         obscureText: !_passwordVisible,
+                        style: TextStyle(
+                          color: AppTheme.black,
+                        ),
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.symmetric(
                             vertical: responsive.padding(20),
@@ -212,6 +215,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       // Confirm Password TextField
                       TextFormField(
                         controller: _confirmPasswordController,
+                        style: TextStyle(
+                          color: AppTheme.black,
+                        ),
                         obscureText: true,
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.symmetric(
@@ -260,11 +266,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   width: double.infinity,
                   height: responsive.height(0.07),
                   child: ElevatedButton(
-                    onPressed: _updatePassword,
+                    onPressed: _isLoading ? null : _updatePassword,
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
                           _isLoading ? AppTheme.grey : AppTheme.orange,
                       foregroundColor: Colors.white,
+                      disabledBackgroundColor: AppTheme.grey,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),

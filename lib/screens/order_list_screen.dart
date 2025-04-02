@@ -47,17 +47,37 @@ class OrderListScreen extends ConsumerWidget {
               ),
             ),
             actions: [
-              // Date filter button
-              !authState.isLoggedIn
-                  ? Text('')
-                  : IconButton(
-                      icon: Image.asset(
-                        'assets/icons/calendar.png',
-                        width: responsive.width(0.06),
-                        gaplessPlayback: true,
+              hasDateFilter
+                  ? GestureDetector(
+                      onTap: () =>
+                          ref.read(ordersProvider.notifier).clearDateFilter(),
+                      child: Text(
+                        'Clear',
+                        style: TextStyle(
+                          color: AppTheme.red,
+                          fontWeight: FontWeight.w600,
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
-                      onPressed: () => _showDateFilterDialog(context, ref),
+                    )
+                  : Text(
+                      'Filter',
+                      style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        color: AppTheme.orange,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
+              // Date filter button
+              if (authState.isLoggedIn)
+                IconButton(
+                  icon: Image.asset(
+                    'assets/icons/filter.png',
+                    width: responsive.width(0.05),
+                    gaplessPlayback: true,
+                  ),
+                  onPressed: () => _showDateFilterDialog(context, ref),
+                ),
               SizedBox(
                 width: responsive.width(0.01),
               )
@@ -76,7 +96,7 @@ class OrderListScreen extends ConsumerWidget {
                     gaplessPlayback: true,
                   ),
                   SizedBox(
-                    height: responsive.height(0.02),
+                    height: 20,
                   ),
                   Text(
                     'Sign in to see your orders',
@@ -85,7 +105,9 @@ class OrderListScreen extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: responsive.height(0.025)),
+                  SizedBox(
+                    height: 22,
+                  ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.orange,
@@ -116,7 +138,7 @@ class OrderListScreen extends ConsumerWidget {
                           width: responsive.width(0.2),
                           gaplessPlayback: true,
                         ),
-                        SizedBox(height: responsive.height(0.02)),
+                        SizedBox(height: 20),
                         Text(
                           'No orders found',
                           style: TextStyle(
@@ -124,7 +146,7 @@ class OrderListScreen extends ConsumerWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: responsive.height(0.025)),
+                        SizedBox(height: 22),
                         if (hasDateFilter)
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -179,23 +201,27 @@ class OrderListScreen extends ConsumerWidget {
     } else {
       // Default to current month
       final now = DateTime.now();
-      final start = DateTime(now.year, now.month, 1);
-      final end = DateTime(now.year, now.month + 1, 0);
+      final start =
+          DateTime(now.year, now.month, 1); // Start of the current month
+      final end =
+          DateTime(now.year, now.month + 1, 0); // End of the current month
       dateRange = DateTimeRange(start: start, end: end);
     }
 
+    // Show the date range picker
     final result = await showDateRangePicker(
       context: context,
       initialDateRange: dateRange,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
+      firstDate: DateTime(2020), // Minimum selectable date
+      lastDate: DateTime(2030), // Maximum selectable date
       builder: (context, child) {
         return Theme(
           data: ThemeData(
             colorScheme: ColorScheme.light(
-              primary: AppTheme.orange,
-              onPrimary: Colors.white,
-              secondaryContainer: AppTheme.lightOrange,
+              primary: AppTheme.orange, // Customize the primary color
+              onPrimary: Colors.white, // Customize text color on primary
+              secondaryContainer:
+                  AppTheme.lightOrange, // Customize secondary color
             ),
           ),
           child: child!,
@@ -203,10 +229,14 @@ class OrderListScreen extends ConsumerWidget {
       },
     );
 
-    // if (result != null) {
-    //   // Apply filter
-    //   notifier.filterByDateRange(result.start, result.end);
-    // }
+    // If a valid date range is selected, apply the filter
+    if (result != null) {
+      // Apply filter using the OrdersNotifier
+      await notifier.filterOrdersByDateRange(
+        startDate: result.start,
+        endDate: result.end,
+      );
+    }
   }
 }
 
@@ -239,7 +269,7 @@ class _OrderCard extends ConsumerWidget {
               // Order image
               Container(
                 width: responsive.width(0.2),
-                height: responsive.height(0.09),
+                height: 80,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   image: DecorationImage(
@@ -275,7 +305,9 @@ class _OrderCard extends ConsumerWidget {
                       fontSize: responsive.textSize(11),
                     ),
                   ),
-                  SizedBox(height: responsive.height(0.018)),
+                  SizedBox(
+                    height: 15,
+                  ),
                   Text(
                     order.status.displayName,
                     style: TextStyle(

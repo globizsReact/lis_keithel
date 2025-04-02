@@ -23,7 +23,7 @@ class ProductLoading extends StatelessWidget {
             baseColor: Colors.grey[300]!,
             highlightColor: Colors.grey[100]!,
             child: Container(
-              height: responsive.height(0.235),
+              height: responsive.height(0.25),
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.white,
