@@ -278,6 +278,13 @@ class _OrderCard extends ConsumerWidget {
                     ),
                     fit: BoxFit.cover,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(20),
+                      blurRadius: 5.0,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(

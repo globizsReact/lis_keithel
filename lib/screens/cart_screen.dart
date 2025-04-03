@@ -439,7 +439,7 @@ class CartItemCard extends StatelessWidget {
                           onTap: onRemove,
                           child: Image.asset(
                             'assets/icons/trash.png',
-                            width: responsive.width(0.05),
+                            width: responsive.width(0.04),
                           ),
                         ),
                       ],

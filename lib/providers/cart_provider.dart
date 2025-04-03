@@ -100,6 +100,7 @@
 // });
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lis_keithel/models/product_model.dart';
 import '../models/models.dart';
 
 class CartItem {

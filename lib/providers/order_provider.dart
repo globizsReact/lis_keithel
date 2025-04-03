@@ -1,5 +1,6 @@
 // order_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lis_keithel/providers/auth_provider.dart';
 import '../services/order_service.dart';
 
 import '../models/models.dart';
@@ -12,11 +13,36 @@ final orderServiceProvider = Provider<OrderService>((ref) {
 // State notifier for orders list
 class OrdersNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   final OrderService _orderService;
+  final Ref _ref;
   DateTime? _startDate;
   DateTime? _endDate;
 
-  OrdersNotifier(this._orderService) : super(const AsyncValue.loading()) {
-    fetchOrders();
+  OrdersNotifier(this._orderService, this._ref)
+      : super(const AsyncValue.loading()) {
+    // Listen to auth state changes
+    _ref.listen(authProvider, (previous, current) {
+      // If user logged out (was logged in before, now logged out)
+      if (previous?.isLoggedIn == true && current.isLoggedIn == false) {
+        // Clear orders when user logs out
+        state = AsyncValue.data([]);
+        _startDate = null;
+        _endDate = null;
+      }
+
+      // If user logged in (was logged out before, now logged in)
+      if (previous?.isLoggedIn == false && current.isLoggedIn == true) {
+        // Fetch orders for the new user
+        fetchOrders();
+      }
+    });
+
+    // Initial fetch if user is already logged in
+    if (_ref.read(authProvider).isLoggedIn) {
+      fetchOrders();
+    } else {
+      // If not logged in, set empty list instead of loading state
+      state = AsyncValue.data([]);
+    }
   }
 
   // Get current date filter
@@ -25,6 +51,11 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<Order>>> {
 
   // Fetch all orders
   Future<void> fetchOrders() async {
+    if (!_ref.read(authProvider).isLoggedIn) {
+      state = AsyncValue.data([]);
+      return;
+    }
+
     state = const AsyncValue.loading();
     try {
       final orders = await _orderService.getOrders();
@@ -45,6 +76,12 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<Order>>> {
     // If no date range is provided, reset to all orders
     if (_startDate == null && _endDate == null) {
       await fetchOrders();
+      return;
+    }
+
+    // Only filter if user is logged in
+    if (!_ref.read(authProvider).isLoggedIn) {
+      state = AsyncValue.data([]);
       return;
     }
 
@@ -85,7 +122,7 @@ class OrdersNotifier extends StateNotifier<AsyncValue<List<Order>>> {
 final ordersProvider =
     StateNotifierProvider<OrdersNotifier, AsyncValue<List<Order>>>((ref) {
   final orderService = ref.watch(orderServiceProvider);
-  return OrdersNotifier(orderService);
+  return OrdersNotifier(orderService, ref);
 });
 
 // Provider for a single order

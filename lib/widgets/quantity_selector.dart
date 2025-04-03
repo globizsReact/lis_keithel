@@ -168,6 +168,9 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                           child: TextField(
                             controller: _kgController,
                             keyboardType: TextInputType.number,
+                            style: TextStyle(
+                              color: AppTheme.black,
+                            ),
                             onChanged: (value) {
                               setState(() {
                                 // Parse the input value
@@ -220,6 +223,9 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                           child: TextField(
                             controller: _pcsController,
                             keyboardType: TextInputType.number,
+                            style: TextStyle(
+                              color: AppTheme.black,
+                            ),
                             onChanged: (value) {
                               setState(() {
                                 // Parse the input value

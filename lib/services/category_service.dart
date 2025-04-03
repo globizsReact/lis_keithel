@@ -2,7 +2,7 @@
 import 'package:http/http.dart' as http;
 
 import 'dart:convert';
-import '../models/category_model.dart';
+import '../models/models.dart';
 
 class CategoryService {
   final String baseUrl;

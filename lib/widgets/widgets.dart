@@ -1,11 +1,15 @@
+// loading
+export 'profile_card_loading.dart';
 export 'category_loading.dart';
 export 'order_details_loading.dart';
 export 'order_loading.dart';
 export 'product_loading.dart';
+
+// widgets
 export 'custom_app_bar.dart';
 export 'gift_code_button.dart';
 export 'cart_button.dart';
 export 'quantity_selector.dart';
 export 'custom_toast.dart';
 export 'simple_app_bar.dart';
-export 'profile_card_loading.dart';
+export 'update_location.dart';

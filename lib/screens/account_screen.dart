@@ -29,7 +29,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
 // Loading state
   bool isLoading = false;
-  bool isLocationLoading = false;
 
 // Flag to check if data has already been fetched
   bool isDataFetched = false;
@@ -48,18 +47,18 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       final cachedAddress = prefs.getString('address') ?? '';
 
       // Check if data is already stored in SharedPreferences
-      // if (prefs.containsKey('name') &&
-      //     prefs.containsKey('phone') &&
-      //     prefs.containsKey('address')) {
-      //   setState(() {
-      //     name = prefs.getString('name') ?? '';
-      //     phone = prefs.getString('phone') ?? '';
-      //     address = prefs.getString('address') ?? '';
-      //     isLoading = false;
-      //     isDataFetched = true;
-      //   });
-      //   return;
-      // }
+      if (prefs.containsKey('name') &&
+          prefs.containsKey('phone') &&
+          prefs.containsKey('address')) {
+        setState(() {
+          name = prefs.getString('name') ?? '';
+          phone = prefs.getString('phone') ?? '';
+          address = prefs.getString('address') ?? '';
+          isLoading = false;
+          isDataFetched = true;
+        });
+        return;
+      }
 
       // Retrieve the token from SharedPreferences
       final token = prefs.getString('token');
@@ -143,12 +142,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       fetchData();
     }
   }
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   fetchData();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -276,103 +269,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               name: 'Update Address',
               route: '/update-address',
             ),
-            InkWell(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                    title: const Text(
-                      'Update',
-                      style: TextStyle(
-                        color: AppTheme.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    content: const Text(
-                        'Are you sure want to update your location?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => context.pop(),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          try {
-                            // Fetch the location
-                            await ref
-                                .read(locationProvider.notifier)
-                                .fetchLocation();
-                            // Get the updated location
-                            final currentLocation = ref.read(locationProvider);
-                            if (currentLocation != null) {
-                              // Send location to API
-                              await sendLocationToApi(context, currentLocation);
-                              context.pop();
-                            } else {
-                              // Show error toast if location is null
-
-                              Fluttertoast.showToast(
-                                msg:
-                                    'Failed to get location. Please check your permissions.',
-                                backgroundColor: AppTheme.red,
-                                textColor: AppTheme.white,
-                                gravity: ToastGravity.CENTER,
-                              );
-                              context.pop();
-                            }
-                          } catch (e) {
-                            // Close loading dialog and show error
-
-                            Fluttertoast.showToast(
-                              msg: 'Error: ${e.toString()}',
-                              backgroundColor: AppTheme.red,
-                              textColor: AppTheme.white,
-                              gravity: ToastGravity.CENTER,
-                            );
-                          }
-                        },
-                        child: const Text('Yes',
-                            style: TextStyle(color: Colors.red)),
-                      ),
-                    ],
-                  ),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 13.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Image.asset(
-                          'assets/icons/location.png',
-                          width: responsive.width(0.05),
-                        ),
-                        SizedBox(width: responsive.width(0.045)),
-                        Text(
-                          'Update My Geolocation',
-                          style: TextStyle(
-                            color: AppTheme.grey,
-                            fontWeight: FontWeight.w600,
-                            fontSize: responsive.textSize(16),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Image.asset(
-                      'assets/icons/arrowR.png',
-                      width: responsive.width(0.04),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            // Geo Location
+            UpdateLocation(),
             AccountButton(
               image: 'assets/icons/medal.png',
               name: 'My Reward points',

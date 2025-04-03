@@ -61,7 +61,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/reward-points',
-        builder: (context, state) => const RewardPointsScreen(),
+        builder: (context, state) => RewardsScreen(),
       ),
       GoRoute(
         path: '/update-address',
