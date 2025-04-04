@@ -18,7 +18,7 @@ class ProductLoading extends StatelessWidget {
       ),
       itemBuilder: (context, index) {
         return Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
+          padding: const EdgeInsets.only(bottom: 16.0, top: 10),
           child: Shimmer.fromColors(
             baseColor: Colors.grey[300]!,
             highlightColor: Colors.grey[100]!,

@@ -14,7 +14,7 @@ class RewardsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: SimpleAppBar(title: 'Reward Points'),
       body: rewardAsyncValue.when(
-        loading: () => Center(child: CircularProgressIndicator()),
+        loading: () => RewardsLoading(),
         error: (error, stack) => Center(
           child: Text('Error: $error'),
         ),
@@ -153,29 +153,38 @@ class _TabbedRewardsViewState extends State<_TabbedRewardsView> {
 
     // Rewards List
     return ListView.builder(
+      physics: BouncingScrollPhysics(),
       itemCount: currentRewards.length,
       itemBuilder: (context, index) {
         var reward = currentRewards[index];
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: const EdgeInsets.only(bottom: 12, left: 10),
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey.shade300),
             borderRadius: BorderRadius.circular(8),
           ),
           child: ListTile(
             title: Text(
-              'Order ID: ${reward.salesOrderId}',
+              '#${reward.salesOrderId}',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
             ),
             subtitle: Text(
-              'Points: ${reward.point}, Expires: ${reward.expireDate}',
+              'Expires: ${reward.expireDate}',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: Colors.grey,
+              ),
+            ),
+            trailing: Text(
+              '${reward.point} Pts',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.orange,
               ),
             ),
           ),

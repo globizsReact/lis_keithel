@@ -14,9 +14,6 @@ class UpdateLocation extends ConsumerStatefulWidget {
 }
 
 class _UpdateLocationState extends ConsumerState<UpdateLocation> {
-  // loading
-  bool isLocationLoading = false;
-
   @override
   Widget build(BuildContext context) {
     ResponsiveSizing().init(context);
@@ -101,19 +98,10 @@ class _UpdateLocationState extends ConsumerState<UpdateLocation> {
                     );
                   }
                 },
-                child: isLocationLoading
-                    ? SizedBox(
-                        height: 24,
-                        width: 24,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 3,
-                        ),
-                      )
-                    : Text(
-                        'Yes',
-                        style: TextStyle(color: Colors.red),
-                      ),
+                child: Text(
+                  'Yes',
+                  style: TextStyle(color: Colors.red),
+                ),
               ),
             ],
           ),

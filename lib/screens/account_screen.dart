@@ -306,8 +306,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ),
                       TextButton(
                         onPressed: () async {
-                          await ref.read(authProvider.notifier).logout();
                           context.pop();
+                          await ref.read(authProvider.notifier).logout();
                           ref.read(selectedIndexProvider.notifier).state = 0;
                           context.go('/');
                           CustomToast.show(

@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/auth_provider.dart';
+import '../providers/providers.dart';
 import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
 import '../widgets/custom_toast.dart';
@@ -12,17 +12,8 @@ import '../widgets/custom_toast.dart';
 enum OtpScreenType { registration, forgotPassword }
 
 class OtpVerificationScreen extends ConsumerStatefulWidget {
-  final OtpScreenType type;
-  final String phoneNumber;
-  final Function(String, BuildContext) onVerificationSuccess;
-  final Function() onResendOtp;
-
   const OtpVerificationScreen({
     Key? key,
-    required this.type,
-    required this.phoneNumber,
-    required this.onVerificationSuccess,
-    required this.onResendOtp,
   }) : super(key: key);
 
   @override
@@ -38,6 +29,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
   bool _isLoading = false;
 
   bool _isEmpty = false;
+  bool _isResendLoading = false;
 
   // Focus nodes for each text field
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
@@ -78,7 +70,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     return _otpControllers.map((controller) => controller.text).join();
   }
 
-  void verifyOtpRegistration() {
+  void verifyOtpRegistration() async {
     final otp = getOtpString();
     if (otp.length == 6) {
       final authNotifier = ref.read(authProvider.notifier);
@@ -89,22 +81,11 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
         setState(() {
           _isLoading = true;
         });
+
+        await Future.delayed(Duration(seconds: 2));
         authNotifier.verifyOtpWithBackend(
           context,
         );
-
-        CustomToast.show(
-          context: context,
-          message: getScreenTitle(),
-          icon: Icons.check,
-          backgroundColor: AppTheme.orange,
-          textColor: Colors.white,
-          fontSize: 16.0,
-          gravity: ToastGravity.CENTER,
-          duration: Duration(seconds: 3),
-        );
-
-        widget.onVerificationSuccess(otp, context);
 
         setState(() {
           _isLoading = false;
@@ -132,10 +113,31 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     }
   }
 
-  String getScreenTitle() {
-    return widget.type == OtpScreenType.registration
-        ? "Registered successfully"
-        : "Password change successfully";
+  void onResendOtp() async {
+    setState(() {
+      _isResendLoading = true;
+    });
+    final authNotifier = ref.read(authProvider.notifier);
+    final registrationData = ref.watch(registrationProvider);
+
+    authNotifier.register(
+      context: context,
+      ref: ref,
+      name: registrationData.name!,
+      phone: registrationData.phone!,
+      password: registrationData.password!,
+      address: registrationData.address!,
+      lat: registrationData.latitude!,
+      lan: registrationData.longitude!,
+      isResendOtp: true,
+    );
+    await Future.delayed(
+      Duration(seconds: 2),
+    );
+    setState(() {
+      _isResendLoading = false;
+    });
+    resetTimer();
   }
 
   @override
@@ -152,6 +154,9 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final registrationData = ref.watch(registrationProvider);
+    final isLoading = registrationData.isLoading;
+
     // Initialize responsive sizing
     ResponsiveSizing().init(context);
     final responsive = ResponsiveSizing();
@@ -192,7 +197,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  '6 digits OTP have sent to your registered mobile number +91 ${widget.phoneNumber}',
+                  '6 digits OTP have sent to your registered mobile number +91 ${registrationData.phone}',
                   style: TextStyle(
                     fontSize: responsive.textSize(14),
                     color: AppTheme.grey,
@@ -293,40 +298,54 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               ),
 
               // Resend timer
-              TextButton(
-                onPressed: _canResend
-                    ? () {
-                        widget.onResendOtp();
-                        resetTimer();
-                      }
-                    : null,
-                child: RichText(
-                  text: TextSpan(
-                    style: const TextStyle(fontSize: 14, fontFamily: 'Poppins'),
-                    children: [
-                      const TextSpan(
-                        text: 'Resend ',
-                        style: TextStyle(
+              _isResendLoading
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
                           color: AppTheme.orange,
-                          fontWeight: FontWeight.w600,
+                          strokeWidth: 3,
                         ),
                       ),
-                      TextSpan(
-                        text: _canResend
-                            ? ''
-                            : 'in ${_secondsRemaining.toString().padLeft(2, '0')}:${0.toString().padLeft(2, '0')}',
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w600,
+                    )
+                  : TextButton(
+                      onPressed: _canResend
+                          ? () {
+                              onResendOtp();
+                            }
+                          : null,
+                      child: RichText(
+                        text: TextSpan(
+                          style: const TextStyle(
+                              fontSize: 14, fontFamily: 'Poppins'),
+                          children: [
+                            TextSpan(
+                              text: 'Resend ',
+                              style: TextStyle(
+                                color: _canResend
+                                    ? AppTheme.orange
+                                    : AppTheme.grey,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            TextSpan(
+                              text: _canResend
+                                  ? ''
+                                  : 'in ${0.toString().padLeft(2, '0')}:${_secondsRemaining.toString().padLeft(2, '0')}',
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
 
               SizedBox(
-                height: 150,
+                height: responsive.height(0.05),
               ),
               GestureDetector(
                 onTap: () {

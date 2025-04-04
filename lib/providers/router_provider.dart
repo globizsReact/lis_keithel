@@ -107,32 +107,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/otp-verification',
-        builder: (context, state) {
-          final Map<String, dynamic> extras =
-              state.extra as Map<String, dynamic>;
-
-          return OtpVerificationScreen(
-            type: extras['type'] as OtpScreenType,
-            phoneNumber: extras['phoneNumber'] as String,
-            onVerificationSuccess: (otp, context) {
-              if (extras['type'] == OtpScreenType.registration) {
-                // Handle registration OTP verification
-                debugPrint('Registration OTP verified: $otp');
-                GoRouter.of(context).go('/');
-              } else {
-                // Handle password change OTP verification
-                debugPrint('Password change OTP verified: $otp');
-                GoRouter.of(context).go('/', extra: {
-                  'phoneNumber': extras['phoneNumber'],
-                });
-              }
-            },
-            onResendOtp: () {
-              // Call your API to resend OTP
-              debugPrint('Resending OTP');
-            },
-          );
-        },
+        builder: (context, state) => const OtpVerificationScreen(),
       ),
     ],
   );

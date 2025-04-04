@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lis_keithel/providers/providers.dart';
 import '../screens/screens.dart';
 import '../utils/theme.dart';
 import '../widgets/custom_toast.dart';
@@ -184,12 +185,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> register({
     required BuildContext context,
+    required WidgetRef ref,
     required String name,
     required String phone,
     required String password,
     required String address,
     required String lat,
     required String lan,
+    bool isResendOtp = false,
   }) async {
     try {
       // Update the application state
@@ -231,13 +234,26 @@ class AuthNotifier extends StateNotifier<AuthState> {
         debugPrint('OTP ${state.otp}');
         debugPrint('Register Token : ${_preferences.getString('token')}');
 
-        if (context.mounted) {
-          context.push('/otp-verification', extra: {
-            'type': OtpScreenType.registration,
-            'phoneNumber': phone,
-          });
+        // Set loading to false when complete
+        ref.read(registrationProvider.notifier).setLoading(false);
+
+        Fluttertoast.showToast(
+          msg:
+              isResendOtp ? 'OTP resent successfully' : 'OTP sent successfully',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: AppTheme.green,
+          textColor: AppTheme.white,
+        );
+
+        if (!isResendOtp) {
+          if (context.mounted) {
+            context.push('/otp-verification');
+          }
         }
       } else {
+        // Handle error
+        ref.read(registrationProvider.notifier).setLoading(false);
         // Show error toast
         Fluttertoast.showToast(
           msg: responseData['msg'],
@@ -299,6 +315,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
           isLoading: false,
           errorMessage: '',
           otp: null, // Clear OTP in state
+        );
+
+        CustomToast.show(
+          context: context,
+          message: 'Registered Successfully',
+          icon: Icons.check,
+          backgroundColor: AppTheme.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+          gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 3),
         );
 
         if (context.mounted) {

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:location/location.dart';
 import '../utils/responsive_sizing.dart';
-import '../providers/auth_provider.dart';
+import '../providers/providers.dart';
 import '../utils/theme.dart';
 
 class MultiRegisterScreen extends ConsumerStatefulWidget {
@@ -83,16 +83,30 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
   void _nextStep() {
     if (_currentStep == 0) {
       if (_formKey.currentState!.validate()) {
+        // Save details to the registration provider
+        ref.read(registrationProvider.notifier).setRegistrationDetails(
+              name: _nameController.text.trim(),
+              phone: _mobileController.text.trim(),
+              address: _addressController.text.trim(),
+            );
         setState(() {
           _currentStep++;
         });
       }
     } else {
       if (_formKey.currentState!.validate()) {
+        // Save password to registration provider
+        ref.read(registrationProvider.notifier).setRegistrationDetails(
+              password: _passwordController.text,
+              latitude: _currentLocation?.latitude?.toString(),
+              longitude: _currentLocation?.longitude?.toString(),
+            );
+
         final authNotifier = ref.read(authProvider.notifier);
 
         authNotifier.register(
           context: context,
+          ref: ref,
           name: _nameController.text.trim(),
           phone: _mobileController.text.trim(),
           password: _passwordController.text,
@@ -123,7 +137,8 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
   Widget build(BuildContext context) {
     // provider
     final authState = ref.watch(authProvider);
-    final isLoading = authState.isLoading;
+    final regState = ref.watch(registrationProvider);
+    final isLoading = authState.isLoading || regState.isLoading;
 
     // Initialize responsive sizing
     ResponsiveSizing().init(context);
@@ -139,7 +154,7 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
-                  height: responsive.height(0.08),
+                  height: responsive.height(0.04),
                 ),
 
                 // Logo
@@ -304,6 +319,22 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
                       ),
                     ),
                   ],
+                ),
+                SizedBox(
+                  height: responsive.height(0.1),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    context.go('/');
+                  },
+                  child: Text(
+                    'Return to Home',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.orange,
+                    ),
+                  ),
                 ),
                 SizedBox(
                   height: responsive.height(0.02),

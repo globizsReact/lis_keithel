@@ -6,3 +6,4 @@ export 'auth_provider.dart';
 export 'location_provider.dart';
 export 'order_provider.dart';
 export 'reward_provider.dart';
+export 'registration_provider.dart';

@@ -39,6 +39,7 @@ class SimpleAppBar extends StatelessWidget implements PreferredSizeWidget {
           title,
         ),
         titleSpacing: 0,
+        scrolledUnderElevation: 0,
         backgroundColor: backgroundColor,
         leading: leading ??
             (Navigator.canPop(context)

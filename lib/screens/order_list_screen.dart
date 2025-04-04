@@ -47,27 +47,28 @@ class OrderListScreen extends ConsumerWidget {
               ),
             ),
             actions: [
-              hasDateFilter
-                  ? GestureDetector(
-                      onTap: () =>
-                          ref.read(ordersProvider.notifier).clearDateFilter(),
-                      child: Text(
-                        'Clear',
+              if (authState.isLoggedIn)
+                hasDateFilter
+                    ? GestureDetector(
+                        onTap: () =>
+                            ref.read(ordersProvider.notifier).clearDateFilter(),
+                        child: Text(
+                          'Clear',
+                          style: TextStyle(
+                            color: AppTheme.red,
+                            fontWeight: FontWeight.w600,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      )
+                    : Text(
+                        'Filter',
                         style: TextStyle(
-                          color: AppTheme.red,
-                          fontWeight: FontWeight.w600,
                           fontStyle: FontStyle.italic,
+                          color: AppTheme.orange,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    )
-                  : Text(
-                      'Filter',
-                      style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        color: AppTheme.orange,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
               // Date filter button
               if (authState.isLoggedIn)
                 IconButton(

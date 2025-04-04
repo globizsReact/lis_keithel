@@ -103,119 +103,135 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                     ),
             ),
             SizedBox(
-              height: responsive.height(0.02),
+              height: responsive.height(0.005),
             ),
             // Product listing
             Expanded(
-                child: Stack(
-              children: [
-                productsState.isLoading
-                    ? ProductLoading()
-                    : filteredProducts.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/icons/noPro.png',
-                                  width: responsive.width(0.2),
-                                ),
-                                SizedBox(
-                                  height: responsive.height(0.02),
-                                ),
-                                Text(
-                                  'No product found',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: responsive.textSize(12),
-                                    fontWeight: FontWeight.bold,
+              child: Stack(
+                children: [
+                  productsState.isLoading
+                      ? ProductLoading()
+                      : filteredProducts.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    'assets/icons/noPro.png',
+                                    width: responsive.width(0.2),
                                   ),
+                                  SizedBox(
+                                    height: responsive.height(0.02),
+                                  ),
+                                  Text(
+                                    'No product found',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: responsive.textSize(12),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: responsive.height(0.025)),
+                                ],
+                              ),
+                            )
+                          : ShaderMask(
+                              shaderCallback: (Rect rect) {
+                                return LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black,
+                                  ],
+                                  stops: const [0.0, 0.03],
+                                ).createShader(rect);
+                              },
+                              blendMode: BlendMode.dstIn,
+                              child: ListView.builder(
+                                physics: BouncingScrollPhysics(),
+                                padding: EdgeInsets.only(
+                                  top: responsive.padding(15),
+                                  left: responsive.padding(23),
+                                  right: responsive.padding(23),
+                                  bottom: cartItems.isNotEmpty
+                                      ? responsive.padding(75)
+                                      : responsive.padding(18),
                                 ),
-                                SizedBox(height: responsive.height(0.025)),
-                              ],
-                            ),
-                          )
-                        : ListView.builder(
-                            physics: BouncingScrollPhysics(),
-                            padding: EdgeInsets.only(
-                                left: responsive.padding(23),
-                                right: responsive.padding(23),
-                                bottom: cartItems.isNotEmpty
-                                    ? responsive.padding(75)
-                                    : responsive.padding(18)),
-                            itemCount: filteredProducts.length,
-                            itemBuilder: (context, index) {
-                              final product = filteredProducts[index];
-                              return GestureDetector(
-                                onTap: () {
-                                  showQuantitySelector(context, product);
+                                itemCount: filteredProducts.length,
+                                itemBuilder: (context, index) {
+                                  final product = filteredProducts[index];
+                                  return GestureDetector(
+                                    onTap: () {
+                                      showQuantitySelector(context, product);
+                                    },
+                                    child: ProductCard(
+                                      product: product,
+                                    ),
+                                  );
                                 },
-                                child: ProductCard(
-                                  product: product,
-                                ),
-                              );
-                            },
-                          ),
-
-                // Bottom checkout bar
-                if (cartItems.isNotEmpty)
-                  Positioned(
-                    bottom: responsive.position(0.05),
-                    left: responsive.position(0.04),
-                    right: responsive.position(0.04),
-                    child: GestureDetector(
-                      onTap: () {
-                        ref.read(selectedIndexProvider.notifier).state = 1;
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: responsive.padding(15),
-                            vertical: responsive.padding(19)),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFB25800),
-                          borderRadius:
-                              BorderRadius.circular(12.0), // Rounded corners
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withAlpha(100),
-                              blurRadius: 8.0,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Proceed',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Row(
-                              children: [
-                                Text(
-                                  '${cartItems.length} Items',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(width: responsive.width(0.02)),
-                                const Icon(
-                                  Icons.arrow_forward,
+                  // Bottom checkout bar
+                  if (cartItems.isNotEmpty)
+                    Positioned(
+                      bottom: responsive.position(0.05),
+                      left: responsive.position(0.04),
+                      right: responsive.position(0.04),
+                      child: GestureDetector(
+                        onTap: () {
+                          ref.read(selectedIndexProvider.notifier).state = 1;
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: responsive.padding(15),
+                              vertical: responsive.padding(19)),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFB25800),
+                            borderRadius:
+                                BorderRadius.circular(12.0), // Rounded corners
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withAlpha(100),
+                                blurRadius: 8.0,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Proceed',
+                                style: TextStyle(
                                   color: Colors.white,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ],
-                            ),
-                          ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    '${cartItems.length} Items',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(width: responsive.width(0.02)),
+                                  const Icon(
+                                    Icons.arrow_forward,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            )),
+                ],
+              ),
+            ),
           ],
         ),
       ),
