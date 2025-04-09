@@ -167,25 +167,34 @@ class OrderListScreen extends ConsumerWidget {
                   );
                 }
 
-                return ListView.separated(
-                  physics: BouncingScrollPhysics(),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: responsive.padding(23)),
-                  itemCount: orders.length,
-                  separatorBuilder: (context, index) => SizedBox(
-                    height: 5,
+                return RefreshIndicator(
+                  onRefresh: () => _refreshOrders(ref),
+                  child: ListView.separated(
+                    physics: BouncingScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: responsive.padding(23),
+                    ),
+                    itemCount: orders.length,
+                    separatorBuilder: (context, index) => SizedBox(
+                      height: 5,
+                    ),
+                    itemBuilder: (context, index) {
+                      final order = orders[index];
+                      return _OrderCard(
+                        order: order,
+                        dateFormat: dateFormat,
+                      );
+                    },
                   ),
-                  itemBuilder: (context, index) {
-                    final order = orders[index];
-                    return _OrderCard(
-                      order: order,
-                      dateFormat: dateFormat,
-                    );
-                  },
                 );
               },
             ),
     );
+  }
+
+  Future<void> _refreshOrders(WidgetRef ref) async {
+    // Call the refresh method on your orders provider
+    return ref.read(ordersProvider.notifier).fetchOrders();
   }
 
   void _showDateFilterDialog(BuildContext context, WidgetRef ref) async {
@@ -316,12 +325,24 @@ class _OrderCard extends ConsumerWidget {
                   SizedBox(
                     height: 15,
                   ),
-                  Text(
-                    order.status.displayName,
-                    style: TextStyle(
-                      fontSize: responsive.textSize(12),
-                      color: order.status.color,
-                      fontWeight: FontWeight.w600,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: order.status.color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(
+                        10,
+                      ),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    child: Text(
+                      order.status.displayName.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: responsive.textSize(11),
+                        color: order.status.color,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],

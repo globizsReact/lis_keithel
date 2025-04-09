@@ -4,3 +4,5 @@ export 'order_model.dart';
 export 'order_detail_model.dart';
 export 'reward_model.dart';
 export 'registration_model.dart';
+export 'delivery_date_model.dart';
+export 'coupon_model.dart';

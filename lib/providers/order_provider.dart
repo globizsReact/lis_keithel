@@ -134,9 +134,10 @@ final orderDetailsProvider =
 
 // Provider for cancelling an order
 final cancelOrderProvider =
-    FutureProvider.family<bool, String>((ref, id) async {
+    FutureProvider.family<bool, ({String orderId, String status})>(
+        (ref, params) async {
   final orderService = ref.watch(orderServiceProvider);
-  final result = await orderService.cancelOrder(id);
+  final result = await orderService.cancelOrder(params.orderId, params.status);
 
   // Refresh orders list if successful
   if (result) {

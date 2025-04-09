@@ -78,11 +78,6 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
 
       if (isValid) {
         // If local verification is successful, verify with backend too
-        setState(() {
-          _isLoading = true;
-        });
-
-        await Future.delayed(Duration(seconds: 2));
         authNotifier.verifyOtpWithBackend(
           context,
         );
@@ -155,7 +150,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     final registrationData = ref.watch(registrationProvider);
-    final isLoading = registrationData.isLoading;
+    final authState = ref.watch(authProvider);
 
     // Initialize responsive sizing
     ResponsiveSizing().init(context);
@@ -269,13 +264,13 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                   onPressed: verifyOtpRegistration,
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
-                        _isLoading ? AppTheme.grey : AppTheme.orange,
+                        authState.isLoading ? AppTheme.grey : AppTheme.orange,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(11),
                     ),
                   ),
-                  child: _isLoading
+                  child: authState.isLoading
                       ? SizedBox(
                           height: 24,
                           width: 24,

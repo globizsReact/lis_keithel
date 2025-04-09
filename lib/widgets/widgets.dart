@@ -5,6 +5,7 @@ export 'order_details_loading.dart';
 export 'order_loading.dart';
 export 'product_loading.dart';
 export 'rewards_loading.dart';
+export 'notification_loading.dart';
 
 // widgets
 export 'custom_app_bar.dart';

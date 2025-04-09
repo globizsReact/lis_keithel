@@ -28,6 +28,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
   // Controllers for input fields
   late TextEditingController _kgController;
   late TextEditingController _pcsController;
+  late TextEditingController _quantityController;
 
   // Initialize responsive sizing
   late ResponsiveSizing responsive;
@@ -38,6 +39,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
 
     _kgController = TextEditingController(text: quantityKg.toString());
     _pcsController = TextEditingController(text: quantityPcs.toString());
+    _quantityController = TextEditingController(text: quantityPcs.toString());
     // Pre-calculate initial values if needed
     // if (widget.product.productTypeId == '2') {
     //   quantityPcs = (quantityKg / widget.product.weightPerPcs).round();
@@ -49,6 +51,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
     // Dispose controllers to avoid memory leaks
     _kgController.dispose();
     _pcsController.dispose();
+    _quantityController.dispose();
     super.dispose();
   }
 
@@ -268,8 +271,9 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                 ),
                 Container(
                   decoration: BoxDecoration(
-                      border: Border.all(color: AppTheme.orange),
-                      borderRadius: BorderRadius.circular(8)),
+                    // border: Border.all(color: AppTheme.orange),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -279,6 +283,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                           setState(() {
                             if (quantityPcs > 1) {
                               quantityPcs--; // Decrement quantity
+                              _quantityController.text = quantityPcs.toString();
                             }
                           });
                         },
@@ -286,19 +291,48 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                         isEnabled: quantityPcs > 1,
                       ),
 
-                      // Quantity display
+                      // Quantity display with TextField
                       Container(
-                        width: 80,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        child: Text(
-                          '$quantityPcs',
+                        width: 70,
+                        height: 40,
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        child: TextField(
+                          controller: _quantityController,
+                          keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                          ),
                           style: const TextStyle(
                             color: AppTheme.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
+                          onChanged: (value) {
+                            // Parse the input value and update state
+                            int? newQuantity = int.tryParse(value);
+                            if (newQuantity != null && newQuantity > 0) {
+                              setState(() {
+                                quantityPcs = newQuantity;
+                              });
+                            } else if (value.isEmpty) {
+                              // Allow empty field during typing
+                            } else {
+                              // Reset to valid value if input is invalid
+                              _quantityController.text = quantityPcs.toString();
+                            }
+                          },
+                          onSubmitted: (value) {
+                            // Ensure a minimum value of 1
+                            int? newQuantity = int.tryParse(value);
+                            if (newQuantity == null || newQuantity < 1) {
+                              setState(() {
+                                quantityPcs = 1;
+                                _quantityController.text = '1';
+                              });
+                            }
+                          },
                         ),
                       ),
 
@@ -307,6 +341,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                         onPressed: () {
                           setState(() {
                             quantityPcs++; // Increment quantity
+                            _quantityController.text = quantityPcs.toString();
                           });
                         },
                         icon: Icons.add,
@@ -329,19 +364,26 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                 backgroundColor: AppTheme.orange,
               ),
               onPressed: () {
-                // Add to cart
-                // ref
-                //     .read(cartProvider.notifier)
-                //     .addItem(widget.product, quantityPcs);
-
-                // Add to cart with both pcs and kg values
+                // Validate input before adding to cart
                 if (widget.product.productTypeId == '2') {
+                  // For type 2 products
+                  if (quantityKg <= 0 || quantityPcs <= 0) {
+                    _showInvalidQuantityToast(context);
+                    return;
+                  }
+
                   ref.read(cartProvider.notifier).addItem(
                         widget.product,
                         quantityPcs,
                         quantityKg: quantityKg,
                       );
                 } else {
+                  // For other products
+                  if (quantityPcs <= 0) {
+                    _showInvalidQuantityToast(context);
+                    return;
+                  }
+
                   ref.read(cartProvider.notifier).addItem(
                         widget.product,
                         quantityPcs,
@@ -378,6 +420,19 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
           SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
       ),
+    );
+  }
+
+  void _showInvalidQuantityToast(BuildContext context) {
+    CustomToast.show(
+      context: context,
+      message: 'Please enter a valid quantity',
+      icon: Icons.error,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+      gravity: ToastGravity.CENTER,
+      duration: Duration(seconds: 2),
     );
   }
 

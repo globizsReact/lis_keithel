@@ -1,31 +1,17 @@
 // lib/screens/cart_screen.dart
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../providers/cart_provider.dart';
-import '../providers/selected_index_provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import '../models/models.dart';
+import '../providers/providers.dart';
 import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
 import '../widgets/widgets.dart';
 
-// Provider to hold the list of predefined delivery dates
-final predefinedDatesProvider = Provider<List<String>>((ref) {
-  return [
-    '10th Mar 2025',
-    '15th Mar 2025',
-    '16th Mar 2025',
-    '20th Mar 2025',
-    '25th Mar 2025',
-  ];
-});
-
-// StateProvider to manage the selected delivery date
-final selectedDateProvider = StateProvider<String>((ref) {
-  // Default selected date is the first item in the predefined list
-  final predefinedDates = ref.watch(predefinedDatesProvider);
-  return predefinedDates.first;
-});
+import 'package:shimmer/shimmer.dart';
 
 class CartScreen extends ConsumerWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -34,12 +20,10 @@ class CartScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cartItems = ref.watch(cartProvider);
     final cartSummary = ref.watch(cartSummaryProvider);
-    final totalAmount = cartSummary['totalAmount'] as double;
-    // final totalWeightType2 = cartSummary['totalWeightType2'] as double;
+    final totalAmount = cartSummary['subtotalAmount'] as double;
+    final grandTotal = cartSummary['grandTotal'] as double;
 
-    // Access the predefined dates and selected date from providers
-    final predefinedDates = ref.watch(predefinedDatesProvider);
-    final selectedDate = ref.watch(selectedDateProvider);
+    final deliveryDatesAsync = ref.watch(deliveryDatesProvider);
 
     // Initialize responsive sizing
     ResponsiveSizing().init(context);
@@ -218,10 +202,14 @@ class CartScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
+                      SizedBox(
+                        height: responsive.height(0.01),
+                      ),
+
+                      // Left Side: Text "Delivery"
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Left Side: Text "Delivery"
                           Text(
                             'Delivery',
                             style: TextStyle(
@@ -230,55 +218,36 @@ class CartScreen extends ConsumerWidget {
                               color: Colors.black,
                             ),
                           ),
-
-                          // Right Side: Dropdown with Arrow and Delivery Date
-                          DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: selectedDate, // Current selected date
-                              items: predefinedDates.map((String date) {
-                                return DropdownMenuItem<String>(
-                                  value: date,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        date,
-                                        style: TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: responsive.textSize(14),
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: responsive.width(0.02),
-                                      ),
-                                      Image.asset(
-                                        'assets/icons/drop.png',
-                                        width: responsive.width(0.025),
-                                      )
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                if (newValue != null) {
-                                  // Update the selected date using Riverpod's state
-                                  ref
-                                      .read(selectedDateProvider.notifier)
-                                      .state = newValue;
-                                }
-                              },
-                              style: TextStyle(color: Colors.black),
-                              iconSize: 0,
-                              borderRadius: BorderRadius.circular(
-                                  13), // Hide the default dropdown icon
-                              dropdownColor: Colors
-                                  .white, // Background color of the dropdown menu
+                          deliveryDatesAsync.when(
+                            loading: () => Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 200,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
                             ),
+                            error: (error, stack) => Center(
+                              child: Text('Error: $error'),
+                            ),
+                            data: (deliveryDates) {
+                              // Create a list of date strings for the dropdown
+                              List<DeliveryDate> dateOptions = deliveryDates;
+
+                              // State to hold the selected date
+                              return DateSelectionWidget(
+                                  dateOptions: dateOptions);
+                            },
                           ),
                         ],
                       ),
+
+                      // Right Side: Dropdown with Arrow and Delivery Date
+
                       SizedBox(
                         height: responsive.height(0.01),
                       ),
@@ -286,7 +255,9 @@ class CartScreen extends ConsumerWidget {
                         color: Colors.grey[300],
                       ),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          context.push('/coupons');
+                        },
                         child: Container(
                           padding: EdgeInsets.symmetric(
                               vertical: responsive.padding(19)),
@@ -313,7 +284,7 @@ class CartScreen extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            'Rs. ${totalAmount.toStringAsFixed(1)} /-',
+                            'Rs. ${grandTotal.toStringAsFixed(1)} /-',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: AppTheme.orange,
@@ -524,5 +495,163 @@ class CartItemCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// Separate widget for managing date selection
+class DateSelectionWidget extends ConsumerStatefulWidget {
+  final List<DeliveryDate> dateOptions;
+
+  DateSelectionWidget({required this.dateOptions});
+
+  @override
+  _DateSelectionWidgetState createState() => _DateSelectionWidgetState();
+}
+
+class _DateSelectionWidgetState extends ConsumerState<DateSelectionWidget> {
+  late DeliveryDate selectedDate; // Holds the currently selected date
+  FixedExtentScrollController? _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set the default date to the first date in the list
+    if (widget.dateOptions.isNotEmpty) {
+      selectedDate = widget.dateOptions.first;
+      _scrollController = FixedExtentScrollController(initialItem: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController?.dispose(); // Dispose of the scroll controller
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            // Open a centered dialog when the date is tapped
+            _openIOSStyleDatePicker(context);
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${_formatDate(selectedDate.date)} (₹.${selectedDate.price})',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.black,
+                ),
+              ),
+              Icon(Icons.arrow_drop_down, color: Colors.grey),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _openIOSStyleDatePicker(BuildContext context) {
+    // Find the index of the currently selected date
+    int selectedIndex = widget.dateOptions.indexOf(selectedDate);
+
+    // Reset the scroll controller to the selected index
+    _scrollController = FixedExtentScrollController(initialItem: selectedIndex);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0), // Add rounded corners
+          ), // Remove default padding
+          content: SizedBox(
+            height: 250,
+            width: 500, // Height of the dialog
+            child: Column(
+              children: [
+                Expanded(
+                  child: CupertinoPicker(
+                    scrollController: _scrollController,
+                    itemExtent: 40, // Height of each item
+                    onSelectedItemChanged: (int index) {
+                      setState(() {
+                        selectedDate = widget.dateOptions[index];
+                      });
+                    },
+                    children: widget.dateOptions.map((DeliveryDate date) {
+                      return Center(
+                        child: Text(
+                          '${_formatDate(date.date)} - Rs.${date.price}',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w600),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                Divider(height: 1, thickness: 0.5),
+                // Header with "Cancel" and "Done" buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        // Update the cart provider with the selected date's price
+                        double grandTotal = double.tryParse(
+                                selectedDate.price.replaceAll(',', '')) ??
+                            0.0;
+                        ref
+                            .read(cartProvider.notifier)
+                            .setGrandTotal(grandTotal);
+
+                        Navigator.pop(context); // Close the dialog
+                      },
+                      child: Text(
+                        'Done',
+                        style: TextStyle(
+                          color: AppTheme.orange,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Helper function to format the date as '23rd Mar 2025'
+  String _formatDate(String dateString) {
+    DateTime date =
+        DateFormat('yyyy-MM-dd').parse(dateString); // Parse the input date
+    int day = date.day;
+    String month = DateFormat('MMM').format(date); // Get abbreviated month name
+    String year = DateFormat('yyyy').format(date); // Get full year
+    String ordinalDay =
+        _getOrdinal(day); // Convert day to ordinal (e.g., 23 → 23rd)
+    return '$ordinalDay $month $year'; // Combine into '23rd Mar 2025'
+  }
+
+  // Helper function to convert a numeric day into its ordinal form
+  String _getOrdinal(int day) {
+    if (day % 10 == 1 && day != 11) {
+      return '${day}st';
+    } else if (day % 10 == 2 && day != 12) {
+      return '${day}nd';
+    } else if (day % 10 == 3 && day != 13) {
+      return '${day}rd';
+    } else {
+      return '${day}th';
+    }
   }
 }

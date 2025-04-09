@@ -97,6 +97,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/orders',
         builder: (context, state) => const OrderListScreen(),
       ),
+      GoRoute(
+        path: '/coupons',
+        builder: (context, state) => CouponsScreen(),
+      ),
       // Order details as a separate route (not nested)
       GoRoute(
         path: '/order-details/:id',
