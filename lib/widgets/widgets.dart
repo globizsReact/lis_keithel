@@ -15,3 +15,4 @@ export 'quantity_selector.dart';
 export 'custom_toast.dart';
 export 'simple_app_bar.dart';
 export 'update_location.dart';
+export 'vertical_dotted_line.dart';

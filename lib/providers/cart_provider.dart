@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lis_keithel/models/product_model.dart';
 import '../models/models.dart';
 
 class CartItem {
@@ -36,18 +36,70 @@ class CartItem {
 }
 
 class CartNotifier extends StateNotifier<List<CartItem>> {
-  // Add delivery-related properties
+  // Add delivery and coupon-related properties
+  DeliveryOption? _selectedDelivery;
+  bool _isCouponApplied = false;
+  String? _appliedCoupon;
+  double _subtotal = 0.0;
+  double _deliveryChargeTotal = 0.0;
+  double _couponDiscount = 0.0;
   double _grandTotal = 0.0;
 
   CartNotifier() : super([]);
 
-  // Getter for the grand total
+  // Getter for cart summary
+  DeliveryOption? get selectedDelivery => _selectedDelivery;
+  bool get isCouponApplied => _isCouponApplied;
+  String? get appliedCoupon => _appliedCoupon;
+  double get subtotal => _subtotal;
+  double get deliveryChargeTotal => _deliveryChargeTotal;
+  double get couponDiscount => _couponDiscount;
   double get grandTotal => _grandTotal;
 
-  void setGrandTotal(double total) {
-    _grandTotal = total;
+  // Calculate all cart totals
+  void _calculateTotals() {
+    // Calculate subtotal from items
+    _subtotal = state.fold(0.0, (sum, item) => sum + item.total);
+
+    // Set delivery charge if delivery option is selected
+    _deliveryChargeTotal = _selectedDelivery?.price ?? 0.0;
+
+    // Calculate total with delivery
+    double totalWithDelivery = deliveryChargeTotal;
+
+    // Calculate grand total
+    _grandTotal = totalWithDelivery - _couponDiscount;
+
+    // Ensure grand total doesn't go below zero
+    if (_grandTotal < 0) {
+      _grandTotal = 0;
+    }
+
     // Notify listeners of state change
     state = [...state];
+  }
+
+  // Set delivery option
+  void setDeliveryOption(DeliveryOption deliveryOption) {
+    _selectedDelivery = deliveryOption;
+
+    _calculateTotals();
+  }
+
+  // Apply coupon - simplified to just apply the discount amount
+  void applyCoupon(double coupon, String code) {
+    _couponDiscount = coupon;
+    _appliedCoupon = code;
+    _isCouponApplied = true;
+    _calculateTotals();
+  }
+
+  // Remove coupon
+  void removeCoupon() {
+    _couponDiscount = 0;
+    _appliedCoupon = '';
+    _isCouponApplied = false;
+    _calculateTotals();
   }
 
   void addItem(Product product, int quantityPcs, {double? quantityKg}) {
@@ -82,10 +134,13 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
         )
       ];
     }
+    _calculateTotals();
   }
 
   void removeItem(String productId) {
     state = state.where((item) => item.product.id != productId).toList();
+    _calculateTotals();
+    removeCoupon();
   }
 
   void updateQuantity(String productId,
@@ -127,10 +182,14 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
         ];
       }
     }
+    _calculateTotals();
+    removeCoupon();
   }
 
   void clearCart() {
     state = [];
+    _calculateTotals();
+    removeCoupon();
   }
 
   int get itemCount {
@@ -174,12 +233,20 @@ final cartSummaryProvider = Provider((ref) {
 
   // Get the grand total directly from the cart notifier
   final grandTotal = cartNotifier.grandTotal;
+  final isCouponApplied = cartNotifier.isCouponApplied;
+  final appliedCoupon = cartNotifier.appliedCoupon;
+  final couponDiscount = cartNotifier.couponDiscount;
+  final selectedDate = cartNotifier.selectedDelivery;
 
   return {
     'itemCount': itemCount,
     'totalWeight': totalWeight,
     'totalWeightType2': totalWeightType2,
     'subtotalAmount': subtotalAmount,
-    'grandTotal': grandTotal > 0 ? grandTotal : subtotalAmount,
+    'grandTotal': grandTotal,
+    'selectedDate': selectedDate?.date,
+    'isCouponApplied': isCouponApplied,
+    'appliedCoupon': appliedCoupon,
+    'couponDiscount': couponDiscount,
   };
 });

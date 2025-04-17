@@ -80,12 +80,9 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                 ),
               ),
               IconButton(
-                icon: Text(
-                  'close',
-                  style: TextStyle(
-                    color: AppTheme.red,
-                    fontWeight: FontWeight.bold,
-                  ),
+                icon: Icon(
+                  Icons.close,
+                  color: AppTheme.red,
                 ),
                 onPressed: () => Navigator.pop(context),
               ),
@@ -173,6 +170,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                             keyboardType: TextInputType.number,
                             style: TextStyle(
                               color: AppTheme.black,
+                              fontWeight: FontWeight.w600,
                             ),
                             onChanged: (value) {
                               setState(() {
@@ -228,6 +226,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                             keyboardType: TextInputType.number,
                             style: TextStyle(
                               color: AppTheme.black,
+                              fontWeight: FontWeight.w600,
                             ),
                             onChanged: (value) {
                               setState(() {
@@ -293,8 +292,8 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
 
                       // Quantity display with TextField
                       Container(
-                        width: 70,
-                        height: 40,
+                        width: 80,
+                        height: 50,
                         padding: const EdgeInsets.symmetric(horizontal: 2),
                         child: TextField(
                           controller: _quantityController,
@@ -306,8 +305,7 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
                           ),
                           style: const TextStyle(
                             color: AppTheme.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                           onChanged: (value) {
                             // Parse the input value and update state
@@ -444,15 +442,12 @@ class _QuantitySelectorState extends ConsumerState<QuantitySelector> {
     return InkWell(
       onTap: isEnabled ? onPressed : null,
       child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          border: Border(),
-          borderRadius: BorderRadius.circular(8),
-        ),
+        width: 50,
+        height: 47,
+        decoration: BoxDecoration(),
         child: Icon(
           icon,
-          color: isEnabled ? Colors.black : Colors.grey,
+          color: isEnabled ? AppTheme.orange : Colors.grey,
         ),
       ),
     );

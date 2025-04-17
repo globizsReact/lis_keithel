@@ -31,7 +31,7 @@ class CouponsService {
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
-        print("API Response: $jsonResponse");
+
         return CouponResponse.fromJson(jsonResponse); // Parse using the model
       } else {
         throw Exception("Failed to load coupons");

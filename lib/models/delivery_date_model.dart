@@ -16,6 +16,30 @@ class DeliveryDate {
       price: json['price'],
     );
   }
+
+  // Helper method to get the price as double
+  double getPriceAsDouble() {
+    return double.parse(price.replaceAll(",", ""));
+  }
+}
+
+// Simplified DeliveryOption class with just date and price
+class DeliveryOption {
+  final String date;
+  final double price;
+
+  DeliveryOption({
+    required this.date,
+    required this.price,
+  });
+}
+
+// Updated function to create delivery option based on the simplified model
+DeliveryOption createDeliveryOption(DeliveryDate deliveryDate) {
+  return DeliveryOption(
+    date: deliveryDate.date,
+    price: deliveryDate.getPriceAsDouble(),
+  );
 }
 
 List<DeliveryDate> parseDeliveryDates(Map<String, dynamic> jsonResponse) {

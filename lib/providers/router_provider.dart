@@ -83,16 +83,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/notifications',
         builder: (context, state) => const NotificationScreen(),
       ),
-      // GoRoute(
-      //   path: '/new-password',
-      //   builder: (context, state) {
-      //     final Map<String, dynamic> extras =
-      //         state.extra as Map<String, dynamic>;
-      //     return NewPasswordScreen(
-      //       phoneNumber: extras['phoneNumber'] as String,
-      //     );
-      //   },
-      // ),
+      GoRoute(
+        path: '/payment',
+        builder: (context, state) {
+          // Extract parameters from state.extra
+          final Map<String, dynamic> args = state.extra as Map<String, dynamic>;
+          final String orderId = args['orderId'] as String;
+          final String razorpayId = args['razorpayId'] as String;
+          final String amount = args['amount'];
+          final String razorpayKey = args['razorpayKey'] as String;
+          final String text = args['text'] as String;
+
+          return PaymentScreen(
+            orderId: orderId,
+            razorpayId: razorpayId,
+            amount: amount,
+            razorpayKey: razorpayKey,
+            text: text,
+          );
+        },
+      ),
       GoRoute(
         path: '/orders',
         builder: (context, state) => const OrderListScreen(),

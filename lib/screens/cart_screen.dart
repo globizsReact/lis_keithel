@@ -18,12 +18,18 @@ class CartScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // cart provider
     final cartItems = ref.watch(cartProvider);
     final cartSummary = ref.watch(cartSummaryProvider);
-    final totalAmount = cartSummary['subtotalAmount'] as double;
-    final grandTotal = cartSummary['grandTotal'] as double;
+    final subTotal = cartSummary['subtotalAmount'];
+    final grandTotal = cartSummary['grandTotal'];
+    final selectedDate = cartSummary['selectedDate'];
 
     final deliveryDatesAsync = ref.watch(deliveryDatesProvider);
+
+    // check out provider
+    final checkOut = ref.watch(checkoutProvider.notifier);
+    final checkOutState = ref.watch(checkoutProvider);
 
     // Initialize responsive sizing
     ResponsiveSizing().init(context);
@@ -193,7 +199,7 @@ class CartScreen extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            'Rs. ${totalAmount.toStringAsFixed(2)}/-',
+                            'Rs. $subTotal/-',
                             style: TextStyle(
                               color: AppTheme.black,
                               fontSize: responsive.textSize(16),
@@ -232,7 +238,7 @@ class CartScreen extends ConsumerWidget {
                               ),
                             ),
                             error: (error, stack) => Center(
-                              child: Text('Error: $error'),
+                              child: Text('Error: Fail'),
                             ),
                             data: (deliveryDates) {
                               // Create a list of date strings for the dropdown
@@ -272,6 +278,7 @@ class CartScreen extends ConsumerWidget {
                       SizedBox(
                         height: responsive.height(0.025),
                       ),
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -284,7 +291,7 @@ class CartScreen extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            'Rs. ${grandTotal.toStringAsFixed(1)} /-',
+                            'Rs. $grandTotal/-',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: AppTheme.orange,
@@ -301,23 +308,36 @@ class CartScreen extends ConsumerWidget {
                         height: responsive.height(0.07),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.orange,
-                          ),
-                          onPressed: () {
-                            // Implement checkout logic
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Proceeding to checkout...'),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'Checkout',
-                            style: TextStyle(
-                              fontSize: responsive.textSize(15),
-                              fontWeight: FontWeight.bold,
+                            backgroundColor: checkOutState.isLoading
+                                ? AppTheme.grey
+                                : AppTheme.orange,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: AppTheme.grey,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(11),
                             ),
                           ),
+                          onPressed: () {
+                            checkOut.placeOrder(
+                              context,
+                            );
+                          },
+                          child: checkOutState.isLoading
+                              ? SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 3,
+                                  ),
+                                )
+                              : Text(
+                                  'Checkout',
+                                  style: TextStyle(
+                                    fontSize: responsive.textSize(15),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ),
                     ],
@@ -519,7 +539,23 @@ class _DateSelectionWidgetState extends ConsumerState<DateSelectionWidget> {
     if (widget.dateOptions.isNotEmpty) {
       selectedDate = widget.dateOptions.first;
       _scrollController = FixedExtentScrollController(initialItem: 0);
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateDeliveryOption();
+      });
     }
+  }
+
+  // Add this helper method to update the cart provider
+  void _updateDeliveryOption() {
+    // Create a DeliveryOption from the selected date
+    DeliveryOption deliveryOption = DeliveryOption(
+      date: selectedDate.date,
+      price: double.tryParse(selectedDate.price.replaceAll(',', '')) ?? 0.0,
+    );
+
+    // Update the cart provider
+    ref.read(cartProvider.notifier).setDeliveryOption(deliveryOption);
   }
 
   @override
@@ -603,13 +639,7 @@ class _DateSelectionWidgetState extends ConsumerState<DateSelectionWidget> {
                   children: [
                     TextButton(
                       onPressed: () {
-                        // Update the cart provider with the selected date's price
-                        double grandTotal = double.tryParse(
-                                selectedDate.price.replaceAll(',', '')) ??
-                            0.0;
-                        ref
-                            .read(cartProvider.notifier)
-                            .setGrandTotal(grandTotal);
+                        _updateDeliveryOption();
 
                         Navigator.pop(context); // Close the dialog
                       },

@@ -9,3 +9,4 @@ export 'reward_provider.dart';
 export 'registration_provider.dart';
 export 'delivery_date_provider.dart';
 export 'coupon_provider.dart';
+export 'checkout_provider.dart';

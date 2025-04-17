@@ -31,6 +31,7 @@ Future<List<DeliveryDate>> fetchDeliveryDates(
 
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
+
       return parseDeliveryDates(jsonResponse);
     } else {
       throw Exception('Failed to load delivery dates');
