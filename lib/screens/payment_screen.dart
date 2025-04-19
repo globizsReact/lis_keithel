@@ -1,12 +1,20 @@
+import 'dart:convert';
+
+import 'package:drop_shadow/drop_shadow.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:lis_keithel/utils/responsive_sizing.dart';
-import 'package:lis_keithel/widgets/simple_app_bar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lis_keithel/utils/theme.dart';
+import '../utils/config.dart';
+import '../utils/responsive_sizing.dart';
+import '../widgets/widgets.dart';
+import '../utils/theme.dart';
+import '../providers/providers.dart';
 
-class PaymentScreen extends StatefulWidget {
+class PaymentScreen extends ConsumerStatefulWidget {
   final String orderId;
   final String razorpayId;
   final String amount;
@@ -23,10 +31,10 @@ class PaymentScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
+  ConsumerState<PaymentScreen> createState() => _PaymentScreenState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
+class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   // Razorpay? _razorpay;
   Razorpay _razorpay = Razorpay();
   bool _isProcessing = false;
@@ -60,7 +68,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       'key': widget.razorpayKey,
       'amount': widget.amount * 100, // Convert to paise
       'name': 'Lis Keithel',
-      'timeout': 60,
+      'timeout': 60 * 5,
       'order_id': widget.razorpayId,
       'description': 'Order #${widget.orderId}',
       'prefill': {'contact': '', 'email': ''}
@@ -69,42 +77,150 @@ class _PaymentScreenState extends State<PaymentScreen> {
     try {
       _razorpay!.open(options);
     } catch (e) {
-      _showToast('Error: ${e.toString()}', AppTheme.red);
+      CustomToast.show(
+        context: context,
+        message: 'Error: ${e.toString()}',
+        icon: Icons.check,
+        backgroundColor: AppTheme.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+        gravity: ToastGravity.CENTER,
+        duration: Duration(seconds: 2),
+      );
+
       setState(() {
         _isProcessing = false;
       });
     }
   }
 
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    _showToast('Payment Successful', AppTheme.green);
-    // Navigate to order confirmation screen
-    context.go('/order-confirmation/${widget.orderId}');
+  void _handlePaymentSuccess(
+    PaymentSuccessResponse response,
+  ) async {
+    // Show success toast
+    CustomToast.show(
+      context: context,
+      message: 'Payment Successful',
+      icon: Icons.check,
+      backgroundColor: AppTheme.green,
+      textColor: Colors.white,
+      fontSize: 16.0,
+      gravity: ToastGravity.CENTER,
+      duration: Duration(seconds: 2),
+    );
+
+    // Prepare the API request body
+    final Map<String, dynamic> requestBody = {
+      "razor_order_id": response.orderId,
+      "razor_payment_id": response.paymentId,
+      "razor_signature": response.signature,
+      "payment_status": 1, // Assuming 1 means success
+    };
+
+    try {
+      // Make the POST request to your API endpoint
+      final baseUrl = Config.baseUrl;
+
+      final url = Uri.parse('$baseUrl/onlinepayments/updateonlinepayment');
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not found in SharedPreferences');
+      }
+
+      final apiResponse = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'token': token,
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      // Check if the API call was successful
+      if (apiResponse.statusCode == 200) {
+        final responseBody = jsonDecode(apiResponse.body);
+
+        // Verify the response from the server
+        if (responseBody['reply'] == 'Saved') {
+          // Navigate to the order confirmation screen
+          context.go('/');
+          ref.read(selectedIndexProvider.notifier).state = 2;
+          context.push('/order-details/${widget.orderId}');
+        } else {
+          CustomToast.show(
+            context: context,
+            message: 'Failed to save payment details.',
+            icon: Icons.error,
+            backgroundColor: AppTheme.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+            gravity: ToastGravity.CENTER,
+            duration: Duration(seconds: 2),
+          );
+        }
+      } else {
+        CustomToast.show(
+          context: context,
+          message: 'Failed to save payment details. Please try again.',
+          icon: Icons.error,
+          backgroundColor: AppTheme.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+          gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 2),
+        );
+      }
+    } catch (e) {
+      // Handle any errors during the API call
+      debugPrint('Error while saving payment details: $e');
+      CustomToast.show(
+        context: context,
+        message: 'An error occurred. Please try again.',
+        icon: Icons.error,
+        backgroundColor: AppTheme.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+        gravity: ToastGravity.CENTER,
+        duration: Duration(seconds: 2),
+      );
+    }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    _showToast('Payment Failed: ${response.message}', AppTheme.red);
+    CustomToast.show(
+      context: context,
+      message: 'Payment Failed: ${response.message}',
+      icon: Icons.error,
+      backgroundColor: AppTheme.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+      gravity: ToastGravity.CENTER,
+      duration: Duration(seconds: 2),
+    );
+
     setState(() {
       _isProcessing = false;
     });
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    _showToast(
-        'External Wallet Selected: ${response.walletName}', AppTheme.navy);
+    CustomToast.show(
+      context: context,
+      message: 'External Wallet Selected: ${response.walletName}',
+      icon: Icons.error,
+      backgroundColor: AppTheme.navy,
+      textColor: Colors.white,
+      fontSize: 16.0,
+      gravity: ToastGravity.CENTER,
+      duration: Duration(seconds: 2),
+    );
+
     setState(() {
       _isProcessing = false;
     });
-  }
-
-  void _showToast(String message, Color backgroundColor) {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.CENTER,
-      backgroundColor: backgroundColor,
-      textColor: AppTheme.white,
-    );
   }
 
   @override
@@ -116,12 +232,28 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return Scaffold(
       appBar: SimpleAppBar(title: 'Payment'),
       body: Column(
-        // mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(height: responsive.height(0.1)),
-          Image.asset(
-            'assets/icons/pay.png',
-            width: responsive.width(0.5),
+          SizedBox(height: responsive.height(0.05)),
+          Text(
+            'Order #${widget.orderId} \nCreated Successfully',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppTheme.green,
+              fontSize: 28,
+              fontWeight: FontWeight.w600,
+              height: 1.2,
+            ),
+          ),
+          SizedBox(height: responsive.height(0.02)),
+          DropShadow(
+            blurRadius: 10,
+            offset: const Offset(5, 5),
+            color: Colors.black.withOpacity(0.5),
+            child: Image.asset(
+              'assets/icons/pay.png',
+              width: responsive.width(0.5),
+            ),
           ),
           SizedBox(height: responsive.height(0.025)),
           Row(
@@ -164,6 +296,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.green,
+                disabledBackgroundColor: AppTheme.grey,
                 padding: EdgeInsets.symmetric(
                   horizontal: responsive.padding(23),
                   vertical: responsive.padding(11),
@@ -172,8 +305,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
               onPressed: _isProcessing ? null : _startPayment,
               child: _isProcessing
                   ? SizedBox(
-                      height: 24,
-                      width: 24,
+                      height: 23,
+                      width: 23,
                       child: CircularProgressIndicator(
                         color: Colors.white,
                         strokeWidth: 3,

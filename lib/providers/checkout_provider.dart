@@ -90,6 +90,7 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
         debugPrint('$response');
 
         cartItems.clear();
+        cartNotifier.removeCoupon();
 
         context.push('/payment', extra: {
           'orderId': response.id,

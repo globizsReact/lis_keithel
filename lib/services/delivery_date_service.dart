@@ -21,7 +21,7 @@ Future<List<DeliveryDate>> fetchDeliveryDates(
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
-        'token': token,
+        'token': 'k8ASjLOE0TQC2vnDRKY0ayehsUY-CFb_',
       },
       body: jsonEncode({
         "delivery_date": "",

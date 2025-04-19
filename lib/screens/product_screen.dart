@@ -149,7 +149,8 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                               },
                               blendMode: BlendMode.dstIn,
                               child: ListView.builder(
-                                physics: BouncingScrollPhysics(),
+                                physics: AlwaysScrollableScrollPhysics(),
+                                shrinkWrap: true,
                                 padding: EdgeInsets.only(
                                   top: responsive.padding(15),
                                   left: responsive.padding(23),

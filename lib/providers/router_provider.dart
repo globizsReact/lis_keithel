@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../utils/go_router_refresh_stream.dart';
@@ -13,9 +12,6 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       // Access the login state using Riverpod
       final authState = ref.read(authProvider);
-
-      // Debug print to verify state changes
-      debugPrint('GoRouter redirect: isLoggedIn = ${authState.isLoggedIn}');
 
       // Check if the current route is a protected route
       final isProtectedRoute =

@@ -53,11 +53,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       if (isValid) {
         GoRouter.of(context).push('/reset-password');
       } else {
-        Fluttertoast.showToast(
-          msg: 'Invalid OTP. Please try again.',
+        CustomToast.show(
+          context: context,
+          message: 'Invalid OTP. Please try again.',
+          icon: Icons.error,
           backgroundColor: AppTheme.red,
-          textColor: AppTheme.white,
+          textColor: Colors.white,
+          fontSize: 16.0,
           gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 2),
         );
       }
     }

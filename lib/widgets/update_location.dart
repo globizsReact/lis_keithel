@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lis_keithel/providers/location_provider.dart';
 import 'package:lis_keithel/utils/responsive_sizing.dart';
 import 'package:lis_keithel/utils/theme.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lis_keithel/widgets/custom_toast.dart';
 
 class UpdateLocation extends ConsumerStatefulWidget {
   const UpdateLocation({super.key});
@@ -25,7 +26,7 @@ class _UpdateLocationState extends ConsumerState<UpdateLocation> {
       onTap: () {
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (dialogContext) => AlertDialog(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16.0),
             ),
@@ -39,13 +40,13 @@ class _UpdateLocationState extends ConsumerState<UpdateLocation> {
             content: const Text('Are you sure want to update your location?'),
             actions: [
               TextButton(
-                onPressed: () => context.pop(),
+                onPressed: () => Navigator.of(dialogContext).pop(),
                 child: const Text('Cancel'),
               ),
               TextButton(
                 onPressed: () async {
                   // First close the confirmation dialog
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
 
                   // Then show loading overlay
                   showLoadingOverlay(context);
@@ -63,42 +64,16 @@ class _UpdateLocationState extends ConsumerState<UpdateLocation> {
 
                       // Hide loading overlay
                       hideLoadingOverlay(context);
-
-                      // Show success message
-
-                      Fluttertoast.showToast(
-                        msg: 'Location updated successfully',
-                        backgroundColor: Colors.green,
-                        textColor: AppTheme.white,
-                        gravity: ToastGravity.CENTER,
-                      );
                     } else {
                       // Hide loading overlay
                       hideLoadingOverlay(context);
-
-                      // Show error toast if location is null
-                      Fluttertoast.showToast(
-                        msg:
-                            'Failed to get location. Please check your permissions.',
-                        backgroundColor: AppTheme.red,
-                        textColor: AppTheme.white,
-                        gravity: ToastGravity.CENTER,
-                      );
                     }
                   } catch (e) {
                     // Hide loading overlay
                     hideLoadingOverlay(context);
-
-                    // Show error toast
-                    Fluttertoast.showToast(
-                      msg: 'Error: ${e.toString()}',
-                      backgroundColor: AppTheme.red,
-                      textColor: AppTheme.white,
-                      gravity: ToastGravity.CENTER,
-                    );
                   }
                 },
-                child: Text(
+                child: const Text(
                   'Yes',
                   style: TextStyle(color: Colors.red),
                 ),

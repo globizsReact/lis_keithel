@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
 
 class CartItem {
@@ -33,6 +36,61 @@ class CartItem {
     // For count-based products, use pcs
     return product.price * quantityPcs;
   }
+
+  // Convert to JSON for SharedPreferences storage
+  Map<String, dynamic> toJson() {
+    return {
+      'product': CartItem._productToJson(product),
+      'quantityPcs': quantityPcs,
+      'quantityKg': quantityKg,
+    };
+  }
+
+  // Create CartItem from JSON as a factory constructor
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      product: CartItem._productFromJson(json['product']),
+      quantityPcs: json['quantityPcs'],
+      quantityKg: json['quantityKg'],
+    );
+  }
+
+  // Static helper methods for Product serialization
+  static Map<String, dynamic> _productToJson(Product product) {
+    return {
+      'id': product.id,
+      'name': product.name,
+      'price': product.price,
+      'productTypeId': product.productTypeId,
+      'weightPerPcs': product.weightPerPcs,
+      'descriptions': product.description,
+      'details': product.details,
+      'needConversion': product.needConversion,
+      'productBrandId': product.productBrandId,
+      'uom': product.uom,
+      'photo': product.photo,
+      'uomCode': product.uomCode,
+      // Add any other necessary Product fields
+    };
+  }
+
+  static Product _productFromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'],
+      name: json['name'],
+      price: json['price'],
+      productTypeId: json['productTypeId'],
+      weightPerPcs: json['weightPerPcs'],
+      description: json['description'] ?? '',
+      details: json['details'],
+      needConversion: json['needConversion'],
+      productBrandId: json['productBrandId'],
+      uom: json['uom'],
+      photo: json['photo'],
+      uomCode: json['uomCode'],
+      // Initialize other fields from your Product model
+    );
+  }
 }
 
 class CartNotifier extends StateNotifier<List<CartItem>> {
@@ -45,7 +103,13 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
   double _couponDiscount = 0.0;
   double _grandTotal = 0.0;
 
-  CartNotifier() : super([]);
+  // Only one key for SharedPreferences
+  static const String _cartItemsKey = 'cart_items';
+
+  CartNotifier() : super([]) {
+    // Load cart from SharedPreferences on initialization
+    _loadFromPrefs();
+  }
 
   // Getter for cart summary
   DeliveryOption? get selectedDelivery => _selectedDelivery;
@@ -55,6 +119,33 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
   double get deliveryChargeTotal => _deliveryChargeTotal;
   double get couponDiscount => _couponDiscount;
   double get grandTotal => _grandTotal;
+
+  // Load cart data from SharedPreferences
+  Future<void> _loadFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Load cart items
+    final String? cartItemsJson = prefs.getString(_cartItemsKey);
+    if (cartItemsJson != null) {
+      final List<dynamic> cartItemsList = jsonDecode(cartItemsJson);
+      state = cartItemsList.map((item) => CartItem.fromJson(item)).toList();
+    }
+
+    // Calculate totals after loading
+    _calculateTotals();
+    debugPrint('Load Item from Share Preferences');
+  }
+
+  // Save cart data to SharedPreferences
+  Future<void> _saveToPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Save only cart items
+    final List<Map<String, dynamic>> cartItemsJson =
+        state.map((item) => item.toJson()).toList();
+    await prefs.setString(_cartItemsKey, jsonEncode(cartItemsJson));
+    debugPrint('Item added to Share Preferences');
+  }
 
   // Calculate all cart totals
   void _calculateTotals() {
@@ -84,6 +175,7 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
     _selectedDelivery = deliveryOption;
 
     _calculateTotals();
+    _saveToPrefs();
   }
 
   // Apply coupon - simplified to just apply the discount amount
@@ -92,6 +184,7 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
     _appliedCoupon = code;
     _isCouponApplied = true;
     _calculateTotals();
+    _saveToPrefs();
   }
 
   // Remove coupon
@@ -100,8 +193,10 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
     _appliedCoupon = '';
     _isCouponApplied = false;
     _calculateTotals();
+    _saveToPrefs();
   }
 
+  // add Item
   void addItem(Product product, int quantityPcs, {double? quantityKg}) {
     final existingIndex =
         state.indexWhere((item) => item.product.id == product.id);
@@ -135,14 +230,18 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
       ];
     }
     _calculateTotals();
+    _saveToPrefs();
   }
 
+  // remove Item
   void removeItem(String productId) {
     state = state.where((item) => item.product.id != productId).toList();
     _calculateTotals();
     removeCoupon();
+    _saveToPrefs();
   }
 
+  // update Quantity
   void updateQuantity(String productId,
       {int? quantityPcs, double? quantityKg}) {
     final existingIndex =
@@ -184,12 +283,15 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
     }
     _calculateTotals();
     removeCoupon();
+    _saveToPrefs();
   }
 
+  // clear cart
   void clearCart() {
     state = [];
     _calculateTotals();
     removeCoupon();
+    _saveToPrefs();
   }
 
   int get itemCount {

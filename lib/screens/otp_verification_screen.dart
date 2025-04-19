@@ -86,24 +86,30 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
           _isLoading = false;
         });
       } else {
-        Fluttertoast.showToast(
-          msg: 'Invalid OTP. Please try again.',
+        CustomToast.show(
+          context: context,
+          message: 'Invalid OTP. Please try again.',
+          icon: Icons.error,
           backgroundColor: AppTheme.red,
-          textColor: AppTheme.white,
+          textColor: Colors.white,
+          fontSize: 16.0,
           gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 2),
         );
       }
     } else {
       setState(() {
         _isEmpty = true;
       });
-
-      Fluttertoast.showToast(
-        msg: 'Please enter a valid 6-digit OTP',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+      CustomToast.show(
+        context: context,
+        message: 'Please enter a valid 6-digit OTP',
+        icon: Icons.error,
         backgroundColor: AppTheme.red,
-        textColor: AppTheme.white,
+        textColor: Colors.white,
+        fontSize: 16.0,
+        gravity: ToastGravity.CENTER,
+        duration: Duration(seconds: 2),
       );
     }
   }

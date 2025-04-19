@@ -137,9 +137,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
         // Show success toast
 
+        final trimName = processString(fullname);
         CustomToast.show(
           context: context,
-          message: 'Login successful! Welcome, $fullname',
+          message: 'Welcome, $trimName! Login success!',
           icon: Icons.check,
           backgroundColor: AppTheme.green,
           textColor: Colors.white,
@@ -158,12 +159,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
 
         // Show error toast for invalid credentials
-        Fluttertoast.showToast(
-          msg: responseData['msg'],
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
+        CustomToast.show(
+          context: context,
+          message: responseData['msg'],
+          icon: Icons.error,
           backgroundColor: AppTheme.red,
-          textColor: AppTheme.white,
+          textColor: Colors.white,
+          gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 3),
         );
       }
     } catch (e) {
@@ -173,13 +176,29 @@ class AuthNotifier extends StateNotifier<AuthState> {
         errorMessage: 'Connection error',
       );
 
-      Fluttertoast.showToast(
-        msg: 'Connection error: ${e.toString()}',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+      CustomToast.show(
+        context: context,
+        message: 'Connection error: ${e.toString()}',
+        icon: Icons.error,
         backgroundColor: AppTheme.red,
-        textColor: AppTheme.white,
+        textColor: Colors.white,
+        gravity: ToastGravity.CENTER,
+        duration: Duration(seconds: 3),
       );
+    }
+  }
+
+  String processString(String input) {
+    // Trim the input to remove leading and trailing spaces
+    String trimmedInput = input.trim();
+
+    // Check if the string contains only one word (no spaces in between)
+    if (trimmedInput.contains(' ')) {
+      // If there are spaces, return the original string (unchanged)
+      return input;
+    } else {
+      // If there is only one word, return the trimmed version
+      return trimmedInput;
     }
   }
 
@@ -232,18 +251,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
 
         debugPrint('OTP ${state.otp}');
-        debugPrint('Register Token : ${_preferences.getString('token')}');
 
         // Set loading to false when complete
         ref.read(registrationProvider.notifier).setLoading(false);
 
-        Fluttertoast.showToast(
-          msg:
+        CustomToast.show(
+          context: context,
+          message:
               isResendOtp ? 'OTP resent successfully' : 'OTP sent successfully',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
+          icon: Icons.check,
           backgroundColor: AppTheme.green,
-          textColor: AppTheme.white,
+          textColor: Colors.white,
+          fontSize: 16.0,
+          gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 2),
         );
 
         if (!isResendOtp) {
@@ -255,12 +276,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
         // Handle error
         ref.read(registrationProvider.notifier).setLoading(false);
         // Show error toast
-        Fluttertoast.showToast(
-          msg: responseData['msg'],
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
+
+        CustomToast.show(
+          context: context,
+          message: responseData['msg'],
+          icon: Icons.error,
           backgroundColor: AppTheme.red,
-          textColor: AppTheme.white,
+          textColor: Colors.white,
+          fontSize: 16.0,
+          gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 2),
         );
       }
     } catch (e) {
@@ -270,12 +295,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
         errorMessage: 'Connection error',
       );
 
-      Fluttertoast.showToast(
-        msg: 'Connection error: ${e.toString()}',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+      CustomToast.show(
+        context: context,
+        message: 'Connection error: ${e.toString()}',
+        icon: Icons.error,
         backgroundColor: AppTheme.red,
-        textColor: AppTheme.white,
+        textColor: Colors.white,
+        fontSize: 16.0,
+        gravity: ToastGravity.CENTER,
+        duration: Duration(seconds: 2),
       );
     }
   }
@@ -338,13 +366,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
           errorMessage: responseData['msg'],
         );
 
-        // Show error toast
-        Fluttertoast.showToast(
-          msg: responseData['msg'],
-          toastLength: Toast.LENGTH_SHORT,
+        CustomToast.show(
+          context: context,
+          message: responseData['msg'],
+          icon: Icons.error,
+          backgroundColor: AppTheme.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
           gravity: ToastGravity.CENTER,
-          backgroundColor: AppTheme.orange,
-          textColor: AppTheme.white,
+          duration: Duration(seconds: 2),
         );
       }
     } catch (e) {
@@ -354,12 +384,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
         errorMessage: 'Connection error: ${e.toString()}',
       );
 
-      Fluttertoast.showToast(
-        msg: 'Connection error: ${e.toString()}',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+      CustomToast.show(
+        context: context,
+        message: 'Connection error: ${e.toString()}',
+        icon: Icons.error,
         backgroundColor: AppTheme.red,
-        textColor: AppTheme.white,
+        textColor: Colors.white,
+        fontSize: 16.0,
+        gravity: ToastGravity.CENTER,
+        duration: Duration(seconds: 2),
       );
     }
   }
@@ -396,12 +429,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
           phone: phone,
         );
 
-        Fluttertoast.showToast(
-          msg: 'OTP sent successfully',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
+        CustomToast.show(
+          context: context,
+          message: 'OTP sent successfully',
+          icon: Icons.check,
           backgroundColor: AppTheme.green,
-          textColor: AppTheme.white,
+          textColor: Colors.white,
+          fontSize: 16.0,
+          gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 2),
         );
 
         // Reset isOtpSent after 5 minutes (300 seconds)
@@ -414,12 +450,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = state.copyWith(
           isLoading: false,
         );
-        Fluttertoast.showToast(
-          msg: 'Invalid Phone number',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
+
+        CustomToast.show(
+          context: context,
+          message: 'Invalid Phone number',
+          icon: Icons.error,
           backgroundColor: AppTheme.red,
-          textColor: AppTheme.white,
+          textColor: Colors.white,
+          fontSize: 16.0,
+          gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 2),
         );
       }
     } catch (e) {
@@ -429,12 +469,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
         errorMessage: 'Connection error',
       );
 
-      Fluttertoast.showToast(
-        msg: 'Connection error: ${e.toString()}',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+      CustomToast.show(
+        context: context,
+        message: 'Connection error: ${e.toString()}',
+        icon: Icons.error,
         backgroundColor: AppTheme.red,
-        textColor: AppTheme.white,
+        textColor: Colors.white,
+        fontSize: 16.0,
+        gravity: ToastGravity.CENTER,
+        duration: Duration(seconds: 2),
       );
     }
   }
@@ -470,13 +513,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
           otp: null, // Clear OTP in state
         );
 
-        // Show success toast
-        Fluttertoast.showToast(
-          msg: 'Password Reset Successfully',
-          toastLength: Toast.LENGTH_SHORT,
+        CustomToast.show(
+          context: context,
+          message: 'Password Reset Successfully',
+          icon: Icons.check,
+          backgroundColor: AppTheme.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
           gravity: ToastGravity.CENTER,
-          backgroundColor: AppTheme.orange,
-          textColor: AppTheme.white,
+          duration: Duration(seconds: 2),
         );
 
         if (context.mounted) {
@@ -489,13 +534,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
           errorMessage: responseData['msg'],
         );
 
-        // Show error toast
-        Fluttertoast.showToast(
-          msg: responseData['msg'],
-          toastLength: Toast.LENGTH_SHORT,
+        CustomToast.show(
+          context: context,
+          message: responseData['msg'],
+          icon: Icons.error,
+          backgroundColor: AppTheme.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
           gravity: ToastGravity.CENTER,
-          backgroundColor: AppTheme.orange,
-          textColor: AppTheme.white,
+          duration: Duration(seconds: 2),
         );
       }
     } catch (e) {
@@ -505,12 +552,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
         errorMessage: 'Connection error: ${e.toString()}',
       );
 
-      Fluttertoast.showToast(
-        msg: 'Connection error: ${e.toString()}',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
+      CustomToast.show(
+        context: context,
+        message: 'Connection error: ${e.toString()}',
+        icon: Icons.error,
         backgroundColor: AppTheme.red,
-        textColor: AppTheme.white,
+        textColor: Colors.white,
+        fontSize: 16.0,
+        gravity: ToastGravity.CENTER,
+        duration: Duration(seconds: 2),
       );
     }
   }

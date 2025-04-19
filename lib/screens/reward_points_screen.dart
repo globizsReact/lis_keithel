@@ -58,39 +58,47 @@ class _TabbedRewardsViewState extends State<_TabbedRewardsView> {
     return Column(
       children: [
         // Tab Bar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Row(
-            children: _tabOptions.map((tab) {
-              int index = _tabOptions.indexOf(tab);
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _currentTabIndex = index;
-                  });
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 7, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: _currentTabIndex == index
-                        ? AppTheme.orange
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    tab,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
+        SizedBox(
+          height: 30,
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: ListView.builder(
+              clipBehavior: Clip.none,
+              scrollDirection: Axis.horizontal,
+              itemCount: _tabOptions.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _currentTabIndex = index;
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                        right: 8), // Add spacing between tabs
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 7, horizontal: 16),
+                    decoration: BoxDecoration(
                       color: _currentTabIndex == index
-                          ? Colors.white
-                          : Colors.grey,
-                      fontWeight: FontWeight.w600,
+                          ? AppTheme.orange
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _tabOptions[index],
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: _currentTabIndex == index
+                            ? Colors.white
+                            : Colors.grey,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              },
+            ),
           ),
         ),
 

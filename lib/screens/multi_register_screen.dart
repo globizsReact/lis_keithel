@@ -49,9 +49,12 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
 
     // Fetch the current location
     final locationData = await _locationService.getLocation();
-    setState(() {
-      _currentLocation = locationData;
-    });
+
+    if (mounted) {
+      setState(() {
+        _currentLocation = locationData;
+      });
+    }
   }
 
   // Form
@@ -417,6 +420,8 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
         SizedBox(height: responsive.height(0.015)),
         TextFormField(
           controller: _nameController,
+          keyboardType: TextInputType.text,
+          textCapitalization: TextCapitalization.sentences,
           style: TextStyle(
             color: AppTheme.black,
           ),
@@ -502,6 +507,8 @@ class _MultiRegisterScreenState extends ConsumerState<MultiRegisterScreen> {
         SizedBox(height: responsive.height(0.006)),
         TextFormField(
           controller: _addressController,
+          keyboardType: TextInputType.text,
+          textCapitalization: TextCapitalization.sentences,
           style: TextStyle(
             color: AppTheme.black,
           ),

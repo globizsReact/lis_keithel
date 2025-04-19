@@ -34,7 +34,7 @@ class CustomToast {
               style: TextStyle(
                   color: textColor,
                   fontSize: fontSize,
-                  fontWeight: FontWeight.bold),
+                  fontWeight: FontWeight.w600),
             ),
           ),
         ],

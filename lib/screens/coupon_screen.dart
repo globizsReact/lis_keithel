@@ -11,13 +11,6 @@ import '../providers/providers.dart';
 class CouponsScreen extends ConsumerWidget {
   void _copyToClipboard(BuildContext context, String code) {
     Clipboard.setData(ClipboardData(text: code));
-    Fluttertoast.showToast(
-        msg: 'Copied: $code',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: AppTheme.grey,
-        textColor: AppTheme.white,
-        fontSize: 15);
   }
 
   @override

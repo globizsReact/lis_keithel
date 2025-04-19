@@ -1,17 +1,14 @@
 // lib/screens/cart_screen.dart
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
+
 import '../models/models.dart';
 import '../providers/providers.dart';
 import '../utils/responsive_sizing.dart';
 import '../utils/theme.dart';
 import '../widgets/widgets.dart';
-
-import 'package:shimmer/shimmer.dart';
 
 class CartScreen extends ConsumerWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -23,7 +20,9 @@ class CartScreen extends ConsumerWidget {
     final cartSummary = ref.watch(cartSummaryProvider);
     final subTotal = cartSummary['subtotalAmount'];
     final grandTotal = cartSummary['grandTotal'];
-    final selectedDate = cartSummary['selectedDate'];
+
+    // Access the login state using Riverpod
+    final authState = ref.read(authProvider);
 
     final deliveryDatesAsync = ref.watch(deliveryDatesProvider);
 
@@ -199,7 +198,7 @@ class CartScreen extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            'Rs. $subTotal/-',
+                            'Rs. ${double.parse(subTotal.toString()).toStringAsFixed(2)}/-',
                             style: TextStyle(
                               color: AppTheme.black,
                               fontSize: responsive.textSize(16),
@@ -303,385 +302,44 @@ class CartScreen extends ConsumerWidget {
                       SizedBox(
                         height: responsive.height(0.02),
                       ),
-                      SizedBox(
-                        width: double.infinity,
-                        height: responsive.height(0.07),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: checkOutState.isLoading
-                                ? AppTheme.grey
-                                : AppTheme.orange,
-                            foregroundColor: Colors.white,
-                            disabledBackgroundColor: AppTheme.grey,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(11),
-                            ),
-                          ),
-                          onPressed: () {
-                            checkOut.placeOrder(
-                              context,
-                            );
-                          },
-                          child: checkOutState.isLoading
-                              ? SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 3,
+                      authState.isLoggedIn
+                          ? SlideToCheckout(
+                              onSlideComplete: () {
+                                checkOut.placeOrder(context);
+                              },
+                              isLoading: checkOutState.isLoading,
+                            )
+                          : SizedBox(
+                              width: double.infinity,
+                              height: responsive.height(0.07),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: checkOutState.isLoading
+                                      ? AppTheme.grey
+                                      : AppTheme.orange,
+                                  foregroundColor: Colors.white,
+                                  disabledBackgroundColor: AppTheme.grey,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(11),
                                   ),
-                                )
-                              : Text(
-                                  'Checkout',
+                                ),
+                                onPressed: () {
+                                  context.push('/login');
+                                },
+                                child: Text(
+                                  'Log in to checkout',
                                   style: TextStyle(
                                     fontSize: responsive.textSize(15),
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                        ),
-                      ),
+                              ),
+                            ),
                     ],
                   ),
                 ),
               ],
             ),
     );
-  }
-}
-
-class CartItemCard extends StatelessWidget {
-  final CartItem cartItem;
-  final VoidCallback onRemove;
-  final Function(int) onQuantityChanged;
-
-  const CartItemCard({
-    Key? key,
-    required this.cartItem,
-    required this.onRemove,
-    required this.onQuantityChanged,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Initialize responsive sizing
-    ResponsiveSizing().init(context);
-    final responsive = ResponsiveSizing();
-
-// Calculate the total amount based on product type
-    String totalAmountText = '';
-    if (cartItem.product.productTypeId == '2') {
-      // Weight-based product (type 2): Use quantityKg for calculation
-      totalAmountText =
-          'Rs. ${(cartItem.product.price * cartItem.quantityKg).toStringAsFixed(2)}';
-    } else {
-      // Count-based product: Use quantityPcs for calculation
-      totalAmountText =
-          'Rs. ${(cartItem.product.price * cartItem.quantityPcs).toStringAsFixed(2)}';
-    }
-
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: responsive.padding(11),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Product image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: cartItem.product.photo == null
-                ? Image.asset(
-                    'assets/images/placeholder.png',
-                    width: responsive.width(0.25),
-                    height: responsive.height(0.11),
-                    fit: BoxFit.cover,
-                  )
-                : CachedNetworkImage(
-                    imageUrl: cartItem.product.photo!,
-                    width: responsive.width(0.25),
-                    height: responsive.height(0.11),
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) =>
-                        Image.asset('assets/images/placeholder.png'),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
-                  ),
-          ),
-          SizedBox(width: responsive.width(0.04)),
-          // Product details
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          cartItem.product.name,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.black,
-                            fontSize: responsive.textSize(15),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: onRemove,
-                          child: Image.asset(
-                            'assets/icons/trash.png',
-                            width: responsive.width(0.04),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      'Rs. ${cartItem.product.price}/${cartItem.product.uomCode}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: responsive.textSize(11),
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: responsive.height(0.02)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      totalAmountText,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        // Decrement button
-                        _buildQuantityButton(
-                          icon: Icons.remove,
-                          onPressed: () {
-                            if (cartItem.quantityPcs > 1) {
-                              onQuantityChanged(cartItem.quantityPcs - 1);
-                            }
-                          },
-                        ),
-                        // Quantity
-                        Container(
-                          width: responsive.width(0.1),
-                          alignment: Alignment.center,
-                          child: Text(
-                            '${cartItem.quantityPcs}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        // Increment button
-                        _buildQuantityButton(
-                          icon: Icons.add,
-                          onPressed: () {
-                            onQuantityChanged(cartItem.quantityPcs + 1);
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuantityButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return InkWell(
-      onTap: onPressed,
-      child: Container(
-        width: 28,
-        height: 28,
-        decoration: BoxDecoration(
-          border: Border.all(color: AppTheme.orange),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Icon(
-          icon,
-          size: 16,
-        ),
-      ),
-    );
-  }
-}
-
-// Separate widget for managing date selection
-class DateSelectionWidget extends ConsumerStatefulWidget {
-  final List<DeliveryDate> dateOptions;
-
-  DateSelectionWidget({required this.dateOptions});
-
-  @override
-  _DateSelectionWidgetState createState() => _DateSelectionWidgetState();
-}
-
-class _DateSelectionWidgetState extends ConsumerState<DateSelectionWidget> {
-  late DeliveryDate selectedDate; // Holds the currently selected date
-  FixedExtentScrollController? _scrollController;
-
-  @override
-  void initState() {
-    super.initState();
-    // Set the default date to the first date in the list
-    if (widget.dateOptions.isNotEmpty) {
-      selectedDate = widget.dateOptions.first;
-      _scrollController = FixedExtentScrollController(initialItem: 0);
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _updateDeliveryOption();
-      });
-    }
-  }
-
-  // Add this helper method to update the cart provider
-  void _updateDeliveryOption() {
-    // Create a DeliveryOption from the selected date
-    DeliveryOption deliveryOption = DeliveryOption(
-      date: selectedDate.date,
-      price: double.tryParse(selectedDate.price.replaceAll(',', '')) ?? 0.0,
-    );
-
-    // Update the cart provider
-    ref.read(cartProvider.notifier).setDeliveryOption(deliveryOption);
-  }
-
-  @override
-  void dispose() {
-    _scrollController?.dispose(); // Dispose of the scroll controller
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        GestureDetector(
-          onTap: () {
-            // Open a centered dialog when the date is tapped
-            _openIOSStyleDatePicker(context);
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${_formatDate(selectedDate.date)} (₹.${selectedDate.price})',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.black,
-                ),
-              ),
-              Icon(Icons.arrow_drop_down, color: Colors.grey),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _openIOSStyleDatePicker(BuildContext context) {
-    // Find the index of the currently selected date
-    int selectedIndex = widget.dateOptions.indexOf(selectedDate);
-
-    // Reset the scroll controller to the selected index
-    _scrollController = FixedExtentScrollController(initialItem: selectedIndex);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0), // Add rounded corners
-          ), // Remove default padding
-          content: SizedBox(
-            height: 250,
-            width: 500, // Height of the dialog
-            child: Column(
-              children: [
-                Expanded(
-                  child: CupertinoPicker(
-                    scrollController: _scrollController,
-                    itemExtent: 40, // Height of each item
-                    onSelectedItemChanged: (int index) {
-                      setState(() {
-                        selectedDate = widget.dateOptions[index];
-                      });
-                    },
-                    children: widget.dateOptions.map((DeliveryDate date) {
-                      return Center(
-                        child: Text(
-                          '${_formatDate(date.date)} - Rs.${date.price}',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w600),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                Divider(height: 1, thickness: 0.5),
-                // Header with "Cancel" and "Done" buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        _updateDeliveryOption();
-
-                        Navigator.pop(context); // Close the dialog
-                      },
-                      child: Text(
-                        'Done',
-                        style: TextStyle(
-                          color: AppTheme.orange,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  // Helper function to format the date as '23rd Mar 2025'
-  String _formatDate(String dateString) {
-    DateTime date =
-        DateFormat('yyyy-MM-dd').parse(dateString); // Parse the input date
-    int day = date.day;
-    String month = DateFormat('MMM').format(date); // Get abbreviated month name
-    String year = DateFormat('yyyy').format(date); // Get full year
-    String ordinalDay =
-        _getOrdinal(day); // Convert day to ordinal (e.g., 23 → 23rd)
-    return '$ordinalDay $month $year'; // Combine into '23rd Mar 2025'
-  }
-
-  // Helper function to convert a numeric day into its ordinal form
-  String _getOrdinal(int day) {
-    if (day % 10 == 1 && day != 11) {
-      return '${day}st';
-    } else if (day % 10 == 2 && day != 12) {
-      return '${day}nd';
-    } else if (day % 10 == 3 && day != 13) {
-      return '${day}rd';
-    } else {
-      return '${day}th';
-    }
   }
 }

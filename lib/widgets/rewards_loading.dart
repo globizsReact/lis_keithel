@@ -18,14 +18,15 @@ class RewardsLoading extends StatelessWidget {
         SizedBox(
           height: 35,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 25),
             child: ListView.builder(
               itemCount: itemWidths.length, // Number of shimmer items
               scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
               itemBuilder: (context, index) {
                 double itemWidth = itemWidths[index];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  padding: const EdgeInsets.only(right: 10),
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey[300]!,
                     highlightColor: Colors.grey[100]!,
@@ -45,12 +46,16 @@ class RewardsLoading extends StatelessWidget {
             ),
           ),
         ),
+        SizedBox(
+          height: 8,
+        ),
         Expanded(
           child: ListView.builder(
-            itemCount: 6, // Number of shimmer items
+            itemCount: 8, // Number of shimmer items
             itemBuilder: (context, index) {
               return Padding(
-                padding: const EdgeInsets.all(25),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
                 child: Shimmer.fromColors(
                   baseColor: Colors.grey[300]!,
                   highlightColor: Colors.grey[100]!,

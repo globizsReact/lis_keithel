@@ -64,7 +64,7 @@ Future<void> sendLocationToApi(
       if (responseData['type'] == 'success') {
         CustomToast.show(
           context: context,
-          message: responseData['msg'],
+          message: 'Location updated successfully',
           icon: Icons.check,
           backgroundColor: AppTheme.green,
           textColor: Colors.white,

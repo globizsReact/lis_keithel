@@ -76,14 +76,7 @@ class UpdateAddressScreenState extends ConsumerState<UpdateAddressScreen> {
       final token = prefs.getString('token');
 
       if (token == null || token.isEmpty) {
-        Fluttertoast.showToast(
-          msg: 'Authentication token not found.',
-          backgroundColor: AppTheme.red,
-          textColor: AppTheme.white,
-          gravity: ToastGravity.CENTER,
-        );
-
-        return false;
+        throw Exception('Token not found in SharedPreferences');
       }
 
       final response = await http.post(
@@ -100,28 +93,36 @@ class UpdateAddressScreenState extends ConsumerState<UpdateAddressScreen> {
         if (responseData['type'] == 'success') {
           return true;
         } else {
-          Fluttertoast.showToast(
-            msg: 'Error: ${responseData['msg']}',
+          CustomToast.show(
+            context: context,
+            message: 'Error: ${responseData['msg']}',
+            icon: Icons.error,
             backgroundColor: AppTheme.red,
-            textColor: AppTheme.white,
+            textColor: Colors.white,
             gravity: ToastGravity.CENTER,
+            duration: Duration(seconds: 3),
           );
         }
       } else {
-        Fluttertoast.showToast(
-          msg: 'Failed to update address. Please try again.',
+        CustomToast.show(
+          context: context,
+          message: 'Failed to update address. Try again.',
+          icon: Icons.error,
           backgroundColor: AppTheme.red,
-          textColor: AppTheme.white,
+          textColor: Colors.white,
           gravity: ToastGravity.CENTER,
+          duration: Duration(seconds: 3),
         );
       }
     } catch (e) {
-      debugPrint('Error updating address: $e');
-      Fluttertoast.showToast(
-        msg: 'An unexpected error occurred.',
-        backgroundColor: AppTheme.red,
-        textColor: AppTheme.white,
+      CustomToast.show(
+        context: context,
+        message: 'Connections error',
+        icon: Icons.signal_wifi_statusbar_connected_no_internet_4,
+        backgroundColor: AppTheme.grey,
+        textColor: Colors.white,
         gravity: ToastGravity.CENTER,
+        duration: Duration(seconds: 3),
       );
     }
     return false;

@@ -16,3 +16,6 @@ export 'custom_toast.dart';
 export 'simple_app_bar.dart';
 export 'update_location.dart';
 export 'vertical_dotted_line.dart';
+export 'date_selection.dart';
+export 'cart_item.dart';
+export 'slide_to_checkout.dart';

@@ -30,6 +30,7 @@ environment:
 dependencies:
   cached_network_image: ^3.4.1
   cupertino_icons: ^1.0.8
+  drop_shadow: ^0.1.0
   flutter:
     sdk: flutter
   flutter_riverpod: ^2.6.1

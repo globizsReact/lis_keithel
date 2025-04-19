@@ -410,7 +410,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
                       // Bottom action buttons
                       if (order.status != 'Cancel')
                         SizedBox(
-                          height: 65,
+                          height: 60,
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () => _confirmCancelOrder(
@@ -504,12 +504,16 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
         content: Form(
           key: _formKey, // Attach the form key
           child: TextFormField(
+            style: TextStyle(
+              color: AppTheme.black,
+            ),
             decoration: InputDecoration(
               hintStyle: TextStyle(
                 fontSize: responsive.textSize(15),
+                color: AppTheme.grey,
               ),
               hintText: 'Type something...',
-              alignLabelWithHint: true,
+              // alignLabelWithHint: true,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: AppTheme.orange),

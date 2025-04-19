@@ -12,7 +12,7 @@ final productServiceProvider = Provider<ProductService>((ref) {
 // State class for products
 class ProductsState {
   final List<Product> products;
-  final bool isLoading;
+  bool isLoading = true;
   final String? error;
 
   ProductsState({

@@ -170,7 +170,8 @@ class OrderListScreen extends ConsumerWidget {
                 return RefreshIndicator(
                   onRefresh: () => _refreshOrders(ref),
                   child: ListView.separated(
-                    physics: BouncingScrollPhysics(),
+                    physics: AlwaysScrollableScrollPhysics(),
+                    shrinkWrap: true,
                     padding: EdgeInsets.symmetric(
                       horizontal: responsive.padding(23),
                     ),

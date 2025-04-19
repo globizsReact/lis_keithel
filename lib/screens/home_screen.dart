@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
 import '../utils/responsive_sizing.dart';
-import '../providers/auth_provider.dart';
-import '../providers/cart_provider.dart';
-import '../providers/selected_index_provider.dart';
 import '../utils/theme.dart';
+import '../providers/providers.dart';
 
 // All Screens
 import 'screens.dart';
@@ -45,6 +42,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       body: screen[selectedIndex],
       bottomNavigationBar: BottomAppBar(
+        height: 70,
         color: AppTheme.lightOrange,
         child: Center(
           child: Row(
@@ -55,9 +53,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ref.read(selectedIndexProvider.notifier).state = 0;
                 },
                 child: Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: responsive.padding(6)),
-                  width: responsive.width(0.2),
+                  width: responsive.width(0.21),
                   color: Colors.transparent,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -88,9 +84,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ref.read(selectedIndexProvider.notifier).state = 1;
                 },
                 child: Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: responsive.padding(6)),
-                  width: responsive.width(0.2),
+                  width: responsive.width(0.21),
                   color: Colors.transparent,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -151,9 +145,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ref.read(selectedIndexProvider.notifier).state = 2;
                 },
                 child: Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: responsive.padding(6)),
-                  width: responsive.width(0.2),
+                  width: responsive.width(0.21),
                   color: Colors.transparent,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -189,9 +181,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   }
                 },
                 child: Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: responsive.padding(6)),
-                  width: responsive.width(0.2),
+                  width: responsive.width(0.21),
                   color: Colors.transparent,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
