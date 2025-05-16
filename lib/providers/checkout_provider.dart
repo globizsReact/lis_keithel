@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+
 import 'package:lis_keithel/services/checkout_service.dart';
 import 'package:lis_keithel/utils/theme.dart';
 import 'package:flutter/material.dart';

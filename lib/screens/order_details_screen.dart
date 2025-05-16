@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../providers/providers.dart';
@@ -437,38 +436,6 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
               ),
             ),
           ),
-          // Global loading indicator
-          if (_isLoading)
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey
-                          .withOpacity(0.5), // Shadow color with opacity
-                      spreadRadius:
-                          5, // Spread radius (how far the shadow spreads)
-                      blurRadius: 7, // Blur radius (how blurry the shadow is)
-                      offset: Offset(0, 3), // Offset in x and y direction
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text(
-                      'Cancelling orders...',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-            )
         ],
       ),
     );
@@ -482,6 +449,7 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
   ) {
     final _formKey = GlobalKey<FormState>();
     String? _cancelReason;
+    bool _isDialogLoading = false; // Local loading state for the dialog
 
     // Initialize responsive sizing
     ResponsiveSizing().init(context);
@@ -489,122 +457,157 @@ class _OrderDetailsScreenState extends ConsumerState<OrderDetailsScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0), // Set border radius here
-        ),
-        title: Text(
-          'Please provide a reason to cancel this order.',
-          style: TextStyle(
-            color: AppTheme.black,
-            fontSize: responsive.textSize(18),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Form(
-          key: _formKey, // Attach the form key
-          child: TextFormField(
-            style: TextStyle(
-              color: AppTheme.black,
+      barrierDismissible: false, // Prevent dismissing while loading
+      builder: (dialogContext) => StatefulBuilder(
+        // Use StatefulBuilder to update dialog state
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.0),
             ),
-            decoration: InputDecoration(
-              hintStyle: TextStyle(
-                fontSize: responsive.textSize(15),
-                color: AppTheme.grey,
-              ),
-              hintText: 'Type something...',
-              // alignLabelWithHint: true,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppTheme.orange),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppTheme.orange),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppTheme.orange,
-                  width: 2,
-                ),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.red),
-              ),
-            ),
-            textAlign: TextAlign.start,
-            maxLines: 4, // Make it a multi-line text area
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'This field is required';
-              }
-              return null; // Validation passes
-            },
-            onSaved: (value) {
-              _cancelReason = value; // Save the user input
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              if (_formKey.currentState!.validate() && canCancel == '1') {
-                _formKey.currentState!.save();
-                debugPrint('User Input: $_cancelReason');
+            title: _isDialogLoading
+                ? null
+                : Text(
+                    'Please provide a reason to cancel this order.',
+                    style: TextStyle(
+                      color: AppTheme.black,
+                      fontSize: responsive.textSize(18),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+            content: _isDialogLoading
+                ? Container(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(AppTheme.orange),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Cancelling order...',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Form(
+                    key: _formKey,
+                    child: TextFormField(
+                      style: TextStyle(
+                        color: AppTheme.black,
+                      ),
+                      decoration: InputDecoration(
+                        hintStyle: TextStyle(
+                          fontSize: responsive.textSize(15),
+                          color: AppTheme.grey,
+                        ),
+                        hintText: 'Type something...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.orange),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: AppTheme.orange),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppTheme.orange,
+                            width: 2,
+                          ),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: Colors.red),
+                        ),
+                      ),
+                      textAlign: TextAlign.start,
+                      maxLines: 4,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'This field is required';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        _cancelReason = value;
+                      },
+                    ),
+                  ),
+            actions: _isDialogLoading
+                ? [] // No actions while loading
+                : [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate() &&
+                            canCancel == '1') {
+                          _formKey.currentState!.save();
 
-                context.pop();
+                          // Show loading state in the dialog
+                          setDialogState(() {
+                            _isDialogLoading = true;
+                          });
 
-                // Show global loading indicator
-                setState(() {
-                  _isLoading = true;
-                });
+                          // Cancel order
+                          final result = await ref.read(cancelOrderProvider((
+                            orderId: orderId,
+                            status: _cancelReason!,
+                          )).future);
 
-                // Cancel order
-                final result = await ref.read(cancelOrderProvider((
-                  orderId: orderId,
-                  status: _cancelReason!,
-                )).future);
+                          // Close the dialog
+                          Navigator.of(dialogContext).pop();
 
-                // Hide global loading indicator
-                setState(() {
-                  _isLoading = false;
-                });
+                          if (result) {
+                            // Refresh order details data after successful cancellation
+                            ref.refresh(orderDetailsProvider(widget.orderId));
 
-                if (result) {
-                  // Refresh order details data after successful cancellation
-                  ref.refresh(orderDetailsProvider(widget.orderId));
-
-                  // Optional: Show toast message
-                  Fluttertoast.showToast(
-                    msg: 'Order cancelled successfully',
-                    backgroundColor: AppTheme.green,
-                    textColor: AppTheme.white,
-                    gravity: ToastGravity.CENTER,
-                  );
-                } else {
-                  Fluttertoast.showToast(
-                    msg: 'Failed to cancel order',
-                    backgroundColor: AppTheme.red,
-                    textColor: AppTheme.white,
-                    gravity: ToastGravity.CENTER,
-                  );
-                }
-              }
-            },
-            child: const Text(
-              'Confirm',
-              style: TextStyle(
-                color: AppTheme.red,
-              ),
-            ),
-          ),
-        ],
+                            // Show success toast
+                            CustomToast.show(
+                              context: context,
+                              message: 'Order cancelled successfully',
+                              icon: Icons.check,
+                              backgroundColor: AppTheme.green,
+                              textColor: Colors.white,
+                              fontSize: 16.0,
+                              gravity: ToastGravity.CENTER,
+                              duration: Duration(seconds: 3),
+                            );
+                          } else {
+                            // Show error toast
+                            CustomToast.show(
+                              context: context,
+                              message: 'Failed to cancel order',
+                              icon: Icons.error,
+                              backgroundColor: AppTheme.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0,
+                              gravity: ToastGravity.CENTER,
+                              duration: Duration(seconds: 3),
+                            );
+                          }
+                        }
+                      },
+                      child: const Text(
+                        'Confirm',
+                        style: TextStyle(
+                          color: AppTheme.red,
+                        ),
+                      ),
+                    ),
+                  ],
+          );
+        },
       ),
     );
   }

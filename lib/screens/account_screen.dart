@@ -265,6 +265,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   ),
             SizedBox(height: responsive.height(0.04)),
             AccountButton(
+              image: 'assets/icons/ledger.png',
+              name: 'My Ledger',
+              route: '/ledger',
+            ),
+            AccountButton(
               image: 'assets/icons/house.png',
               name: 'Update Address',
               route: '/update-address',

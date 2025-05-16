@@ -1,4 +1,3 @@
-// lib/providers/product_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/config.dart';
 import '../models/models.dart';

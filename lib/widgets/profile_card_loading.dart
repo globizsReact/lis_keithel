@@ -10,7 +10,7 @@ class ProfileCardLoading extends StatelessWidget {
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: Container(
-        height: 120,
+        height: 145,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: Colors.grey[300],
@@ -34,7 +34,6 @@ class ProfileCardLoading extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
-                // Placeholder for Address
               ],
             ),
 

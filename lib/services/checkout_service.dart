@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lis_keithel/utils/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
-import '../providers/providers.dart';
 
 // Enum for payment modes
 enum PaymentMode {

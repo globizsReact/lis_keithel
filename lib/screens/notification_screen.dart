@@ -1,9 +1,8 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
-import 'package:lis_keithel/providers/auth_provider.dart';
 import 'package:lis_keithel/utils/config.dart';
 import 'package:lis_keithel/utils/responsive_sizing.dart';
 import 'package:lis_keithel/utils/theme.dart';
@@ -93,46 +92,6 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
     // Initialize responsive sizing
     ResponsiveSizing().init(context);
     final responsive = ResponsiveSizing();
-
-    // Access the login state using Riverpod
-    final authState = ref.read(authProvider);
-
-    if (!authState.isLoggedIn) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/icons/login.png',
-              width: responsive.width(0.2),
-            ),
-            SizedBox(height: responsive.height(0.02)),
-            Text(
-              'Please log in to view your notifications.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: responsive.textSize(12),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: responsive.height(0.02)),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.orange,
-                padding: EdgeInsets.symmetric(
-                  horizontal: responsive.padding(23),
-                  vertical: responsive.padding(11),
-                ),
-              ),
-              onPressed: () {
-                context.go('/login');
-              },
-              child: const Text('Login'),
-            ),
-          ],
-        ),
-      );
-    }
 
     if (isLoading) {
       return NotificationLoading();

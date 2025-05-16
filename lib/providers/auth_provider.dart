@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lis_keithel/providers/providers.dart';
-import '../screens/screens.dart';
+
 import '../utils/theme.dart';
 import '../widgets/custom_toast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -161,7 +161,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         // Show error toast for invalid credentials
         CustomToast.show(
           context: context,
-          message: responseData['msg'],
+          message: state.errorMessage,
           icon: Icons.error,
           backgroundColor: AppTheme.red,
           textColor: Colors.white,
@@ -178,7 +178,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       CustomToast.show(
         context: context,
-        message: 'Connection error: ${e.toString()}',
+        message: state.errorMessage,
         icon: Icons.error,
         backgroundColor: AppTheme.red,
         textColor: Colors.white,
@@ -297,7 +297,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       CustomToast.show(
         context: context,
-        message: 'Connection error: ${e.toString()}',
+        message: state.errorMessage,
         icon: Icons.error,
         backgroundColor: AppTheme.red,
         textColor: Colors.white,
@@ -381,12 +381,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Handle exceptions (network issues, etc.)
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Connection error: ${e.toString()}',
+        errorMessage: 'Connection error',
       );
 
       CustomToast.show(
         context: context,
-        message: 'Connection error: ${e.toString()}',
+        message: state.errorMessage,
         icon: Icons.error,
         backgroundColor: AppTheme.red,
         textColor: Colors.white,
@@ -471,7 +471,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       CustomToast.show(
         context: context,
-        message: 'Connection error: ${e.toString()}',
+        message: state.errorMessage,
         icon: Icons.error,
         backgroundColor: AppTheme.red,
         textColor: Colors.white,
@@ -554,7 +554,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       CustomToast.show(
         context: context,
-        message: 'Connection error: ${e.toString()}',
+        message: state.errorMessage,
         icon: Icons.error,
         backgroundColor: AppTheme.red,
         textColor: Colors.white,

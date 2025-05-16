@@ -3,15 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lis_keithel/utils/theme.dart';
 import '../utils/responsive_sizing.dart';
-
 // models
 import '../models/models.dart';
 // provider
 import '../providers/providers.dart';
 // widgets
 import '../widgets/widgets.dart';
-// utils
-import '../screens/screens.dart';
 
 String capitalizeWords(String text) {
   if (text.isEmpty) return text;

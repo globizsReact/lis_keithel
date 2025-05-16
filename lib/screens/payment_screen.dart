@@ -71,7 +71,14 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       'timeout': 60 * 5,
       'order_id': widget.razorpayId,
       'description': 'Order #${widget.orderId}',
-      'prefill': {'contact': '', 'email': ''}
+      'prefill': {'contact': '', 'email': ''},
+      'modal': {
+        'confirm_close': true,
+        'escape': true,
+      },
+      'theme': {
+        'color': '#B25800',
+      }
     };
 
     try {
@@ -164,7 +171,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       } else {
         CustomToast.show(
           context: context,
-          message: 'Failed to save payment details. Please try again.',
+          message: 'Payment details not saved. Please retry',
           icon: Icons.error,
           backgroundColor: AppTheme.red,
           textColor: Colors.white,
@@ -175,7 +182,6 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       }
     } catch (e) {
       // Handle any errors during the API call
-      debugPrint('Error while saving payment details: $e');
       CustomToast.show(
         context: context,
         message: 'An error occurred. Please try again.',
@@ -192,7 +198,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   void _handlePaymentError(PaymentFailureResponse response) {
     CustomToast.show(
       context: context,
-      message: 'Payment Failed: ${response.message}',
+      message: 'Payment Failed',
       icon: Icons.error,
       backgroundColor: AppTheme.red,
       textColor: Colors.white,
@@ -200,6 +206,10 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       gravity: ToastGravity.CENTER,
       duration: Duration(seconds: 2),
     );
+
+    context.go('/');
+    ref.read(selectedIndexProvider.notifier).state = 2;
+    context.push('/order-details/${widget.orderId}');
 
     setState(() {
       _isProcessing = false;
@@ -217,6 +227,9 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       gravity: ToastGravity.CENTER,
       duration: Duration(seconds: 2),
     );
+    context.go('/');
+    ref.read(selectedIndexProvider.notifier).state = 2;
+    context.push('/order-details/${widget.orderId}');
 
     setState(() {
       _isProcessing = false;
@@ -230,11 +243,10 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     final responsive = ResponsiveSizing();
 
     return Scaffold(
-      appBar: SimpleAppBar(title: 'Payment'),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(height: responsive.height(0.05)),
+          SizedBox(height: responsive.height(0.12)),
           Text(
             'Order #${widget.orderId} \nCreated Successfully',
             textAlign: TextAlign.center,
@@ -292,7 +304,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
           ),
           SizedBox(height: responsive.height(0.025)),
           SizedBox(
-            width: 170,
+            width: 150,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.green,
@@ -312,30 +324,11 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                         strokeWidth: 3,
                       ),
                     )
-                  : Text('Make payment'),
+                  : Text('Pay now'),
             ),
           ),
         ],
       ),
-      // child: Column(
-      //   mainAxisAlignment: MainAxisAlignment.center,
-      //   children: [
-      //     if (_isProcessing) const CircularProgressIndicator(),
-      //     const SizedBox(height: 20),
-      //     Text(
-      //       _isProcessing
-      //           ? 'Processing payment...'
-      //           : 'Payment gateway initialization failed',
-      //       style: const TextStyle(fontSize: 18),
-      //     ),
-      //     const SizedBox(height: 20),
-      //     if (!_isProcessing)
-      //       ElevatedButton(
-      //         onPressed: _startPayment,
-      //         child: const Text('Retry Payment'),
-      //       ),
-      //   ],
-      // ),
     );
   }
 }

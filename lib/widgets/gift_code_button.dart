@@ -159,7 +159,7 @@ class _GiftCodeFieldState extends ConsumerState<GiftCodeField> {
                     controller: _controller,
                     focusNode: _focusNode,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       color: AppTheme.black,
                     ),
                     decoration: InputDecoration(
@@ -207,7 +207,7 @@ class _GiftCodeFieldState extends ConsumerState<GiftCodeField> {
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           minimumSize: const Size(80, 48),
-                          foregroundColor: Colors.orange,
+                          foregroundColor: AppTheme.orange,
                         ),
                         child: const Text(
                           'Apply',

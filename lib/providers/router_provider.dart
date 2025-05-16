@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../utils/go_router_refresh_stream.dart';
 import '../providers/auth_provider.dart';
-// Import your screen files here
+
 import '../screens/screens.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -58,6 +58,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/reward-points',
         builder: (context, state) => RewardsScreen(),
+      ),
+      GoRoute(
+        path: '/ledger',
+        builder: (context, state) => LedgerScreen(),
       ),
       GoRoute(
         path: '/update-address',
